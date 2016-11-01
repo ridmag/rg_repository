@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="CONFIGFS"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Funding Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each funding source.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="fundingForm">
+				<ice:panelGroup>
+					<fieldset style="width: 1160px; height: 220px">
+						<legend>
+							<ice:outputLabel value="Funding Sources" />
+						</legend>
+						<ice:commandButton id="commanButtonAddNewFundings"
+							action="#{fundingManagerModel.addNew}"
+							style="margin-left:2px;margin-top:5px"
+							value="Add new Funding Source" styleClass="CommandButton" />
+						<ice:outputText value="No Funding Sources found.."
+							rendered="#{empty(fundingManagerModel.sources)}"
+							style="margin-left:10px" />
+						<ice:dataTable scrollable="true" scrollHeight="135px"
+							value="#{fundingManagerModel.sources}" var="fs"
+							id="tableFundingSources"
+							columnWidths="120px,220px,300px,300px,170px">
+							<ice:column id="columnFundingId" style="text-align:center">
+								<ice:setEventPhase events="FacesEvent"
+									phase="INVOKE_APPLICATION">
+									<ice:rowSelector id="rowselectFunding"
+										value="#{fs.ui_selected}"
+										clickListener="#{fundingManagerModel.selectSource}">
+										<f:attribute name="source" value="#{fs}" />
+									</ice:rowSelector>
+								</ice:setEventPhase>
+								<f:facet name="header">
+									<ice:outputText value="ID" />
+								</f:facet>
+								<ice:outputText value="#{fs.id}" />
+							</ice:column>
+							<ice:column id="columnFundingCode">
+								<f:facet name="header">
+									<ice:outputText value="Service Id" />
+								</f:facet>
+								<ice:outputText value="#{fs.fundingCode}" />
+							</ice:column>
+							<ice:column id="columnFundingType">
+								<f:facet name="header">
+									<ice:outputText value="Funding Source" />
+								</f:facet>
+								<ice:outputText value="#{fs.fundingType}" />
+							</ice:column>
+							<ice:column id="columnFundingDes">
+								<f:facet name="header">
+									<ice:outputText value="Description" />
+								</f:facet>
+								<ice:outputText value="#{fs.fundingDescription}" />
+							</ice:column>
+							<ice:column id="columnFundingStatus">
+								<f:facet name="header">
+									<ice:outputText value="Status" />
+								</f:facet>
+								<ice:outputText value="#{fs.status}" />
+							</ice:column>
+						</ice:dataTable>
+					</fieldset>
+				</ice:panelGroup>
+				<fieldset style="width: 1160px; height: 300px; margin-top: 10px">
+					<legend>
+						<ice:outputLabel value="Funding Source Details" />
+					</legend>
+					<ice:panelGroup style="margin-top:10px"
+						rendered="#{fundingManagerModel.source == null}">
+						<ice:outputText
+							value="Please select a funding source to view details.." />
+					</ice:panelGroup>
+					<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+						<ice:panelGroup rendered="#{fundingManagerModel.source != null}">
+							<fieldset style="width: 450px; height: 223px; margin-top: 7px">
+								<ice:panelGrid columns="2" width="100%">
+									<ice:outputText value="Service ID" />
+									<ice:inputText id="inputFundingCode" tabindex="1"
+										style="width:300px;margin-left:20px"
+										value="#{fundingManagerModel.source.fundingCode}"
+										maxlength="#{msgs['fundingSource.fundingCode.size']}" />
+									<ice:outputText value="Funding Source" />
+									<ice:inputText id="inputFundingType" tabindex="2"
+										style="width:300px;margin-left:20px"
+										value="#{fundingManagerModel.source.fundingType}"
+										maxlength="#{msgs['fundingSource.fundingType.size']}" />
+									<ice:outputText value="Status" />
+									<ice:selectOneMenu id="selectFundingStatus"
+										style="margin-left:20px;width:307px"
+										value="#{fundingManagerModel.source.status}">
+										<f:selectItems value="#{lookupListProvider.leavePolicyStatus}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Description" />
+									<ice:inputTextarea id="inputFundingDes" rows="6"
+										style="width:300px;margin-left:20px" tabindex="4"
+										value="#{fundingManagerModel.source.fundingDescription}"
+										maxlength="#{msgs['fundingSource.fundingDescription.size']}" />
+								</ice:panelGrid>
+							</fieldset>
+						</ice:panelGroup>
+
+						<ice:panelGroup rendered="#{fundingManagerModel.source != null}">
+							<fieldset style="width: 650px; height: 230px">
+								<legend>
+									<ice:outputLabel value="Available Outlets" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{fundingManagerModel.source.id == null}">
+									<ice:outputText
+										value="Please save Funding Source to add outlets.." />
+								</ice:panelGroup>
+								<ice:commandButton id="commanButtonAddNewOutlet"
+									action="#{fundingManagerModel.addOutlet}"
+									rendered="#{fundingManagerModel.source.id != null}"
+									style="margin-left:2px;margin-top:5px" value="Add new Outlet"
+									styleClass="CommandButton" />
+								<ice:dataTable scrollable="true" scrollHeight="135px"
+									rendered="#{fundingManagerModel.source.id != null}"
+									value="#{fundingManagerModel.source.outlets}" var="out"
+									id="tableOutlets" columnWidths="50px,90px,250px,90px,50px,50px">
+									<ice:column id="columnFundingId" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="ID" />
+										</f:facet>
+										<ice:outputText value="#{out.id}" />
+									</ice:column>
+									<ice:column id="columnserviceId">
+										<f:facet name="header">
+											<ice:outputText value="Outlet ID" />
+										</f:facet>
+										<ice:outputText value="#{out.serviceId}" />
+									</ice:column>
+									<ice:column id="columnName">
+										<f:facet name="header">
+											<ice:outputText value="Outlet Name" />
+										</f:facet>
+										<ice:outputText value="#{out.name}" />
+									</ice:column>
+									<ice:column id="columnOutletMdsId">
+										<f:facet name="header">
+											<ice:outputText value="MDSID" />
+										</f:facet>
+										<ice:outputText value="#{out.mdsid}" />
+									</ice:column>
+									<ice:column id="columnOutletEdit" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Edit" />
+										</f:facet>
+										<ice:commandLink style="border:none" id="commandEditOutlet"
+											actionListener="#{fundingManagerModel.editOutlet}"
+											title="Remove">
+											<ice:graphicImage style="border:none" id="graphicEditOutlet"
+												url="images/icons/edit.png" />
+											<f:attribute name="out" value="#{out}" />
+										</ice:commandLink>
+									</ice:column>
+									<ice:column id="columnOutletDelete" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Remove" />
+										</f:facet>
+										<ice:commandLink style="border:none" id="commandDeleteOutlet"
+											actionListener="#{fundingManagerModel.deleteOutlet}"
+											title="Remove" panelConfirmation="deleteOutletConfirmation">
+											<ice:graphicImage style="border:none" id="graphicDeleteOutlet"
+												url="images/icons/delete-icon.png" />
+											<f:attribute name="out" value="#{out}" />
+										</ice:commandLink>
+										<ice:panelConfirmation id="deleteOutletConfirmation"
+											acceptLabel="Yes" cancelLabel="No" draggable="true"
+											title="Confirm"
+											message="Are you sure you want to perform this action?" />
+									</ice:column>
+								</ice:dataTable>
+							</fieldset>
+						</ice:panelGroup>
+					</ice:panelGrid>
+					<ice:panelGroup style="float:right; margin-top:10px"
+						rendered="#{fundingManagerModel.source != null}">
+						<ice:commandButton id="commanButtonDeleteFundings" tabindex="6"
+							action="#{fundingManagerModel.deleteSource}" value="Delete"
+							styleClass="CommandButton" style="width:80px;margin-right:5px"
+							rendered="#{fundingManagerModel.source.id != null}"
+							panelConfirmation="deleteConfirmation" />
+						<ice:commandButton id="commanButtonSaveFundings"
+							style="margin-right:5px;width:80px" tabindex="5"
+							action="#{fundingManagerModel.saveSource}" value="Save"
+							styleClass="CommandButton" />
+					</ice:panelGroup>
+					<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+						cancelLabel="No" draggable="true" title="Confirm"
+						message="Are you sure you want to perform this action?" />
+				</fieldset>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{fundingManagerModel.visibleOutlet}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add new Outlet.."
+								styleClass="popupHeaderText"
+								rendered="#{fundingManagerModel.outlet.id == null}" />
+							<ice:outputText value="Edit Outlet.."
+								styleClass="popupHeaderText"
+								rendered="#{fundingManagerModel.outlet.id != null}" />
+							<ice:commandButton id="closeOutletButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{fundingManagerModel.outletPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:panelGroup rendered="#{fundingManagerModel.outlet != null}">
+								<ice:messages />
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{fundingManagerModel.outlet != null}">
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText value="Outlet ID" />
+										<ice:inputText id="inputserviceId" tabindex="1"
+											style="margin-left:20px"
+											maxlength="#{msgs['outlet.serviceid.size']}"
+											value="#{fundingManagerModel.outlet.serviceId}" />
+										<ice:outputText value="Name" />
+										<ice:inputText id="inputOutletName" tabindex="2"
+											style="margin-left:20px"
+											maxlength="#{msgs['outlet.name.size']}"
+											value="#{fundingManagerModel.outlet.name}" />
+										<ice:outputText value="MDSID" />
+										<ice:inputText id="inputOutletMdsid" tabindex="3"
+											style="margin-left:20px"
+											maxlength="#{msgs['outlet.mdsid.size']}"
+											value="#{fundingManagerModel.outlet.mdsid}" />
+										<ice:outputText value="Description" />
+										<ice:inputTextarea id="inputOutletDes" rows="3"
+											maxlength="#{msgs['outlet.description.size']}"
+											style="margin-left:20px; width:145px" tabindex="5"
+											value="#{fundingManagerModel.outlet.description}" />
+									</ice:panelGrid>
+								</ice:panelGroup>
+								<ice:commandButton id="commandSaveOutlet" value="Save"
+									styleClass="CommandButton"
+									style="float:right; margin-right:5px;width:60px" tabindex="6"
+									action="#{fundingManagerModel.saveOutlet}" />
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

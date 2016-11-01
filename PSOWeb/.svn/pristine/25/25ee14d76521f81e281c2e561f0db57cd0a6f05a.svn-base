@@ -1,0 +1,56 @@
+package com.itelasoft.pso.services;
+
+import java.util.Date;
+import java.util.List;
+
+import com.itelasoft.pso.beans.NdisAncillaryCost;
+import com.itelasoft.pso.beans.NdisCommittedEvent;
+import com.itelasoft.pso.beans.NdisInvoiceItem;
+import com.itelasoft.pso.dao.INdisInvoiceItemDao;
+
+public class NdisInvoiceItemService extends GenericService<NdisInvoiceItem, Long>
+		implements INdisInvoiceItemService {
+
+	public INdisInvoiceItemDao ndisInvoiceItemDao;
+	
+
+	@Override
+	public NdisInvoiceItem getInvoice(String name) {
+		return ndisInvoiceItemDao.getInvoice(name);
+	}
+
+	public INdisInvoiceItemDao getNdisInvoiceItemDao() {
+		return ndisInvoiceItemDao;
+	}
+
+	public void setNdisInvoiceItemDao(INdisInvoiceItemDao ndisInvoiceDao) {
+		this.ndisInvoiceItemDao = ndisInvoiceDao;
+	}
+
+	public List<NdisCommittedEvent> retrieveInvoiceItem(Date startDate,
+			Date endDate, Long studentId) {
+		return ((INdisInvoiceItemDao) dao).retrieveInvoiceItem(startDate, endDate,
+				studentId);
+	}
+	
+	public List<NdisCommittedEvent> retriveCommitedEventsByInvoiceId(Long invoiceId) {
+		return ((INdisInvoiceItemDao) dao).retriveCommitedEventsByInvoiceId(invoiceId);
+	}
+	public List<NdisAncillaryCost> retrieveNdisAncillaryCostItems(Date startDate,
+			Date endDate, Long studentId,Boolean claimed) {
+		return ((INdisInvoiceItemDao) dao).retrieveNdisAncillaryCostItems(startDate, endDate,
+				studentId,claimed);
+	}
+	
+	public List<NdisAncillaryCost> allretrieveNdisAncillaryCostItems(Long studentId) {
+		return ((INdisInvoiceItemDao) dao).allretrieveNdisAncillaryCostItems(studentId);
+	}
+	
+	public List<NdisInvoiceItem> retriveInvoiceItemsByInvoiceId(Long invoiceId){
+		return ((INdisInvoiceItemDao)dao).retriveInvoiceItemsByInvoiceId(invoiceId);
+	}
+	
+	public List<NdisAncillaryCost> retriveNdisAncillaryCostByInvoiceId(Long invoiceId){
+		return ((INdisInvoiceItemDao)dao).retriveNdisAncillaryCostByInvoiceId(invoiceId);
+	}
+}

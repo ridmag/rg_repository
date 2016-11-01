@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="REPORT"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">All #{msgs['students_label']}' Absentee Report</ui:define>
+		<ui:define name="pageDescription">Generates absentee report for all #{msgs['students_label'].toLowerCase()}.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formReport">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="9" width="550">
+						<ice:outputText value="Period" />
+						<ice:selectOneMenu id="selectOneTimePeriod"
+							value="#{reportManagerModel.timePeriod}" partialSubmit="true"
+							style="width:90px">
+							<f:selectItems value="#{lookupListProvider.timePeriods}" />
+						</ice:selectOneMenu>
+						<ice:outputText value="Upto" />
+						<ice:selectInputDate id="inputEventToDate"
+							value="#{reportManagerModel.toDate}" renderAsPopup="true"
+							renderMonthAsDropdown="true" renderYearAsDropdown="true"
+							converter="dateConverter" style="margin-right:30px" />
+						<ice:panelGroup style="margin-left:10px">
+							<comp:ajaxReportPopup params="#{reportManagerModel.jsonString}"
+								reportName="absenteeReportAll"
+								status="#{reportManagerModel.status}"
+								submitDisabled="#{reportManagerModel.toDate==null}" />
+						</ice:panelGroup>`
+					</ice:panelGrid>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

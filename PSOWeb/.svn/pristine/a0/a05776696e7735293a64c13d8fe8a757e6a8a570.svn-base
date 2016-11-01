@@ -1,0 +1,570 @@
+package com.itelasoft.pso.web;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.AjaxBehaviorEvent;
+import javax.imageio.ImageIO;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
+import org.apache.myfaces.custom.schedule.HtmlSchedule;
+import org.apache.myfaces.custom.schedule.ScheduleMouseEvent;
+import org.apache.myfaces.custom.schedule.model.DefaultScheduleEntry;
+import org.apache.myfaces.custom.schedule.model.SimpleScheduleModel;
+import org.icefaces.ace.component.fileentry.FileEntry;
+import org.icefaces.ace.component.fileentry.FileEntryEvent;
+import org.icefaces.ace.component.fileentry.FileEntryResults;
+import org.icefaces.ace.component.fileentry.FileEntryResults.FileInfo;
+
+import com.googlecode.beanfiles.csv.CSVReaderIterator;
+import com.googlecode.beanfiles.readers.ReaderIterator;
+import com.googlecode.beanfiles.translators.PropertyTranslator;
+import com.googlecode.beanfiles.utils.ConverterUtils;
+import com.itelasoft.pso.beans.Contact;
+import com.itelasoft.pso.beans.EnumFileType;
+import com.itelasoft.pso.beans.FileData;
+import com.itelasoft.pso.beans.LeavePolicy;
+import com.itelasoft.pso.beans.StaffCheckRecord;
+import com.itelasoft.pso.beans.StaffMember;
+import com.itelasoft.pso.beans.StaffSkill;
+import com.itelasoft.pso.beans.StaffType;
+import com.itelasoft.pso.beans.Student;
+import com.itelasoft.pso.beans.StudentConsent;
+import com.itelasoft.pso.beans.User;
+import com.itelasoft.pso.services.IStaffMemberService;
+import com.itelasoft.pso.services.IStudentService;
+import com.itelasoft.pso.services.ServiceLocator;
+import com.itelasoft.sample.StaffCheckTranslator;
+import com.itelasoft.sample.StaffSkillTranslator;
+import com.itelasoft.sample.StaffTypeConvertor;
+import com.itelasoft.sample.StaffTypeTranslator;
+import com.itelasoft.sample.StudentConsentTranslator;
+import com.itelasoft.util.ImageUtil;
+
+@ManagedBean(name = "sampleModel")
+@SessionScoped
+public class SampleModel extends UIModel {
+	private String testTime;
+	private List<User> users;
+	private User user;
+	private boolean visiblePopup;
+	private boolean conPopup;
+
+	private List<Contact> contacts;
+	private Contact contact;
+	private HtmlSchedule schedule;
+	private SimpleScheduleModel model = new SimpleScheduleModel();
+	private FileData file = new FileData();
+
+	public SampleModel() {
+		loadEvents();
+	}
+
+	public void myListener(ActionEvent actionEvent) {
+		System.out.println("hello");
+	}
+
+	public void clearPics(ActionEvent actionEvent) {
+		List<Student> list = serviceLocator.getStudentService().findAll();
+		for(Student std : list){
+			std.setPhoto(null);
+			serviceLocator.getStudentService().update(std);
+		}
+	}
+	
+	public void uploadFile(FileEntryEvent event) {
+		FileEntry fileEntry = (FileEntry) event.getSource();
+		FileEntryResults results = fileEntry.getResults();
+		DateConverter converter = new DateConverter();
+		converter.setPattern("dd/MM/yyyy");
+		ConvertUtils.register(converter, Date.class);
+		for (FileEntryResults.FileInfo fileInfo : results.getFiles()) {
+			if (fileInfo.isSaved()) {
+				try {
+					ConverterUtils.registerConverters();
+					String strFile = fileInfo.getFile().toString();
+					FileInputStream input = new FileInputStream(strFile);
+					HashMap<String, String> hashMap = new HashMap<String, String>();
+					hashMap.put("Title", "contact.title");
+					hashMap.put("First Name", "contact.firstName");
+					hashMap.put("Middle Name", "contact.middleNames");
+					hashMap.put("Last Name", "contact.lastName");
+					hashMap.put("Street Address", "contact.streetAddress");
+					hashMap.put("City", "contact.city");
+					hashMap.put("State/Province", "contact.state");
+					hashMap.put("Postal Code", "contact.postCode");
+					hashMap.put("Country", "contact.country");
+					hashMap.put("Mobile Number", "contact.mobilePhone");
+					hashMap.put("Home Number", "contact.homePhone");
+					hashMap.put("E - mail", "contact.email");
+					hashMap.put("Office Number", "contact.officePhone");
+					hashMap.put("CISID", "cisid");
+					hashMap.put("MDSID", "mdsid");
+					hashMap.put("Date of Birth", "dob");
+					hashMap.put("Gender", "gender");
+					hashMap.put("Request Transport", "transport");
+					hashMap.put("Consent:*", "studentConsents");
+					hashMap.put("Default Mailing", "mailAddressDefault");
+					hashMap.put("Mail:Street Address",
+							"mailingAddress.streetAddress");
+					hashMap.put("Mail:City", "mailingAddress.city");
+					hashMap.put("Mail:State/Province", "mailingAddress.state");
+					hashMap.put("Mail:Postal Code", "mailingAddress.postCode");
+					hashMap.put("Mail:Country", "mailingAddress.country");
+
+					/*
+					 * hashMap.put("Request Transport","transport");
+					 * hashMap.put("Monitoring","transport");
+					 * hashMap.put("Request Transport","transport");
+					 */
+
+					Map<String, PropertyTranslator> patternMap = new HashMap<String, PropertyTranslator>();
+					patternMap.put("Consent:*", new StudentConsentTranslator());
+					ReaderIterator<Student> iterator;
+					Student student=null;
+						iterator = new CSVReaderIterator<Student>(hashMap,
+								Student.class, input, patternMap);
+						input.close();
+						IStudentService studentService = (IStudentService) serviceLocator
+								.getStudentService();
+
+						while (iterator.hasNext()) {
+							try {
+								student = iterator.next();
+								student.setCreateOn(GregorianCalendar.getInstance()
+										.getTime());
+								if(student.getMailAddressDefault())
+									student.setMailingAddress(null);
+								for(StudentConsent studentConsent: student.getStudentConsents()){
+									studentConsent.setStudent(student);
+								}
+								studentService.create(student);
+							} catch (Exception e) {
+								System.out.println("failed:"+ student.getContact().getFirstName()+" "+student.getContact().getLastName());
+										e.printStackTrace();
+							student = iterator.next();
+							student.setCreateOn(GregorianCalendar.getInstance()
+									.getTime());
+							if (student.getMailAddressDefault())
+								student.setMailingAddress(null);
+							for (StudentConsent studentConsent : student
+									.getStudentConsents()) {
+								studentConsent.setStudent(student);
+							}
+						}
+						}
+
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			} else
+				showError("File not supported");
+		}
+	}
+
+	public void uploadStaffFile(FileEntryEvent event) {
+		FileEntry fileEntry = (FileEntry) event.getSource();
+		FileEntryResults results = fileEntry.getResults();
+		DateConverter converter = new DateConverter();
+		converter.setPattern("dd/MM/yyyy");
+		ConvertUtils.register(converter, Date.class);
+		ConvertUtils.register(new StaffTypeConvertor(), StaffType.class);
+
+		for (FileEntryResults.FileInfo fileInfo : results.getFiles()) {
+			if (fileInfo.isSaved()) {
+				try {
+					LeavePolicy leavePolicy = serviceLocator
+							.getLeavePolicyService().findAll().get(0);
+					ConverterUtils.registerConverters();
+					String strFile = fileInfo.getFile().toString();
+					FileInputStream input = new FileInputStream(strFile);
+					HashMap<String, String> hashMap = new HashMap<String, String>();
+					hashMap.put("Title", "contact.title");
+					hashMap.put("First Name", "contact.firstName");
+					hashMap.put("Middle Name", "contact.middleNames");
+					hashMap.put("Last Name", "contact.lastName");
+					hashMap.put("Street Address", "contact.streetAddress");
+					hashMap.put("City", "contact.city");
+					hashMap.put("State/Province", "contact.state");
+					hashMap.put("Postal Code", "contact.postCode");
+					hashMap.put("Country", "contact.country");
+					hashMap.put("Mobile Number", "contact.mobilePhone");
+					hashMap.put("Home Number", "contact.homePhone");
+					hashMap.put("E - mail", "contact.email");
+					hashMap.put("Office Number", "contact.officePhone");
+					hashMap.put("Staff ID", "staffId");
+					hashMap.put("Date of Birth", "dob");
+					hashMap.put("Gender", "gender");
+					hashMap.put("Check:*", "staffCheckRecordList");
+					hashMap.put("Staff Type", "type");
+					hashMap.put("Date Joined", "joinedDate");
+					hashMap.put("Status", "status");
+					hashMap.put("Skill:*", "skills");
+
+					/*
+					 * hashMap.put("Request Transport","transport");
+					 * hashMap.put("Monitoring","transport");
+					 * hashMap.put("Request Transport","transport");
+					 */
+
+					Map<String, PropertyTranslator> patternMap = new HashMap<String, PropertyTranslator>();
+					patternMap.put("Skill:*", new StaffSkillTranslator());
+					patternMap.put("Check:*", new StaffCheckTranslator());
+					patternMap.put("Staff Type", new StaffTypeTranslator());
+					ReaderIterator<StaffMember> iterator;
+					try {
+						iterator = new CSVReaderIterator<StaffMember>(hashMap,
+								StaffMember.class, input, patternMap);
+						input.close();
+						IStaffMemberService staffMemberService = (IStaffMemberService) serviceLocator
+								.getStaffMemberService();
+						List<StaffMember> staffMembers = new ArrayList<StaffMember>();
+						while (iterator.hasNext()) {
+							StaffMember staffMember = iterator.next();
+							staffMember.setCreateOn(GregorianCalendar
+									.getInstance().getTime());
+							staffMember.setMailingAddress(null);
+							for (StaffSkill staffSkill : staffMember
+									.getSkills()) {
+								staffSkill.setStaffMember(staffMember);
+							}
+
+							for (StaffCheckRecord checkRecord : staffMember
+									.getStaffCheckRecordList()) {
+								checkRecord.setStaffMember(staffMember);
+							}
+							staffMember.setLeavePolicy(leavePolicy);
+							staffMembers.add(staffMember);
+
+						}
+						for (StaffMember member : staffMembers) {
+							staffMemberService.create(member);
+						}
+					} catch (RuntimeException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			} else
+				showError("File not supported");
+		}
+	}
+
+	public void listener(FileEntryEvent event) {
+		FileEntry fileEntry = (FileEntry) event.getSource();
+		FileEntryResults results = fileEntry.getResults();
+		for (FileEntryResults.FileInfo fileInfo : results.getFiles()) {
+			if (fileInfo.isSaved()) {
+				if (fileInfo.getFile() != null) {
+					FileData fileData = new FileData();
+					fileData.setFileName(fileInfo.getFileName());
+					fileData.setFileType(EnumFileType.SPECIALNEED_ICON);
+					fileData.getBlobFileData().setData(setData(fileInfo));
+					fileData.setDateCreated(new Date());
+					try {
+						fileData.getBlobFileData().setThumbnail(ImageUtil.resizeJpeg(ImageIO
+								.read(new File(fileInfo.getFile().toString()))));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					file = serviceLocator.getFileDataService().create(fileData);
+					/*
+					 * FacesContext context = FacesContext.getCurrentInstance();
+					 * Application application = context.getApplication();
+					 * ViewHandler viewHandler = application.getViewHandler();
+					 * UIViewRoot viewRoot = viewHandler.createView(context,
+					 * context .getViewRoot().getViewId());
+					 * context.setViewRoot(viewRoot); context.renderResponse();
+					 */
+				} else
+					showError("File not supported");
+				System.out.println("fileInfo:" + fileInfo.getFileName());
+			}
+		}
+	}
+
+	public byte[] setData(FileInfo currentFile) {
+		try {
+			if (currentFile.getFile() != null) {
+				FileInputStream fileInputStream = new FileInputStream(
+						currentFile.getFile());
+				byte[] temp = new byte[1000];
+				int ret = 0;
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream(
+						(int) currentFile.getSize());
+				while ((ret = fileInputStream.read(temp)) != -1) {
+					outputStream.write(temp, 0, ret);
+				}
+				fileInputStream.close();
+				return outputStream.toByteArray();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void loadEvents() {
+		DefaultScheduleEntry entry = new DefaultScheduleEntry();
+		entry.setId("1");
+		entry.setStartTime(GregorianCalendar.getInstance().getTime());
+		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.add(Calendar.HOUR, 1);
+		entry.setEndTime(calendar.getTime());
+		entry.setTitle("hello");
+		entry.setSubtitle("hello");
+		entry.setDescription("hello");
+		model.addEntry(entry);
+
+		model.refresh();
+	}
+
+	public void scheduleClicked(ScheduleMouseEvent event) {
+
+		System.out.println("scheduleClicked");
+	}
+
+	public void scheduleAction(ActionEvent ae) {
+		System.out.println("hello");
+	}
+
+	public void scheduleAction2(AjaxBehaviorEvent ae) {
+		System.out.println("hello");
+	}
+
+	/*
+	 * User Methods Shown below ********************** **********************
+	 * ********************** **********************
+	 */
+
+	public void showPopup() {
+		if (visiblePopup)
+			visiblePopup = false;
+		else
+			visiblePopup = true;
+	}
+
+	public void actionListener(ActionEvent event) {
+		users = ServiceLocator.getServiceLocator().getUserService().findAll();
+
+	}
+
+	public void clearUsers() {
+		users = new ArrayList<User>();
+	}
+
+	public void addUser() {
+		user = new User();
+		user.setContact(new Contact());
+		user.getContact().setFirstName("XXXXXXXXX");
+		user.getContact().setLastName("XXXXXXXXX");
+		showPopup();
+	}
+
+	public void editUser(ActionEvent ae) {
+		user = (User) ae.getComponent().getAttributes().get("user");
+		showPopup();
+	}
+
+	public void saveUser() {
+		if (user.getId() == null) {
+			ServiceLocator.getServiceLocator().getUserService().create(user);
+			loadSample();
+		} else
+			ServiceLocator.getServiceLocator().getUserService().save(user);
+		showPopup();
+	}
+
+	public void deleteUser(ActionEvent ae) {
+		ServiceLocator
+				.getServiceLocator()
+				.getUserService()
+				.delete(((User) ae.getComponent().getAttributes().get("user"))
+						.getId());
+		// ServiceLocator.getServiceLocator().getUserService().delete((Long)ae.getComponent().getAttributes().get("aaa"));
+		loadSample();
+	}
+
+	public void loadSample() {
+		users = ServiceLocator.getServiceLocator().getUserService().findAll();
+	}
+
+	/*
+	 * Contact Methods Shown below ********************** **********************
+	 * ********************** **********************
+	 */
+
+	public void contactPopup() {
+		if (conPopup) {
+			conPopup = false;
+		} else {
+			conPopup = true;
+		}
+	}
+
+	public void editContacts(ActionEvent ae) {
+		contact = (Contact) ae.getComponent().getAttributes()
+				.get("editContacts");
+		contactPopup();
+	}
+
+	public void newContact() {
+		contact = new Contact();
+		contactPopup();
+	}
+
+	public void saveContact() {
+		if (contact.getId() == 0) {
+			// ServiceLocator.getServiceLocator().getContactService().save(contact);
+			loadContacts();
+		} else {
+			// ServiceLocator.getServiceLocator().getContactService().update(contact);
+			contactPopup();
+		}
+	}
+
+	public void deleteContact(ActionEvent ae) {
+		Contact c = (Contact) ae.getComponent().getAttributes().get("contact");
+		// ServiceLocator.getServiceLocator().getContactService().delete(c.getId());
+		contacts.remove(c);
+	}
+
+	public void fetchListener(ActionEvent fe) {
+		contacts = ServiceLocator.getServiceLocator().getContactService()
+				.listByName("");
+	}
+
+	public void loadContacts() {
+		contacts = ServiceLocator.getServiceLocator().getContactService()
+				.listByName("");
+	}
+	public void printTime(){
+		Calendar calendar=new GregorianCalendar(2015, 11, 11);
+		//calendar.set(Calendar.YEAR, 2015);
+		//calendar.set(Calendar.MONTH, 12);
+		//calendar.set(Calendar.DAY_OF_MONTH, 10);
+		//System.out.println(calendar.get(Calendar.THURSDAY));
+		System.out.println(calendar.getTime());
+		System.out.println(calendar.get(Calendar.DAY_OF_WEEK));
+	}
+
+	/*
+	 * 
+	 * User Getters and Setters
+	 */
+
+	public List<User> getUsers() {
+		return users;
+	}
+
+	public boolean isVisiblePopup() {
+		return visiblePopup;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}
+
+	/*
+	 * 
+	 * 
+	 * Contact getters and setters
+	 */
+
+	public void setContacts(List<Contact> contacts) {
+		this.contacts = contacts;
+	}
+
+	public List<Contact> getContacts() {
+		return contacts;
+	}
+
+	public boolean isConPopup() {
+		return conPopup;
+	}
+
+	public Contact getContact() {
+		return contact;
+	}
+
+	public void setContact(Contact contact) {
+		this.contact = contact;
+	}
+
+	public void setSchedule(HtmlSchedule schedule) {
+		this.schedule = schedule;
+	}
+
+	public HtmlSchedule getSchedule() {
+		return schedule;
+	}
+
+	public void setModel(SimpleScheduleModel model) {
+		this.model = model;
+	}
+
+	public SimpleScheduleModel getModel() {
+		return model;
+	}
+
+	public void setTestTime(String testTime) {
+		this.testTime = testTime;
+	}
+
+	public String getTestTime() {
+		return testTime;
+	}
+
+	public void setFile(FileData file) {
+		this.file = file;
+	}
+
+	public FileData getFile() {
+		return file;
+	}
+
+	public void ajaxListener(AjaxBehaviorEvent ajaxBehaviorEvent) {
+		System.out.println("button pushed");
+	}
+
+	public void listener2(ActionEvent actionEvent) {
+		System.out.println("push action");
+	}
+}

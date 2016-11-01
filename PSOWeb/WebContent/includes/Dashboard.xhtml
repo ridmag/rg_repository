@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+
+	<head>
+		<!-- Google Charts API -->
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+			<!--  https://www.gstatic.com/charts/loader.js -->
+		<!-- jQuery 1.11 -->
+		<h:outputScript name="js/jquery-1.11.3.min.js" />
+	
+		<ice:outputStyle href="resources/css/charts.css" />
+		<h:outputScript name="js/charthelper.js" />
+		
+		<!-- bootstarp -->
+		<ice:outputStyle href="resources/css/bootstrap.min.css" />
+		<h:outputScript name="js/bootstrap.min.js" />
+		
+		<!-- D3.js -->
+		<h:outputScript name="js/d3.min.js" />
+		
+		<!-- C3.js -->
+		<h:outputScript name="js/c3.min.js" />
+		
+		<!-- C3.css -->
+		<ice:outputStyle href="resources/css/c3.css" />
+		
+		<script type="text/javascript">
+		    jQuery.event.add(window, "load", containerResizer);
+			jQuery.event.add(window, "ready", containerResizer);
+			jQuery.event.add(window, "resize", containerResizer);
+			
+			//load google chart api.
+			loadGoogleAPI();
+			
+			$(document).ready(function(){
+				//......get the data for the chart......
+				
+				//pie-chart
+				var dataForPieChart  = document.getElementsByClassName("nineth-chart-input");
+				var processedDataForPieChart = processInputDataForTempPieChart(dataForPieChart);
+				
+				//bar-chart
+				var dataForBarChart  = document.getElementsByClassName("first-chart-input");
+				var dataForBarChart2  = document.getElementsByClassName("seventh-chart-input");
+				var processedDataForBarChart = processInputDataForTempBarChart(dataForBarChart);
+				
+				//combo-chart
+				var dataForComboChart  = document.getElementsByClassName("secoend-chart-input");
+				var processedDataForComboChart = processInputDataForTempComboChart(dataForComboChart);
+				
+				//create data object for the chart
+				var jsonPieData = getGooglePieChartJsonData(processedDataForPieChart,'TempPieChart');
+				var jsonBarData = getGoogleBarChartJsonData(processedDataForBarChart,'TempBarChart');
+				var jsonComboData = getGoogleComboChartJsonData(processedDataForComboChart,'TempComboChart');
+				
+				//draw the charts.
+				/* drawChart('piechart','nineth-chart', jsonPieData);
+				drawChart('barchart', 'first-chart', jsonBarData);
+				drawChart('combochart', 'first-chart', jsonComboData);*/ 
+				drawChart('piechart-c3', 'nineth-chart', dataForPieChart);
+				drawChart('barcharthndisc-c3', 'first-chart', dataForBarChart);
+				drawChart('barchartvst-c3', 'sixth-chart', dataForBarChart);
+				drawChart('barchartvfu-c3', 'secoend-chart', dataForBarChart);
+				drawChart('barchartvpa-c3', 'fourth-chart', dataForBarChart);
+				drawChart('barchartvsa-c3', 'fifth-chart', dataForBarChart);
+				drawChart('barcharthssp-c3', 'seventh-chart', dataForBarChart2);
+				drawChart('areachartpp-c3', 'thrid-chart', dataForBarChart2);
+			});
+			
+		</script>
+		
+	</head>
+	<body>
+		<ice:panelGroup>
+			<div class="chart-main-container">
+				<div class="chart-container ">
+						<div class="head">NDIS Claims</div>
+						<div id="first-chart" class="chart-div">
+							<ice:inputText styleClass="first-chart-input" id="p1" value="72"></ice:inputText>
+							<ice:inputText styleClass="first-chart-input" id="p2" value="45"></ice:inputText>
+						</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Funding utilizal</div>
+					<div id="secoend-chart" class="chart-div">
+						<ice:inputText styleClass="secoend-chart-input" value="72"></ice:inputText>
+						<ice:inputText styleClass="secoend-chart-input" value="45"></ice:inputText>
+						<ice:inputText styleClass="secoend-chart-input" value="18"></ice:inputText>
+						<ice:inputText styleClass="secoend-chart-input" value="12"></ice:inputText>
+						<ice:inputText styleClass="secoend-chart-input" value="26"></ice:inputText>
+						<ice:inputText styleClass="secoend-chart-input" value="30"></ice:inputText>
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Progress of participants</div>
+					<div id="thrid-chart" class="chart-div">
+						
+					</div>
+					<!-- <div class="chart-div">
+						<h:selectOneMenu id="select-student" value="#{sampleModel.studentName}" label="Select Student: " labelPosition="top">
+		                    <f:selectItems value="#{sampleModel.studentNames}" />
+	                	</h:selectOneMenu>
+                	</div> -->
+				</div>
+				<div class="chart-container ">
+					<div class="head">Participant attendance</div>
+					<div id="fourth-chart" class="chart-div">
+				
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Staff attendance</div>
+					<div id="fifth-chart" class="chart-div">
+				
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Staff training</div>
+					<div id="sixth-chart" class="chart-div">
+				
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Statement of support plan</div>
+					<div id="seventh-chart" class="chart-div">
+						<ice:inputText styleClass="seventh-chart-input" id="p71" value="72"></ice:inputText>
+						<ice:inputText styleClass="seventh-chart-input" id="p72" value="45"></ice:inputText>
+						<ice:inputText styleClass="seventh-chart-input" id="p73" value="100"></ice:inputText>
+						<ice:inputText styleClass="seventh-chart-input" id="p74" value="46"></ice:inputText>
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Audit complience</div>
+					<div id="eighth-chart" class="chart-div">
+				
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Participant demographics</div>
+					<div id="nineth-chart" class="chart-div">
+						<ice:inputText styleClass="nineth-chart-input" id="mushroom" value="50"></ice:inputText>
+						<ice:inputText styleClass="nineth-chart-input" id="Onions" value="5"></ice:inputText>
+						<ice:inputText styleClass="nineth-chart-input" id="Olives" value="5"></ice:inputText>
+						<ice:inputText styleClass="nineth-chart-input" id="Zucchini" value="5"></ice:inputText>
+						<ice:inputText styleClass="nineth-chart-input" id="Pepperoni" value="5"></ice:inputText>
+					</div>
+				</div>
+				<div class="chart-container ">
+					<div class="head">Action items</div>
+					<div id="tenth-chart" class="chart-div">
+				
+					</div>
+				</div>
+				<!-- <div class="chart-container ">
+					<div class="head">NDIS Claims</div>
+					<div id="eleventh-chart" class="chart-div">
+				
+					</div>
+				</div> -->
+			</div>
+		</ice:panelGroup>
+	</body>
+</html>
+<!--  -->

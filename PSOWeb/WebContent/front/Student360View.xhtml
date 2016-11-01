@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+
+<ui:composition template="PageTemplate.xhtml">
+	<ui:define name="pageTitle">#{msgs['student_label']} 360° View</ui:define>
+	<ui:define name="PageTitleIcon">
+		<img src="../images/icons/home.png" />
+	</ui:define>
+	<ui:define name="pageHeading">#{msgs['student_label']} 360° View</ui:define>
+	<ui:define name="pageDescription">This 360° View enables you to see all important information of a #{msgs['student_label'].toLowerCase()} in one view.</ui:define>
+	<ui:define name="pageContent">
+		<ice:form id="formStudent360">
+			<ace:panel header="#{msgs['student_label']} Information" collapsed="false"
+				toggleable="true" style="padding:0">
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+					<ice:panelGrid
+						style="border:thick double grey;width:250px;height:200px;text-align:center">
+						<ice:graphicImage url="../images/no_logo.jpg" id="imgStudent"
+							rendered="#{studentViewModel.student.photo == null}"
+							style="height:180px;width:230px">
+						</ice:graphicImage>
+						<ice:graphicImage
+							value="/imageDownload?p=#{studentViewModel.student.photo.id}"
+							id="imgStudent1"
+							rendered="#{studentViewModel.student.photo != null}"
+							width="#{studentViewModel.photoW}"
+							height="#{studentViewModel.photoH}"/>
+							
+					</ice:panelGrid>
+					<ice:panelGrid columns="9" cellspacing="10">
+						<ice:outputLabel value="#{msgs['student_label']} ID" />
+						<ice:outputText value=":" />
+						<ice:panelGroup style="width:150px">
+							<ice:outputText value="#{studentViewModel.student.id}" />
+						</ice:panelGroup>
+						<ice:outputLabel value="Name" />
+						<ice:outputText value=":" />
+						<ice:outputText value="#{studentViewModel.student.contact.name}"
+							style="margin-right:50px" />
+						<ice:outputLabel value="Special Needs" />
+						<ice:outputText value=":" />
+						<ui:repeat value="#{studentViewModel.student.specialNeeds}"
+							var="sneed" varStatus="status">
+							<ice:graphicImage value="#{sneed.icon.blobFileData.thumbnail}" height="25"
+								rendered="#{sneed.icon != null}" width="25"
+								title="#{sneed.name}" style="margin-left:5px" />
+							<ice:outputText value="#{sneed.name}" style="float:left"
+								title="#{sneed.name}" rendered="#{sneed.icon == null}">
+								<f:converter converterId="truncateConverter" />
+							</ice:outputText>
+							<ice:outputText value=",&#160;" style="float:left"
+								rendered="#{sneed.icon == null and studentViewModel.student.specialNeeds.size() > 1 and status.index != studentViewModel.student.specialNeeds.size() - 1}" />
+						</ui:repeat>
+						<ice:outputLabel value="CISID" />
+						<ice:outputText value=":" />
+						<ice:outputText value="#{studentViewModel.student.cisid}" />
+						<ice:outputLabel value="Date of Birth" />
+						<ice:outputText value=":" />
+						<ice:outputText value="#{studentViewModel.student.dob}"
+							converter="dateConverter" />
+						<ice:panelGroup />
+						<ice:panelGroup />
+						<ice:panelGroup />
+						<ice:outputLabel value="MDSID" />
+						<ice:outputText value=":" />
+						<ice:outputText value="#{studentViewModel.student.mdsid}" />
+						<ice:outputLabel value="Gender" />
+						<ice:outputText value=":" />
+						<ice:outputText value="#{studentViewModel.student.gender}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+			</ace:panel>
+			<ace:panel header="Contact Information" collapsed="false"
+				toggleable="true" style="padding:0">
+				<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+					<ice:panelGroup>
+						<fieldset style="width: 300px; min-height: 85px">
+							<legend>
+								<ice:outputLabel value="Contact Address" />
+							</legend>
+							<ice:panelGrid>
+								<ice:outputText
+									value="#{studentViewModel.student.contact.streetAddress}" />
+								<ice:outputText value="#{studentViewModel.student.contact.city}" />
+								<ice:outputText
+									value="#{studentViewModel.student.contact.state}, #{studentViewModel.student.contact.postCode}" />
+							</ice:panelGrid>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup
+						rendered="#{!studentViewModel.student.mailAddressDefault}">
+						<fieldset style="width: 300px; min-height: 85px">
+							<legend>
+								<ice:outputLabel value="Mailing Address" />
+							</legend>
+							<ice:panelGrid>
+								<ice:outputText
+									value="#{studentViewModel.student.contact.streetAddress}" />
+								<ice:outputText value="#{studentViewModel.student.contact.city}" />
+								<ice:outputText
+									value="#{studentViewModel.student.contact.state}, #{studentViewModel.student.contact.postCode}" />
+							</ice:panelGrid>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 300px; min-height: 85px">
+							<legend>
+								<ice:outputLabel value="Contact Numbers" />
+							</legend>
+							<ice:panelGrid columns="3">
+								<ice:outputText value="Mobile"
+									rendered="#{not empty(studentViewModel.student.contact.mobilePhone)}" />
+								<ice:outputText value=":"
+									rendered="#{not empty(studentViewModel.student.contact.mobilePhone)}"
+									style="margin-left:30px;margin-right:10px" />
+								<ice:outputText
+									rendered="#{not empty(studentViewModel.student.contact.mobilePhone)}"
+									value="#{studentViewModel.student.contact.mobilePhone}" />
+								<ice:outputText value="Home"
+									rendered="#{not empty(studentViewModel.student.contact.homePhone)}" />
+								<ice:outputText value=":"
+									rendered="#{not empty(studentViewModel.student.contact.homePhone)}"
+									style="margin-left:30px;margin-right:10px" />
+								<ice:outputText
+									rendered="#{not empty(studentViewModel.student.contact.homePhone)}"
+									value="#{studentViewModel.student.contact.homePhone}" />
+								<ice:outputText value="Office"
+									rendered="#{not empty(studentViewModel.student.contact.officePhone)}" />
+								<ice:outputText value=":"
+									rendered="#{not empty(studentViewModel.student.contact.officePhone)}"
+									style="margin-left:30px;margin-right:10px" />
+								<ice:outputText
+									rendered="#{not empty(studentViewModel.student.contact.officePhone)}"
+									value="#{studentViewModel.student.contact.officePhone}" />
+							</ice:panelGrid>
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+			</ace:panel>
+			<ace:panel header="Scheduled Events" collapsed="false"
+				toggleable="true" style="padding:0">
+				<ice:panelGroup>
+					<ice:panelGrid styleClass="borderBox" width="100%">
+						<ice:panelGrid columns="5" cellspacing="5">
+							<ice:outputText value="Period" />
+							<ice:selectOneMenu id="selectOneTimePeriod"
+								value="#{studentViewModel.timePeriod}" style="width:120px">
+								<f:selectItems value="#{lookupListProvider.timePeriods}" />
+							</ice:selectOneMenu>
+							<ice:outputText value="Upto" style="margin-left:10px" />
+							<ice:selectInputDate id="inputEventToDate"
+								value="#{studentViewModel.selectedDate}" renderAsPopup="true"
+								renderMonthAsDropdown="true" renderYearAsDropdown="true"
+								converter="dateConverter" />
+							<!-- <ace:dateTimeEntry id="currentDate" renderAsPopup="true"
+								value="#{studentViewModel.selectedDate}" showOn="button"
+								converter="dateConverter">
+								<f:convertDateTime pattern="#{msgs['system.date.format']}"
+								timeZone="Australia/Sydney" />
+								<ace:ajax event="dateSelect"
+									listener="#{studentViewModel.dateSelectListener}" />
+							</ace:dateTimeEntry> -->
+							<ice:commandButton id="commandSearchEvents"
+								style="width:70px;margin-left:10px" value="Search"
+								styleClass="CommandButton"
+								action="#{studentViewModel.searchEvents}" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+					<ice:panelGroup
+						style="height:400px;width:100%;text-align:center;margin-top:10px;border:1px solid grey">
+						<ice:panelGroup style="margin-top:180px"
+							rendered="#{empty(studentViewModel.scheduledEvents)}">
+							<ice:outputLabel value="No events found.." />
+						</ice:panelGroup>
+						<ace:dataTable id="eventsTable" var="event" paginator="true"
+							paginatorPosition="bottom" rows="12"
+							value="#{studentViewModel.scheduledEvents}"
+							rendered="#{not empty(studentViewModel.scheduledEvents)}">
+							<ace:column headerText="Date" sortAscending="true"
+								reorderable="true" groupBy="#{event.proEvent.eventDate}"
+								style="width:60px;font-size:12px">
+								<h:outputText value="#{event.proEvent.eventDate}"
+									converter="dateConverter" />
+							</ace:column>
+							<ace:column headerText="Start Time" sortAscending="true"
+								groupBy="#{event.proEvent.startTime}"
+								style="width:90px;font-size:12px">
+								<h:outputText value="#{event.proEvent.startTime}"
+									converter="timeConverter" />
+							</ace:column>
+							<ace:column headerText="End Time" sortAscending="true"
+								groupBy="#{event.proEvent.endTime}"
+								style="width:90px;font-size:12px">
+								<h:outputText value="#{event.proEvent.endTime}"
+									converter="timeConverter" />
+							</ace:column>
+							<ace:column headerText="Type" sortAscending="true"
+								style="width:60px;font-size:12px"
+								groupBy="#{event.proEvent.program.type.name}">
+								<h:outputText value="#{event.proEvent.program.type.name}" />
+							</ace:column>
+							<ace:column headerText="Program Name" sortAscending="true"
+								groupBy="#{event.proEvent.program.name}"
+								style="text-align:left;font-size:12px">
+								<h:outputText value="#{event.proEvent.program.name}" />
+							</ace:column>
+							<ace:column headerText="#{msgs['student_label']} Group" sortAscending="true"
+								groupBy="#{event.groupedStudent.group.name}"
+								style="text-align:left;font-size:12px">
+								<h:outputText value="#{event.groupedStudent.group.name}" />
+							</ace:column>
+							<ace:column headerText="From" sortAscending="true"
+								groupBy="#{event.groupedStudent.pickup.name}"
+								style="width:90px;text-align:left;font-size:12px">
+								<h:outputText value="#{event.groupedStudent.pickup.name}" />
+							</ace:column>
+							<ace:column headerText="To" sortAscending="true"
+								groupBy="#{event.groupedStudent.dropoff.name}"
+								style="width:90px;text-align:left;font-size:12px">
+								<h:outputText value="#{event.groupedStudent.dropoff.name}" />
+							</ace:column>
+							<ace:column headerText="Status" sortAscending="true"
+								groupBy="#{event.proEvent.status}"
+								style="width:70px;font-size:12px">
+								<h:outputText value="#{event.proEvent.status}" />
+							</ace:column>
+						</ace:dataTable>
+					</ice:panelGroup>
+				</ice:panelGroup>
+			</ace:panel>
+		</ice:form>
+	</ui:define>
+</ui:composition>
+</html>

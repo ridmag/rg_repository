@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="REPORTANN"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Anniversary Report</ui:define>
+		<ui:define name="pageDescription">Select a month and a year to generate staff anniversary report.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formReport" prependId="false">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="6">
+						<ice:outputLabel value="Select Month and Year" />
+						<ice:outputText value="Month : " style="margin-left:30px" />
+						<ice:selectOneMenu value="#{reportManagerModel.month}"
+							id="selectMonth" partialSubmit="true">
+							<f:selectItems value="#{lookupListProvider.monthList}" />
+						</ice:selectOneMenu>
+						<ice:outputText value="Year : " style="margin-left:30px" />
+						<ice:inputText value="#{reportManagerModel.year}" maxlength="4"
+							id="input_Year" partialSubmit="true" />
+						<ice:panelGroup style="margin-left:10px">
+							<comp:ajaxReportPopup params="#{reportManagerModel.jsonString}"
+								reportName="anniversaryReport"
+								status="#{reportManagerModel.status}"
+								submitDisabled="#{reportManagerModel.year==null}"></comp:ajaxReportPopup>
+						</ice:panelGroup>
+					</ice:panelGrid>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

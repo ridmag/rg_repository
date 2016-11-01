@@ -1,0 +1,309 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="INVOICE"></ui:param>
+		<ui:define name="pageTitle">
+		</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">
+                Activity Statement Manager
+            </ui:define>
+		<ui:define name="pageDescription">
+                Select a row from the table below to view the details of each Activity Statement.
+            </ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formActivityStatements">
+
+				<ice:panelGrid styleClass="borderBox" width="100%"
+					rendered="#{invoiceManagerModel.invoice == null}">
+					<ice:panelGrid columns="9" cellspacing="10"
+						style="margin-top:-8px;margin-bottom:-8px;">
+						<ice:outputText value="Activity Statement(s) for year" />
+						<ice:selectOneMenu id="selectYear" style="width: 60px"
+							value="#{invoiceManagerModel.selectedYear}" partialSubmit="true"
+							valueChangeListener="#{invoiceManagerModel.yearChanged}">
+							<f:selectItems value="#{lookupListProvider.actStmntYears}" />
+						</ice:selectOneMenu>
+						<ice:outputText value="Search Activity Statement by ID" />
+						<ice:inputText id="inputTextInvSearch" style="width:4em"
+							action="#{invoiceManagerModel.searchInvoice}"
+							value="#{invoiceManagerModel.searchText}" />
+						<ice:commandButton id="commanButtonInvSearch"
+							action="#{invoiceManagerModel.searchInvoice}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="">
+					<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+						rendered="#{invoiceManagerModel.invoice == null}">
+						<ice:panelGroup style="width: 190px">
+							<fieldset style="width: 160px">
+								<legend>
+									<ice:outputLabel value="Months" />
+								</legend>
+								<ice:panelGrid styleClass="listBox" cellspacing="0"
+									cellpadding="0">
+									<ice:panelSeries value="#{lookupListProvider.monthList}"
+										var="month">
+										<ice:commandLink
+											actionListener="#{invoiceManagerModel.selectMonth}">
+											<div
+												class="item #{invoiceManagerModel.monthClasses.get(month.value)}">#{month.label}</div>
+											<f:attribute name="month" value="#{month.value}" />
+										</ice:commandLink>
+									</ice:panelSeries>
+								</ice:panelGrid>
+							</fieldset>
+						</ice:panelGroup>
+						<ice:panelGroup>
+							<fieldset>
+								<legend>
+									<ice:outputLabel value="Act. Statements" />
+								</legend>
+								<ice:panelGroup style="min-height: 260px;width: 850px;">
+									<ice:panelGroup style="margin-top:10px"
+										rendered="#{invoiceManagerModel.invoices == null}">
+										<ice:outputText
+											value="Please select a month to view activity statements." />
+									</ice:panelGroup>
+									<ice:panelGrid columns="3"
+										rendered="#{invoiceManagerModel.invoices != null}">
+										<ice:commandButton value="Generate Act. Statement(s)"
+											styleClass="CommandButton"
+											disabled="#{invoiceManagerModel.monthClasses.get(invoiceManagerModel.selectedMonth).contains('completed') || empty(invoiceManagerModel.selectedInvMap)}"
+											actionListener="#{invoiceManagerModel.generateInvoices}" />
+										<ice:commandButton value="Delete Act. Statement(s)"
+											panelConfirmation="deleteConfirmation"
+											styleClass="CommandButton"
+											disabled="#{empty(invoiceManagerModel.selectedInvMap)}"
+											actionListener="#{invoiceManagerModel.deleteInvoices}" />
+										<comp:printPopup label="Print Act. Statement(s)"
+											resource="#{printModel.pdfInvoiceList}"
+											fileName="Act_Statement.pdf" printType="invoiceList"
+											style="margin-right:5px;width:170px" commandType="button"
+											disabled="#{empty(invoiceManagerModel.selectedInvMap)}" />
+									</ice:panelGrid>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable value="#{invoiceManagerModel.invoices}"
+											var="inv" id="tableInvoices" varStatus="status"
+											rendered="#{!empty(invoiceManagerModel.invoices)}"
+											width="100%">
+											<ice:column style="text-align:center;width:40px">
+												<f:facet name="header">
+													<ice:outputText value="Select" />
+													<br />
+													<ice:selectBooleanCheckbox id="selAllInv"
+														style="margin-top:5px" partialSubmit="true"
+														value="#{invoiceManagerModel.selectAll}"
+														valueChangeListener="#{invoiceManagerModel.selectAllInvoices}">
+													</ice:selectBooleanCheckbox>
+												</f:facet>
+												<ice:selectBooleanCheckbox id="selInv"
+													value="#{inv.ui_selected}" partialSubmit="true"
+													valueChangeListener="#{invoiceManagerModel.selectInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column id="columnInvoiceId"
+												style="text-align:center;width:40px">
+												<f:facet name="header">
+													<ice:outputText value="ID" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey" />
+												<ice:outputText value="-" style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}" />
+												<ice:outputText value="#{inv.id}"
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}" />
+											</ice:column>
+											<ice:column id="columnInvoiceStudent" style="text-align:left">
+												<f:facet name="header">
+													<ice:outputText value="#{msgs['student_label']}" />
+												</f:facet>
+												<ice:outputText value="#{inv.student.contact.name}"
+													rendered="#{inv.id == null}" style="color:grey" />
+												<ice:outputText value="#{inv.student.contact.name}"
+													style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}" />
+												<ice:outputText value="#{inv.student.contact.name}"
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}" />
+											</ice:column>
+											<ice:column id="columnInvoiceCarriedForwad"
+												style="text-align:right;width:70px">
+												<f:facet name="header">
+													<ice:outputText value="Carried Forward" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:30px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.previousOutstanding}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.previousOutstanding}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoiceCharge"
+												style="text-align:right;width:70px">
+												<f:facet name="header">
+													<ice:outputText value="Total Charge" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:30px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.totalCharge}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.totalCharge}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoicePayments"
+												style="text-align:right;width:70px">
+												<f:facet name="header">
+													<ice:outputText value="Total Payments" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:30px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.previousPayments + inv.currentPayments}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.previousPayments + inv.currentPayments}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoiceBalance"
+												style="text-align:right;width:70px">
+												<f:facet name="header">
+													<ice:outputText value="Balance" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:30px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.total}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.total}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnStatus"
+												style="text-align:center;width:30px">
+												<f:facet name="header">
+													<ice:outputText value="Status" />
+												</f:facet>
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/ok.png" title="Statement ready"
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}" />
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/ok_disabled.png"
+													title="Statement ready to be generated"
+													rendered="#{inv.id == null and empty(inv.stmntStatus)}" />
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/warning_s.png" title="#{inv.stmntStatus}"
+													rendered="#{inv.id == null and !empty(inv.stmntStatus)}" />
+												<ice:graphicImage style="border:none" width="15" height="15"
+													url="images/icons/warning_s_red.png"
+													title="#{inv.stmntStatus}"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}" />
+											</ice:column>
+											<ice:column id="columnAction"
+												style="text-align:center;width:50px">
+												<f:facet name="header">
+													<ice:outputText value="Action" />
+												</f:facet>
+												<ice:commandLink id="actOpen" value="View"
+													rendered="#{inv.id != null}"
+													actionListener="#{invoiceManagerModel.openInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="sMonth" value="#{invoiceManagerModel.monthFormatMM.format(inv.invoiceDate)}"/>
+												</ice:commandLink>
+												<ice:commandLink id="actGen" value="Generate"
+													rendered="#{inv.id == null}"
+													actionListener="#{invoiceManagerModel.generateInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="index" value="#{status.index}" />
+													<f:attribute name="from" value="invoiceMgr" />
+												</ice:commandLink>
+											</ice:column>
+											<ice:column id="columnRemove"
+												style="text-align:center;width:40px">
+												<f:facet name="header">
+													<ice:outputText value="Delete" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													panelConfirmation="tblDeleteConfirmation"
+													actionListener="#{invoiceManagerModel.deleteInvoice}"
+													title="Delete" id="commandDeleteInv"
+													rendered="#{inv.id != null and !inv.nxtStmntFound}">
+													<ice:graphicImage style="border:none" width="13"
+														height="13" url="images/icons/delete-icon.png" />
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="index" value="#{status.index}" />
+													<f:attribute name="from" value="invoiceMgr" />
+												</ice:commandLink>
+												<ice:graphicImage style="border:none"
+													title="Upcoming month's statement is already generated."
+													rendered="#{inv.id != null and inv.nxtStmntFound}"
+													width="13" height="13"
+													url="images/icons/delete-icon-disabled.png" />
+												<ice:graphicImage style="border:none"
+													title="Statement isn't generated yet."
+													rendered="#{inv.id == null}" width="13" height="13"
+													url="images/icons/delete-icon-disabled.png" />
+												<ice:panelConfirmation id="tblDeleteConfirmation"
+													acceptLabel="Yes" cancelLabel="No" draggable="true"
+													title="Confirm"
+													message="Are you sure you want to perform this action?" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelGroup>
+					</ice:panelGrid>
+
+					<ice:panelGroup rendered="#{invoiceManagerModel.invoice != null}">
+						<ui:include src="includes/ActivityStatement.xhtml" />
+					</ice:panelGroup>
+				</div>
+
+				<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+					cancelLabel="No" draggable="true" title="Confirm"
+					message="Are you sure you want to perform this action?" />
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

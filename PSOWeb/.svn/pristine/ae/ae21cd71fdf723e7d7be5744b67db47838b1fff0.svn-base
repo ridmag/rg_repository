@@ -1,0 +1,34 @@
+.chart-main-container{
+	width: 100%;
+	height: 100%;
+	padding: 10px;
+	float: left;
+}
+
+.chart-container{
+	width: 33.33333%;
+	height: 300px;
+	float: left;
+	margin:5px auto;
+}
+
+.chart-div{
+	height: 90%;
+	margin: 5px;
+	padding: 3px;
+	/* background-color: rgba(241, 241, 241, 0.44); */
+	background-color : rgba(224, 224, 224, 0.44);;
+}
+
+#mushroom{
+	display: none;
+}
+
+.iceInpTxt{
+	display:none;
+}
+
+.head {
+    /*height: 20px;
+    font-size: 1.2vw;*/
+}

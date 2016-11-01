@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="STUD360"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">#{msgs['student_label']} 360° View Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to open 360° view of each #{msgs['student_label'].toLowerCase()}.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formStudents">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Search #{msgs['students_label'].toLowerCase()} :" />
+						<ice:inputText id="inputTextProSearch" immediate="true"
+							
+							action="#{studentManagerModel.searchStudents360}"
+							value="#{studentManagerModel.searchStudentText}" style="width: 500px" />
+						<ice:commandButton id="commanButtonStuSearch" immediate="true"
+							action="#{studentManagerModel.searchStudents360}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ace:dataTable id="tableStudents" var="std" paginator="true"
+						paginatorPosition="bottom" rows="15" style="margin-top:10px"
+						value="#{studentManagerModel.students}">
+						<ace:column headerText="#{msgs['student_label']} ID"
+							style="width:60px;font-size:12px;text-align:right">
+							<ice:outputText value="#{std.id}" />
+						</ace:column>
+						<ace:column headerText="CISID" style="width:75px;font-size:12px">
+							<ice:outputText value="#{std.cisid}" title="#{std.cisid}"
+								style="overflow:hidden;width:70px;height:1em" />
+						</ace:column>
+						<ace:column headerText="MDSID" style="width:75px;font-size:12px">
+							<ice:outputText value="#{std.mdsid}" title="#{std.mdsid}"
+								style="overflow:hidden;width:70px;height:1em" />
+						</ace:column>
+						<ace:column headerText="#{msgs['student_label']} Name"
+							style="text-align:left;font-size:12px">
+							<ice:outputText value="#{std.contact.name}" />
+						</ace:column>
+						<ace:column headerText="Special Needs"
+							style="text-align:left;font-size:12px;">
+							<ui:repeat value="#{std.specialNeeds}" var="sneed"
+								varStatus="status">
+								<ice:graphicImage value="#{sneed.icon.blobFileData.thumbnail}" height="25"
+									rendered="#{sneed.icon != null}" width="25"
+									title="#{sneed.name}" style="margin-left:5px" />
+								<ice:outputText value="#{sneed.name}" style="float:left"
+									title="#{sneed.name}" rendered="#{sneed.icon == null}">
+									<f:converter converterId="truncateConverter" />
+								</ice:outputText>
+								<ice:outputText value=",&nbsp;" style="float:left"
+									rendered="#{sneed.icon == null and stu.specialNeeds.size() > 1 and status.index != stu.specialNeeds.size() - 1}" />
+							</ui:repeat>
+						</ace:column>
+						<ace:column headerText="Date of Birth"
+							style="width:80px;font-size:12px">
+							<h:outputText value="#{std.dob}" converter="dateConverter" />
+						</ace:column>
+						<ace:column headerText="Gender" style="width:50px;font-size:12px">
+							<ice:outputText value="#{std.gender}" />
+						</ace:column>
+						<ace:column headerText="Contact Number"
+							style="width:90px;font-size:12px">
+							<f:facet name="header">
+								<ice:outputText value="Contact Number" />
+							</f:facet>
+							<ice:outputText value="#{std.contact.contactNumber}" />
+						</ace:column>
+						<ace:column headerText="360° View"
+							style="width:60px;font-size:12px">
+							<comp:ajaxReportPopup label="view" type="link"
+								params="{studentId:#{std.id}}" reportName="student360View" />
+						</ace:column>
+					</ace:dataTable>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

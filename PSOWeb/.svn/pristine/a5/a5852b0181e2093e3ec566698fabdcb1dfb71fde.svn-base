@@ -1,0 +1,2377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="STUD"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">#{msgs['student_label']} Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each #{msgs['student_label'].toLowerCase()}.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formStudents">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="7">
+						<ice:outputText
+							value="Search #{msgs['students_label'].toLowerCase()} by name or ID :" />
+						<ice:inputText id="inputTextProSearch"
+							value="#{studentManagerModel.searchStudentText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:selectOneMenu id="selectInactive"
+							value="#{studentManagerModel.status}">
+							<f:selectItem itemValue="all" itemLabel="All"></f:selectItem>
+							<f:selectItems value="#{lookupListProvider.status}"></f:selectItems>
+						</ice:selectOneMenu>
+						<ice:commandButton id="commanButtonStuSearch"
+							action="#{studentManagerModel.searchStudents}"
+							style="margin-left:10px" value="#{msgs['search.label']}"
+							styleClass="CommandButton" />
+						<ice:commandButton id="commandStudentNew"
+							value="Add new #{msgs['student_label']}"
+							styleClass="CommandButton"
+							action="#{studentManagerModel.newStudent}" />
+						<comp:printPopup label="Print Mail Lables" id="printMailLabels"
+							style="padding-left: 50px;text-align: right;"
+							resource="#{printModel.pdfMailLables}"
+							fileName="studentMailLabels.pdf" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="">
+					<ice:setEventPhase events="FacesEvent" phase="UPDATE_MODEL_VALUES">
+						<ice:dataTable scrollable="true" scrollHeight="137px"
+							value="#{studentManagerModel.students}" var="stu"
+							id="tableStudents"
+							columnWidths="60px,75px,75px,260px,80px,100px,80px,90px,80px,140px">
+							<ice:column id="columnStudentId"
+								style="text-align:right;width:60px">
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} ID"
+										style="width:60px" />
+								</f:facet>
+								<ice:outputText value="#{stu.id}" style="width:60px" />
+							</ice:column>
+							<ice:column id="columnStudentCISID" style="width:75px">
+								<f:facet name="header">
+									<ice:outputText value="CISID" style="width:75px" />
+								</f:facet>
+								<ice:outputText value="#{stu.cisid}" title="#{stu.cisid}"
+									style="overflow:hidden;width:75px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentMDSID" style="width:75px">
+								<f:facet name="header">
+									<ice:outputText value="MDSID" style="width:75px" />
+								</f:facet>
+								<ice:outputText value="#{stu.mdsid}" title="#{stu.mdsid}"
+									style="overflow:hidden;width:75px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentName" style="width:260px">
+								<ice:rowSelector id="rowselectStudent"
+									clickListener="#{studentManagerModel.selectStudent}"
+									value="#{stu.ui_selected}">
+									<f:attribute name="student" value="#{stu}" />
+								</ice:rowSelector>
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} Name"
+										style="width:260px" />
+								</f:facet>
+								<ice:outputText value="#{stu.contact.name}" style="width:260px" />
+							</ice:column>
+							<ice:column id="columnStudentSneedIcon" style="width:250px">
+								<f:facet name="header">
+									<ice:outputText value="Special Needs" style="width:250px" />
+								</f:facet>
+								<ui:repeat value="#{stu.specialNeeds}" var="sneed"
+									varStatus="status">
+									<ice:graphicImage value="/imageDownload?p=#{sneed.icon.id}"
+										height="25" rendered="#{sneed.icon != null}" width="25"
+										title="#{sneed.name}" style="margin-left:5px" />
+									<ice:outputText value="#{sneed.name}"
+										style="float:left" title="#{sneed.name}"
+										rendered="#{sneed.icon == null}">
+										<f:converter converterId="truncateConverter" />
+									</ice:outputText>
+									<ice:outputText value=",&nbsp;" style="float:left"
+										rendered="#{sneed.icon == null and stu.specialNeeds.size() > 1 and status.index != stu.specialNeeds.size() - 1}" />
+								</ui:repeat>
+							</ice:column>
+							<ice:column id="columnStudentDob"
+								style="text-align:center;width:100px">
+								<f:facet name="header">
+									<ice:outputText value="Date of Birth" style="width:100px" />
+								</f:facet>
+								<ice:outputText value="#{stu.dob}" converter="dateConverter"
+									style="width:100px">
+								</ice:outputText>
+							</ice:column>
+							<ice:column id="columnStudentGender"
+								style="text-align:center;width:80px">
+								<f:facet name="header">
+									<ice:outputText value="Gender" style="width:80px" />
+								</f:facet>
+								<ice:outputText value="#{stu.gender}" style="width:80px" />
+							</ice:column>
+							<ice:column id="columnStudentContactNo"
+								style="text-align:center;width:90px">
+								<f:facet name="header">
+									<ice:outputText value="Contact Number" style="width:90px" />
+								</f:facet>
+								<ice:outputText value="#{stu.contact.contactNumber}"
+									style="width:90px" />
+							</ice:column>
+							<ice:column id="columnStudentTransport"
+								style="text-align:center;width:50px">
+								<f:facet name="header">
+									<ice:outputText value="Transport Requested" style="width:50px" />
+								</f:facet>
+								<ice:selectBooleanCheckbox value="#{stu.transport}"
+									style="width:50px" disabled="true" />
+							</ice:column>
+							<ice:column id="columnNdisNumber"
+								style="text-align:center;width:140px">
+								<f:facet name="header">
+									<ice:outputText value="NDIS Number" style="width:140px" />
+								</f:facet>
+								<ice:outputText value="#{stu.ndisNumber}" style="width:140px" />
+							</ice:column>
+						</ice:dataTable>
+					</ice:setEventPhase>
+					<!-- 	<ice:panelGroup styleClass="tabSideBox"
+						rendered="#{studentManagerModel.student != null}">
+						<ice:panelGrid columns="2" style="margin-left:1140px">
+							<ice:outputText value="#{sessionContext.activeStringDetails}"
+								effect="#{sessionContext.effectDetails}"
+								styleClass="ReportSectionHeader" />
+						</ice:panelGrid>
+					</ice:panelGroup> -->
+					<ice:panelGroup
+						style="width:100%;height:50px;margin-bottom:-40px;border:1px solid white">
+						<ice:panelGrid columns="2" styleClass="borderBox"
+							rendered="#{studentManagerModel.student != null}"
+							style="height:25px;margin-top:30px;margin-left:630px;margin-right:-15px">
+							<ice:outputText value="Selected #{msgs['student_label']} :"
+								style="margin-left:20px" />
+							<ice:panelGroup style="width:437px">
+								<ice:outputText value="#{sessionContext.activeStringDetails}"
+									effect="#{sessionContext.effectDetails}"
+									styleClass="ReportSectionHeader" />
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</ice:panelGroup>
+					<ice:panelTabSet id="tabSetStudentDetails"
+						tabChangeListener="#{studentManagerModel.tabChangeListner}"
+						selectedIndex="#{studentManagerModel.selectedTabIndex}">
+						<ice:panelTab id="tabStudentProfile"
+							label="#{msgs['student_label']} Profile">
+							<fieldset style="min-height: 580px">
+								<legend>
+									<ice:outputLabel value="#{msgs['student_label']} Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{studentManagerModel.student == null}">
+									<ice:outputText
+										value="Please select a #{msgs['student_label'].toLowerCase()} to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									width="100%">
+									<ice:panelGroup
+										rendered="#{studentManagerModel.student != null}">
+										<fieldset style="width: 900px">
+											<ice:panelGrid columns="2">
+												<ice:panelGroup style="text-align:center">
+													<ice:panelGrid
+														style="border:thick double grey;width:250px;height:200px;text-align:center">
+														<ice:graphicImage url="images/no_logo.jpg" id="imgStudent"
+															rendered="#{studentManagerModel.student.photo == null}"
+															style="height:180px;width:230px">
+														</ice:graphicImage>
+														<ice:graphicImage
+															value="/imageDownload?p=#{studentManagerModel.student.photo.id}"
+															id="imgStudent1"
+															rendered="#{studentManagerModel.student.photo != null}"
+															style="width:230px;height:auto">
+														</ice:graphicImage>
+													</ice:panelGrid>
+													<div style="height: 10px" />
+													<comp:ImageUpload type="link"
+														fileEntryListener="#{imageUploadModel.uploadStudentImage}" />
+												</ice:panelGroup>
+												<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+													rowClasses="topAlignedTableCell" style="margin-left:5px">
+													<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+														<ice:outputText value="Title" />
+														<ice:selectOneMenu id="selectOneStudentTitle"
+															styleClass="SelectOneMenu" tabindex="1"
+															value="#{studentManagerModel.student.contact.title}"
+															style="margin-bottom:10px">
+															<f:selectItems value="#{lookupListProvider.title}" />
+														</ice:selectOneMenu>
+														<ice:outputText value="First Name" />
+														<ice:inputText id="input_StudentFirstName" tabindex="1"
+															maxlength="#{msgs['contact.postCode.size']}"
+															value="#{studentManagerModel.student.contact.firstName}"
+															style="margin-bottom:10px" />
+														<ice:outputText value="Middle Name" />
+														<ice:inputText id="input_StudentMiddleName" tabindex="2"
+															maxlength="#{msgs['contact.middleNames.size']}"
+															value="#{studentManagerModel.student.contact.middleNames}"
+															style="margin-bottom:10px" />
+														<ice:outputText value="Last Name" />
+														<ice:inputText id="input_StudentLastName" tabindex="3"
+															maxlength="#{msgs['contact.lastName.size']}"
+															value="#{studentManagerModel.student.contact.lastName}"
+															style="margin-bottom:10px" />
+														<ice:outputText value="Gender" />
+														<ice:selectOneRadio tabindex="4" id="radioGender"
+															style="margin-left:-20px;height:10px;margin-top:-12px;margin-bottom:20px;border:none"
+															value="#{studentManagerModel.student.gender}">
+															<f:selectItems value="#{lookupListProvider.gender}" />
+														</ice:selectOneRadio>
+														<ice:outputText value="Date of Birth" />
+														<ice:panelGroup id="input_StudentDob">
+															<ice:selectInputDate tabindex="5"
+																value="#{studentManagerModel.student.dob}"
+																renderAsPopup="true" renderYearAsDropdown="true"
+																renderMonthAsDropdown="true" style="margin-bottom:10px"
+																converter="dateConverter">
+															</ice:selectInputDate>
+														</ice:panelGroup>
+														<ice:outputText value="CISID" />
+														<ice:inputText id="input_StudentCISID" tabindex="6"
+															maxlength="#{msgs['student.cisid.size']}"
+															value="#{studentManagerModel.student.cisid}"
+															style="margin-bottom:10px" />
+														<ice:outputText value="MDSID" />
+														<ice:inputText id="input_StudentMDSID"
+															maxlength="#{msgs['student.mdsid.size']}" tabindex="7"
+															value="#{studentManagerModel.student.mdsid}"
+															style="margin-bottom:10px" />
+														<ice:outputText value="Request Transport"
+															style="margin-right:10px" />
+														<ice:selectBooleanCheckbox id="checkStudentTransport"
+															tabindex="8"
+															value="#{studentManagerModel.student.transport}" />
+
+													</ice:panelGrid>
+													<ice:panelGroup style="margin-left:10px">
+														<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+															<ice:panelGroup style="width: 100px">
+																<ice:outputText value="Status" />
+															</ice:panelGroup>
+															<ice:selectOneMenu id="selectStatus"
+																value="#{studentManagerModel.student.status}"
+																style="margin-bottom:10px" partialSubmit="true"
+																valueChangeListener="#{studentManagerModel.statusChanged}">
+																<f:selectItems value="#{lookupListProvider.status}" />
+															</ice:selectOneMenu>
+															<ice:panelGroup
+																rendered="#{studentManagerModel.student.status == 'Inactive'}">
+																<ice:outputText value="Inactive from" />
+																<ice:commandLink id="actRecsLink"
+																	action="#{studentManagerModel.openActiveRecords}"
+																	rendered="#{!studentManagerModel.wizPages.isEmpty()}">
+																	<ice:graphicImage
+																		style="border:none;margin-bottom:-2px;margin-left:5px"
+																		id="graphicActRecs" url="images/icons/information.png"
+																		width="15" height="15" title="Active records found." />
+																</ice:commandLink>
+															</ice:panelGroup>
+															<ice:selectInputDate id="inactiveFromDate"
+																value="#{studentManagerModel.student.serviceEndDate}"
+																rendered="#{studentManagerModel.student.status == 'Inactive'}"
+																valueChangeListener="#{studentManagerModel.serviceEndDateChanged}"
+																partialSubmit="true" renderAsPopup="true"
+																renderMonthAsDropdown="true" renderYearAsDropdown="true"
+																converter="dateConverter" label="Inactive from Date" />
+															<ice:panelGroup style="width: 100px">
+																<ice:outputText value="Start Date" />
+															</ice:panelGroup>
+															<ice:panelGroup id="input_StudentSD">
+																<ice:selectInputDate tabindex="5"
+																	value="#{studentManagerModel.student.startFrom}"
+																	renderAsPopup="true" renderYearAsDropdown="true"
+																	renderMonthAsDropdown="true" style="margin-bottom:10px"
+																	converter="dateConverter" label="Start Date">
+																</ice:selectInputDate>
+															</ice:panelGroup>
+															<ice:outputText value="Adhoc Payment Method" />
+															<ice:selectOneMenu id="selectPaymentMethod"
+																value="#{studentManagerModel.student.paymentMethod}"
+																style="margin-bottom:10px" partialSubmit="true">
+																<f:selectItems
+																	value="#{lookupListProvider.studentPaymentMethods}" />
+															</ice:selectOneMenu>
+															<ice:panelGroup style="width: 100px">
+																<ice:outputText value="NDIS Number" />
+															</ice:panelGroup>
+															<ice:inputText id="input_Studentndisnumber" tabindex="6"
+																value="#{studentManagerModel.student.ndisNumber}"
+																style="margin-bottom:10px" />
+														</ice:panelGrid>
+														<ice:panelGroup style="margin-top:10px">
+															<ice:outputLabel
+																value="#{msgs['student_label']} Consents" />
+														</ice:panelGroup>
+														<ice:panelGroup scrollWidth="230px" scrollHeight="210px"
+															rendered="#{not empty(studentManagerModel.consentList)}">
+															<ice:panelSeries var="con" id="consents"
+																value="#{studentManagerModel.consentList}">
+																<ice:panelGrid columns="4" cellspacing="2px"
+																	style="margin-left:10px;margin-top:5px">
+																	<ice:setEventPhase events="FacesEvent"
+																		phase="UPDATE_MODEL_VALUES">
+																		<ice:selectBooleanCheckbox id="consent_given"
+																			value="#{con.selected}" partialSubmit="true"
+																			valueChangeListener="#{studentManagerModel.selectConsent}">
+																			<f:attribute name="con" value="#{con}" />
+																		</ice:selectBooleanCheckbox>
+																	</ice:setEventPhase>
+																	<ice:outputText value="#{con.name}" />
+																</ice:panelGrid>
+															</ice:panelSeries>
+														</ice:panelGroup>
+													</ice:panelGroup>
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</fieldset>
+									</ice:panelGroup>
+									<ice:panelGroup style="margin-top:-7px"
+										rendered="#{studentManagerModel.student != null}">
+										<fieldset style="width: 260px; height: 315px">
+											<legend>
+												<ice:outputLabel value="Special Needs" />
+											</legend>
+											<!-- <ice:panelGroup style="margin-top:10px"
+											rendered="#{studentManagerModel.student.id == null}">
+											<ice:outputText style="font-size:99%"
+												value="Please save #{msgs['student_label']} to add Special Needs.." />
+										</ice:panelGroup> -->
+											<ice:commandButton id="commandSpecialNeedToStudentSave"
+												value="Add Special Need" styleClass="CommandButton"
+												action="#{studentManagerModel.listAvailableSpecialNeeds}" />
+											<ice:dataTable scrollable="true" scrollHeight="230px"
+												value="#{studentManagerModel.student.specialNeeds}" var="sn"
+												id="tableSpecialNeeds" columnWidths="120px,40px,50px">
+												<ice:column id="columnSpecialNeedName">
+													<f:facet name="header">
+														<ice:outputText value="Name" />
+													</f:facet>
+													<ice:outputText value="#{sn.name}" />
+												</ice:column>
+												<ice:column id="columnSpecialNeedIcon"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Icon" />
+													</f:facet>
+													<ice:graphicImage value="/imageDownload?p=#{sn.icon.id}"
+														width="25px" height="25px" />
+												</ice:column>
+												<ice:column id="columnSpecialNeedDelete"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Remove" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														actionListener="#{studentManagerModel.deleteSpecialNeed}"
+													    panelConfirmation="deleteSNConfirmation"
+														title="Remove" id="commandDeleteSNeed">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon.png" />
+														<f:attribute name="snid" value="#{sn}" />
+													</ice:commandLink>
+													<ice:panelConfirmation id="deleteSNConfirmation"
+												acceptLabel="Yes" cancelLabel="No" draggable="true"
+												title="Confirm"
+												message="Are you sure you want to perform this action?" />
+												</ice:column>
+											</ice:dataTable>
+										</fieldset>
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:panelGrid columns="2"
+									rendered="#{studentManagerModel.student != null}">
+									<ice:panelGroup>
+										<fieldset style="width: 550px">
+											<legend>
+												<ice:outputLabel value="Contact Details" />
+											</legend>
+											<ice:panelGrid columns="4" width="100%">
+												<ice:outputText value="Street Address" />
+												<ice:inputText id="input_StreetAddress" tabindex="9"
+													maxlength="#{msgs['contact.streetAddress.size']}"
+													value="#{studentManagerModel.student.contact.streetAddress}" />
+												<ice:outputText value="Mobile Number" />
+												<ice:inputText id="input_StudentMobileNumber" tabindex="14"
+													maxlength="#{msgs['contact.phone.size']}"
+													value="#{studentManagerModel.student.contact.mobilePhone}" />
+												<ice:outputText value="City" />
+												<ice:inputText id="input_StudentCity" tabindex="10"
+													maxlength="#{msgs['contact.city.size']}"
+													value="#{studentManagerModel.student.contact.city}" />
+												<ice:outputText value="Home Number" />
+												<ice:inputText id="input_StudentHomeNumber" tabindex="15"
+													maxlength="#{msgs['contact.phone.size']}"
+													value="#{studentManagerModel.student.contact.homePhone}" />
+												<ice:outputText value="State / Province" />
+												<ice:selectOneMenu id="input_StudentState" tabindex="11"
+													value="#{studentManagerModel.student.contact.state}">
+													<f:selectItems value="#{lookupListProvider.states}" />
+												</ice:selectOneMenu>
+												<ice:outputText value="Office Number" />
+												<ice:inputText id="input_StudentOfficeNumber"
+													maxlength="#{msgs['contact.phone.size']}" tabindex="16"
+													value="#{studentManagerModel.student.contact.officePhone}" />
+												<ice:outputText value="Postal Code" />
+												<ice:inputText id="input_StudentPostalCode" tabindex="12"
+													maxlength="#{msgs['contact.postCode.size']}"
+													value="#{studentManagerModel.student.contact.postCode}" />
+												<ice:outputText value="E - mail" />
+												<ice:inputText id="input_StudentEmail" tabindex="17"
+													maxlength="#{msgs['contact.email.size']}"
+													value="#{studentManagerModel.student.contact.email}" />
+												<ice:outputText value="Country" />
+												<ice:inputText id="inputStudentCountry" readonly="true"
+													maxlength="#{msgs['contact.country.size']}" tabindex="13"
+													value="#{studentManagerModel.student.contact.country}" />
+												<ice:outputText value="Fax" />
+												<ice:inputText id="input_StudentFax" tabindex="18"
+													maxlength="#{msgs['contact.fax.size']}"
+													value="#{studentManagerModel.student.contact.fax}" />
+											</ice:panelGrid>
+										</fieldset>
+									</ice:panelGroup>
+									<ice:panelGroup styleClass="topAlignedTableCell">
+										<fieldset style="width: 510px; float: right">
+											<legend>
+												<ice:outputLabel value="Mailing Address" />
+											</legend>
+											<ice:panelGrid columns="2" width="100%"
+												rowClasses="topAlignedTableCell" cellpadding="0"
+												cellspacing="0">
+												<ice:panelGroup style="height:160px; margin-top:5px">
+													<ice:outputText value="Same as the contact address" />
+													<ice:selectBooleanCheckbox id="checkAsContact"
+														value="#{studentManagerModel.student.mailAddressDefault}"
+														partialSubmit="true" tabindex="19"
+														valueChangeListener="#{studentManagerModel.setMailingAddress}" />
+												</ice:panelGroup>
+												<ice:panelGrid columns="2" width="100%"
+													rendered="#{not studentManagerModel.student.mailAddressDefault}">
+													<ice:outputText value="Street Address" />
+													<ice:inputText id="input_StreetMAddress" tabindex="20"
+														readonly="#{studentManagerModel.student.mailAddressDefault}"
+														maxlength="#{msgs['contact.streetAddress.size']}"
+														value="#{studentManagerModel.student.mailingAddress.streetAddress}" />
+
+													<ice:outputText value="City" />
+													<ice:inputText id="input_StudentMCity" tabindex="21"
+														readonly="#{studentManagerModel.student.mailAddressDefault}"
+														maxlength="#{msgs['contact.city.size']}"
+														value="#{studentManagerModel.student.mailingAddress.city}" />
+													<ice:outputText value="State / Province" />
+													<ice:selectOneMenu id="input_StudentMState"
+														partialSubmit="true" tabindex="22"
+														readonly="#{studentManagerModel.student.mailAddressDefault}"
+														value="#{studentManagerModel.student.mailingAddress.state}">
+														<f:selectItems value="#{lookupListProvider.states}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Postal Code" />
+													<ice:inputText id="input_StudentMPostalCode" tabindex="23"
+														readonly="#{studentManagerModel.student.mailAddressDefault}"
+														maxlength="#{msgs['contact.postCode.size']}"
+														value="#{studentManagerModel.student.mailingAddress.postCode}" />
+													<ice:outputText value="Country" />
+													<ice:inputText id="inputStudentMCountry" readonly="true"
+														maxlength="#{msgs['contact.country.size']}" tabindex="24"
+														value="#{studentManagerModel.student.mailingAddress.country}" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</fieldset>
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:commandButton id="commandStudentSave"
+									value="Save #{msgs['student_label']}"
+									style="float:right; margin-right:5px;margin-top:10px"
+									rendered="#{studentManagerModel.student != null}"
+									styleClass="CommandButton" tabindex="24"
+									actionListener="#{studentManagerModel.saveStudent}" />
+								<ice:commandButton id="commandStudentDelete"
+									value="Delete #{msgs['student_label']}"
+									panelConfirmation="deleteConfirmation"
+									style="float:right; margin-right:5px;margin-top:10px"
+									rendered="#{studentManagerModel.student != null and studentManagerModel.student.id != null}"
+									styleClass="CommandButton"
+									action="#{studentManagerModel.deleteStudent}" />
+								<ice:commandButton id="commandNDISProfile" value="Goto NDIS"
+									style="float:right; margin-right:5px;margin-top:10px;width: 100px"
+									rendered="#{studentManagerModel.student != null and studentManagerModel.student.id != null}"
+									styleClass="CommandButton" action="NdisProgramManager"
+									actionListener="#{ndisProgramManagerModel.initStudent}" />
+								<comp:ajaxReportPopup label="360° View"
+									style="float:right; margin-right:5px;margin-top:10px"
+									shown="#{studentManagerModel.student != null and studentManagerModel.student.id != null}"
+									params="#{studentManagerModel.selectedStudentId}"
+									reportName="student360View" />
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab id="tabStudentGroups" label="Enrolled Programs"
+							rendered="#{studentManagerModel.student != null}"
+							disabled="#{studentManagerModel.student.id == null}">
+							<fieldset style="height: 350px">
+								<legend>
+									<ice:outputLabel
+										value="#{msgs['student_label']} Programs Details" />
+								</legend>
+								<ice:panelGrid columns="3" cellpadding="0" cellspacing="0">
+									<ice:panelGroup
+										style="border:1px solid lightgrey;min-height:25px">
+										<ice:selectOneRadio id="selectGruopType"
+											value="#{studentManagerModel.allGroups}" partialSubmit="true"
+											style="width:350px;height:15px;margin-top:-10px;border:none">
+											<f:selectItem itemLabel="All programs" itemValue="true" />
+											<f:selectItem itemLabel="Programs time table"
+												itemValue="false" />
+										</ice:selectOneRadio>
+									</ice:panelGroup>
+									<ice:panelGroup style="margin-left:10px"
+										rendered="#{studentManagerModel.allGroups}">
+										<ice:commandButton id="commandEnroll"
+											value="Enroll to a #{msgs['student_label']} Program"
+											styleClass="CommandButton"
+											actionListener="#{studentManagerModel.listAvailableGroups}">
+											<f:attribute name="proTypeName" value="Student" />
+										</ice:commandButton>
+										<ice:commandButton id="commandEnrollT"
+											value="Enroll to a Transport Program"
+											styleClass="CommandButton" style="margin-left:5px"
+											actionListener="#{studentManagerModel.listAvailableGroups}">
+											<f:attribute name="proTypeName" value="Transport" />
+										</ice:commandButton>
+									</ice:panelGroup>
+									<ice:panelGrid style="margin-left:10px;margin-top:2px"
+										columns="5" cellpadding="0" cellspacing="0"
+										rendered="#{!studentManagerModel.allGroups}">
+										<ice:outputText value="Select date" />
+										<ice:selectInputDate id="selectGroupFromDate"
+											renderAsPopup="true" style="margin-left:5px"
+											renderMonthAsDropdown="true" renderYearAsDropdown="true"
+											value="#{studentManagerModel.fromDate}"
+											converter="dateConverter" label="Selected date" />
+										<!-- <ice:outputText value="To date" style="margin-left:20px" />
+									<ice:selectInputDate id="selectGroupToDate"
+										renderAsPopup="true" style="margin-left:5px"
+										renderMonthAsDropdown="true" renderYearAsDropdown="true"
+										value="#{studentManagerModel.toDate}"
+										converter="dateConverter" /> -->
+										<ice:commandButton id="commandSearchGroups" value="Search"
+											styleClass="CommandButton"
+											style="margin-left:10px;width:60px"
+											action="#{studentManagerModel.loadGroups}" />
+									</ice:panelGrid>
+									<ice:panelGroup style="margin-left:5px"
+										rendered="#{!studentManagerModel.allGroups and !empty(studentManagerModel.events)}">
+										<comp:ajaxReportPopup label="Print Timetable"
+											params="#{studentManagerModel.jsonString}"
+											reportName="studentTimeTable" submitDisabled="false" />
+									</ice:panelGroup>
+									<ice:outputText
+										value="No #{msgs['student_label']} Groups found.."
+										rendered="#{empty(studentManagerModel.student.groups)}"
+										style="margin-left:10px" />
+								</ice:panelGrid>
+								<ice:dataTable scrollable="true" scrollHeight="260px"
+									value="#{studentManagerModel.student.groups}" var="grp"
+									id="tableStudentGroups"
+									rendered="#{studentManagerModel.allGroups}"
+									columnWidths="70px,430px,100px,350px,50px,50px">
+									<ice:column id="columnStudentGroupProId"
+										groupOn="#{grp.group.program.id}" style="text-align:right">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Id" />
+										</f:facet>
+										<ice:outputText value="#{grp.group.program.id}" />
+									</ice:column>
+									<ice:column id="columnStudentGroupProName"
+										groupOn="#{grp.group.program.id}">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Name" />
+										</f:facet>
+										<ice:outputText value="#{grp.group.program.name} - Transport"
+											rendered="#{grp.group.program.type.name == 'Transport'}" />
+										<ice:outputText value="#{grp.group.program.name}"
+											rendered="#{grp.group.program.type.name != 'Transport'}" />
+									</ice:column>
+									<ice:column id="columnStudentGroupProStatus"
+										groupOn="#{grp.group.program.id}" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Status" />
+										</f:facet>
+										<ice:outputText value="#{grp.group.program.status}" />
+									</ice:column>
+									<ice:column id="columnStudentGroupName">
+										<f:facet name="header">
+											<ice:outputText value="Program name" />
+										</f:facet>
+										<ice:outputText value="#{grp.group.name}" style="color:grey"
+											rendered="#{grp.ui_selected}" />
+										<ice:outputText value="#{grp.group.name}"
+											rendered="#{!grp.ui_selected}" />
+									</ice:column>
+									<ice:column id="columnStudentExcluded"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Excluded" />
+										</f:facet>
+										<ice:selectBooleanCheckbox id="booleanExcluded"
+											valueChangeListener="#{studentManagerModel.excludeGroup}"
+											value="#{grp.ui_selected}" partialSubmit="true">
+											<f:attribute name="group" value="#{grp}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column id="columnStudentGroupDelete"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Remove" />
+										</f:facet>
+										<ice:commandLink style="border:none"
+											actionListener="#{studentManagerModel.deleteGroup}"
+											title="Remove" panelConfirmation="deleteGroupConfirmation">
+											<ice:graphicImage style="border:none"
+												url="images/icons/delete-icon.png" />
+											<f:attribute name="grp" value="#{grp}" />
+										</ice:commandLink>
+										<ice:panelConfirmation id="deleteGroupConfirmation"
+											acceptLabel="Yes" cancelLabel="No" draggable="true"
+											title="Confirm"
+											message="Are you sure you want to perform this action?" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:dataTable scrollable="true" scrollHeight="260px"
+									value="#{studentManagerModel.oneRowTable}" var="date"
+									id="tableStudentEventGroups" width="1570px"
+									rendered="#{!studentManagerModel.allGroups}"
+									columnWidths="210px,210px,210px,210px,210px,210px,210px">
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Sunday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Sunday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Sunday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatSundayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Sunday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatSundayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatMondayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgMondayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage
+													value="#{group.photo.blobFileData.thumbnail}"
+													id="imgMondayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>	
+									</ice:column>
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Monday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Monday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Monday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatMondayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Monday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatMondayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatMondayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgMondayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage
+													value="#{group.photo.blobFileData.thumbnail}"
+													id="imgMondayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Tuesday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Tuesday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Tuesday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatTuedayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Tuesday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatTuesdayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatTuesdayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:4px">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgTuesdayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage value="#{group.photo.thumbnail}"
+													id="imgTuesdayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Wednesday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Wednesday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Wednesday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatWeddayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Wednesday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatWeddayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatWeddayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:4px">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgWeddayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage value="#{group.photo.thumbnail}"
+													id="imgWeddayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Thursday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Thursday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Thursday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatThursdayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Thursday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatThursdayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatThursdayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:4px">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgThursdayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage value="#{group.photo.thumbnail}"
+													id="imgThursdayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Friday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Friday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Friday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatFridayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Friday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatFridayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatFridayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:4px">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgFridayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage value="#{group.photo.thumbnail}"
+													id="imgFridayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+									<ice:column style="text-align:left; vertical-align:top">
+										<f:facet name="header">
+											<ice:outputText value="Saturday" />
+										</f:facet>
+										<ice:outputText value="Home"
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Saturday')) and !empty(studentManagerModel.events)}"
+											style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+										<ice:panelGrid
+											rendered="#{empty(studentManagerModel.groupsForDays.get('Saturday'))}"
+											style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:218px">
+											<ice:graphicImage url="images/home.png"
+												style="height:120px;width:120px">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<ui:repeat var="group" id="uiRepeatSaturdayGroup"
+											value="#{studentManagerModel.groupsForDays.get('Saturday')}">
+											<ice:outputText value="#{group.name}"
+												style="text-align:center; font-size:16px; text-decoration:underline; font-weight:bolder; margin-top:10px; margin-bottom:10px" />
+											<ice:panelGroup>
+												<ui:repeat var="event" id="uiRepeatSaturdayGroup"
+													value="#{group.events}">
+													<ice:panelGrid columns="3">
+														<ice:outputText value="Where" />
+														<ice:outputText value=":" />
+														<ice:outputText value="#{event.location.name}" />
+														<ice:outputText value="When" />
+														<ice:outputText value=":" />
+														<ice:outputText
+															value="#{studentManagerModel.timeFormat.format(event.startTime)} - #{studentManagerModel.timeFormat.format(event.endTime)}" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="$#{event.chargeAmount}" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{not empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Options" />
+													</ice:panelGrid>
+													<ice:panelGrid columns="3"
+														rendered="#{empty(studentManagerModel.getTransportEvents(event))}">
+														<ice:outputText value="Transport" />
+														<ice:outputText value=":" />
+														<ice:outputText value="Family" />
+														<ice:outputText value="Cost" />
+														<ice:outputText value=":" />
+														<ice:outputText value="N/A" />
+													</ice:panelGrid>
+													<ui:repeat var="trans" id="uiRepeatFridayGroupTransport"
+														value="#{studentManagerModel.getTransportEvents(event)}">
+														<ice:panelGrid columns="3">
+															<ice:outputText value="From" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).pickup.name}" />
+															<ice:outputText value="To" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.getGroupedStudent(trans).dropoff.name}" />
+															<ice:outputText value="Time" />
+															<ice:outputText value=":" />
+															<ice:outputText
+																value="#{studentManagerModel.timeFormat.format(trans.startTime)} - #{studentManagerModel.timeFormat.format(trans.endTime)}" />
+															<ice:outputText value="Cost" />
+															<ice:outputText value=":" />
+															<ice:outputText value="$#{trans.chargeAmount}" />
+														</ice:panelGrid>
+													</ui:repeat>
+												</ui:repeat>
+											</ice:panelGroup>
+											<ice:panelGrid columns="3" style="margin-bottom:10px">
+												<ice:outputText value="Bring" />
+												<ice:outputText value=":" />
+												<ice:outputText value=" " />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:200px;height:150px;text-align:center; margin-top:4px">
+												<ice:graphicImage url="images/no_logo.jpg"
+													id="imgFridayGroup" rendered="#{group.photo == null}"
+													style="height:120px;width:160px">
+												</ice:graphicImage>
+												<ice:graphicImage value="#{group.photo.thumbnail}"
+													id="imgFridayGroup1"
+													width="#{studentManagerModel.getImageWidth(group,'w')}"
+													height="{studentManagerModel.getImageWidth(group,'h')}"
+													rendered="#{group.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:column>
+								</ice:dataTable>
+								<!-- <ice:dataTable scrollable="true" scrollHeight="260px"
+								value="#{studentManagerModel.events}" var="event"
+								id="tableStudentEventGroups"
+								rendered="#{!studentManagerModel.allGroups}"
+								columnWidths="300px,250px,500px">
+								<ice:column groupOn="#{event.eventDate}" style="text-align:left">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText
+										value="#{studentManagerModel.dateFormat.format(event.eventDate)}" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Time" />
+									</f:facet>
+									<center>
+										<ice:panelGrid columns="3" cellpadding="0" cellspacing="0">
+											<ice:outputText
+												value="#{studentManagerModel.timeFormat.format(event.startTime)}" />
+											<ice:outputText value="-"
+												style="margin-left:5px;margin-right:5px" />
+											<ice:outputText
+												value="#{studentManagerModel.timeFormat.format(event.endTime)}" />
+										</ice:panelGrid>
+									</center>
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Group name" />
+									</f:facet>
+									<ice:outputText value="#{event.group.name}" />
+								</ice:column>
+							</ice:dataTable> -->
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab id="tabStudentFundings" label="Funding Details"
+							rendered="#{studentManagerModel.student != null}"
+							disabled="#{studentManagerModel.student.id == null}">
+							<fieldset style="height: 350px">
+								<legend>
+									<ice:outputLabel
+										value="#{msgs['student_label']} Funding Details" />
+								</legend>
+								<ice:commandButton id="commandFundingSourceToStudent"
+									value="Add Funding Source" styleClass="CommandButton"
+									action="#{studentManagerModel.listActiveFundingSources}" />
+								<ice:outputText value="No Funding Sources found.."
+									rendered="#{empty(studentManagerModel.student.fundingSrcs)}"
+									style="margin-left:10px" />
+								<ice:setEventPhase events="FacesEvent"
+									phase="INVOKE_APPLICATION">
+									<ice:dataTable scrollable="true" scrollHeight="260px"
+										value="#{studentManagerModel.student.fundingSrcs}" var="fs"
+										id="tableStudentsFundings"
+										columnWidths="100px,240px,100px,240px,100px,100px,100px,50px">
+										<ice:column id="columnFundingCode">
+											<f:facet name="header">
+												<ice:outputText value="Code" />
+											</f:facet>
+											<ice:outputText value="#{fs.fundingSrc.fundingCode}"
+												rendered="#{fs.active}" />
+											<ice:outputText value="#{fs.fundingSrc.fundingCode}"
+												style="color:grey" rendered="#{!fs.active}" />
+										</ice:column>
+										<ice:column id="columnFundingType">
+											<f:facet name="header">
+												<ice:outputText value="Funding Source" />
+											</f:facet>
+											<ice:outputText value="#{fs.fundingSrc.fundingType}"
+												rendered="#{fs.active}" />
+											<ice:outputText value="#{fs.fundingSrc.fundingType}"
+												style="color:grey" rendered="#{!fs.active}" />
+										</ice:column>
+										<ice:column id="columnFundingserviceId">
+											<f:facet name="header">
+												<ice:outputText value="Outlet Id" />
+											</f:facet>
+											<ice:outputText value="#{fs.outlet.serviceId}"
+												rendered="#{fs.active}" />
+											<ice:outputText value="#{fs.outlet.serviceId}"
+												style="color:grey" rendered="#{!fs.active}" />
+										</ice:column>
+										<ice:column id="columnFundingOutletName">
+											<f:facet name="header">
+												<ice:outputText value="Outlet Name" />
+											</f:facet>
+											<ice:outputText value="#{fs.outlet.name}"
+												rendered="#{fs.active}" />
+											<ice:outputText value="#{fs.outlet.name}" style="color:grey"
+												rendered="#{!fs.active}" />
+										</ice:column>
+										<ice:column id="columnStudentFundingLevel"
+											style="text-align:center;">
+											<f:facet name="header">
+												<ice:outputText value="Funding Level" />
+											</f:facet>
+											<ice:outputText value="#{fs.fundingLevel}"
+												rendered="#{fs.active}" />
+											<ice:outputText value="#{fs.fundingLevel}" style="color:grey"
+												rendered="#{!fs.active}" />
+										</ice:column>
+										<ice:column id="columnStudentFundingHours"
+											style="text-align:center;">
+											<f:facet name="header">
+												<ice:outputText value="Contracted Hours" />
+											</f:facet>
+											<ice:outputText value="#{fs.fundingHours} Hrs"
+												rendered="#{fs.active and fs.fundingHours != 1}" />
+											<ice:outputText value="#{fs.fundingHours} Hr"
+												rendered="#{fs.active and fs.fundingHours == 1}" />
+											<ice:outputText value="#{fs.fundingHours} Hrs"
+												rendered="#{!fs.active and fs.fundingHours != 1}"
+												style="color:grey" />
+											<ice:outputText value="#{fs.fundingHours} Hr"
+												rendered="#{!fs.active and fs.fundingHours == 1}"
+												style="color:grey" />
+										</ice:column>
+										<!-- <ice:column id="columnStudentFundingHoursUsed">
+										<f:facet name="header">
+											<ice:outputText value="Remaining Hours" />
+										</f:facet>
+										<center>
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rendered="#{fs.fundingHours lt fs.fundingHoursUsed}">
+												<ice:outputText
+													value="#{-(fs.fundingHours - fs.fundingHoursUsed)}"
+													style="color:red">
+												</ice:outputText>
+												<ice:outputText value="&nbsp;Hrs Elapsed" style="color:red"
+													rendered="#{-(fs.fundingHours - fs.fundingHoursUsed) != 1}" />
+												<ice:outputText value="&nbsp;Hr Elapsed" style="color:red"
+													rendered="#{-(fs.fundingHours - fs.fundingHoursUsed) == 1}" />
+											</ice:panelGrid>
+											<ice:outputText
+												value="#{fs.fundingHours - fs.fundingHoursUsed} Hrs"
+												rendered="#{fs.fundingHours ge fs.fundingHoursUsed and (fs.fundingHours - fs.fundingHoursUsed) > 1}">
+												<f:convertNumber pattern="##" />
+											</ice:outputText>
+											<ice:outputText
+												value="#{fs.fundingHours - fs.fundingHoursUsed} Hr"
+												rendered="#{fs.fundingHours ge fs.fundingHoursUsed and (fs.fundingHours - fs.fundingHoursUsed) == 1}">
+												<f:convertNumber pattern="##" />
+											</ice:outputText>
+											<ice:outputText
+												value="#{fs.fundingHours - fs.fundingHoursUsed} Hrs"
+												style="color:red"
+												rendered="#{fs.fundingHours ge fs.fundingHoursUsed and (fs.fundingHours - fs.fundingHoursUsed) == 0}">
+												<f:convertNumber pattern="##" />
+											</ice:outputText>
+										</center>
+									</ice:column> -->
+										<ice:column id="columnStudentFundingStartDate"
+											style="text-align:center;">
+											<f:facet name="header">
+												<ice:outputText value="Start Date" />
+											</f:facet>
+											<ice:outputText value="#{fs.fundingStartDate}"
+												rendered="#{fs.active}" converter="dateConverter">
+											</ice:outputText>
+											<ice:outputText value="#{fs.fundingStartDate}"
+												style="color:grey" rendered="#{!fs.active}"
+												converter="dateConverter">
+											</ice:outputText>
+										</ice:column>
+										<!-- <ice:column id="columnStudentFundingStatus"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Active" />
+										</f:facet>
+										<ice:selectBooleanCheckbox id="selectBooleanFundingActive"
+											partialSubmit="true" value="#{fs.active}"
+											disabled="#{fs.active}"
+											valueChangeListener="#{studentManagerModel.checkActive}">
+											<f:attribute name="src" value="#{fs}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column> -->
+										<ice:column id="columnFundingDelete" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:graphicImage style="border:none"
+												title="Active Funding Sources cannot be removed.."
+												url="images/icons/delete-icon-disabled.png"
+												rendered="#{fs.active}" />
+											<ice:commandLink style="border:none" id="linkRemoveSrc1"
+												actionListener="#{studentManagerModel.removeFunding}"
+												title="Remove" rendered="#{!fs.active}"
+												panelConfirmation="deleteFSConfirmation">
+												<ice:graphicImage style="border:none"
+													id="graphicRemoveFunding"
+													url="images/icons/delete-icon.png" />
+												<f:attribute name="funding" value="#{fs}" />
+											</ice:commandLink>
+											<ice:panelConfirmation id="deleteFSConfirmation"
+												acceptLabel="Yes" cancelLabel="No" draggable="true"
+												title="Confirm"
+												message="Are you sure you want to perform this action?" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:setEventPhase>
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab id="tabStudentGuardians" label="Guardian Details"
+							rendered="#{studentManagerModel.student != null}"
+							disabled="#{studentManagerModel.student.id == null}">
+							<fieldset style="height: 350px">
+								<legend>
+									<ice:outputLabel
+										value="#{msgs['student_label']} Guardian Details" />
+								</legend>
+								<ice:commandButton id="commandGuardianToStudent"
+									value="Add New Guardian" styleClass="CommandButton"
+									action="#{studentManagerModel.addNewGuardian}" />
+								<ice:outputText value="No guardians found.."
+									style="margin-left:10px"
+									rendered="#{empty(studentManagerModel.student.guardians)}" />
+								<ice:dataTable scrollable="true" scrollHeight="260px"
+									value="#{studentManagerModel.student.guardians}" var="gua"
+									id="tableStudentsGuardians"
+									columnWidths="60px,250px,130px,320px,80px,85px,50px,50px">
+									<ice:column id="columnGuardianId" style="text-align:right">
+										<f:facet name="header">
+											<ice:outputText value="Contact ID" />
+										</f:facet>
+										<ice:outputText value="#{gua.contact.id}" />
+									</ice:column>
+									<ice:column id="columnGuardianName">
+										<f:facet name="header">
+											<ice:outputText value="Guardian Name" />
+										</f:facet>
+										<ice:outputText value="#{gua.contact.name}" />
+									</ice:column>
+									<ice:column id="columnGuardianPhone" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Contact Number" />
+										</f:facet>
+										<ice:outputText value="#{gua.contact.contactNumber}" />
+									</ice:column>
+									<ice:column id="columnGuardianAddress">
+										<f:facet name="header">
+											<ice:outputText value="Address" />
+										</f:facet>
+										<ice:outputText
+											value="#{gua.contact.streetAddress},#{gua.contact.city},#{gua.contact.state},#{gua.contact.postCode}" />
+									</ice:column>
+									<ice:column id="columnGuardianSendInvoice"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Send Invoice" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{gua.contact.sendInvoice}"
+											disabled="true" />
+									</ice:column>
+									<ice:column id="columnGuardianSendNewsLetter"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Send Newsletter" />
+										</f:facet>
+										<ice:selectBooleanCheckbox
+											value="#{gua.contact.sendNewsletter}" disabled="true" />
+									</ice:column>
+									<ice:column id="columnGuardianEdit" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Edit" />
+										</f:facet>
+										<ice:commandLink style="border:none"
+											actionListener="#{studentManagerModel.editGuardian}"
+											title="Edit">
+											<ice:graphicImage style="border:none"
+												id="graphicEditGuardian" url="images/icons/edit.png" />
+											<f:attribute name="guardian" value="#{gua}" />
+										</ice:commandLink>
+									</ice:column>
+									<ice:column id="columnGuardianDelete" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Remove" />
+										</f:facet>
+										<ice:commandLink style="border:none"
+											actionListener="#{studentManagerModel.removeGuardian}"
+											title="Remove" panelConfirmation="deleteGuardianConfirmation">
+											<ice:graphicImage style="border:none"
+												id="graphicRemoveGuardian"
+												url="images/icons/delete-icon.png" />
+											<f:attribute name="guardian" value="#{gua}" />
+										</ice:commandLink>
+										<ice:panelConfirmation id="deleteGuardianConfirmation"
+											acceptLabel="Yes" cancelLabel="No" draggable="true"
+											title="Confirm"
+											message="Are you sure you want to perform this action?" />
+									</ice:column>
+								</ice:dataTable>
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelConfirmation id="deleteConfirmation1" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+					</ice:panelTabSet>
+				</div>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{studentManagerModel.visibleSpecialNeeds}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Add new special needs to #{studentManagerModel.student.contact.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeSpecialNeedButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.addSpecialNeedPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<!-- <ice:panelGrid styleClass="borderBox" style="width:100%">
+								<ice:panelGrid columns="4">
+									<ice:outputText value="Search Special Need by Id or Name :"></ice:outputText>
+									<ice:inputText id="inputTextSearch"
+										action="#{studentManagerModel.searchSpecialNeeds}"
+										value="#{studentManagerModel.searchSNText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonSpecialNeedsSearch"
+										action="#{studentManagerModel.searchSpecialNeeds}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+									<ice:messages></ice:messages>
+								</ice:panelGrid>
+							</ice:panelGrid> -->
+						<fieldset style="width: 540px; margin-top: 20px">
+							<legend>
+								<ice:outputLabel value="Available special need(s)" />
+							</legend>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableSpecialNeedPopup" scrollable="true"
+									columnWidths="50px,330px,150px" scrollHeight="250px"
+									value="#{studentManagerModel.availableSpecialNeeds}" var="sn"
+									style="margin-bottom:10px">
+									<ice:column style="text-align:center;">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectBooleanAll"
+												partialSubmit="true"
+												value="#{studentManagerModel.selectAllSpecialNeeds}"
+												valueChangeListener="#{studentManagerModel.selectAllSpecialNeeds}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{sn.ui_selected}"
+											id="selectBooleanStd" partialSubmit="true"
+											valueChangeListener="#{studentManagerModel.selectSpecialNeed}">
+											<f:attribute name="sneed" value="#{sn}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column id="columnSpecialNeedName">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{sn.name}" />
+									</ice:column>
+									<ice:column id="columnSpecialNeedTableIcon"
+										style="text-align:center;">
+										<f:facet name="header">
+											<ice:outputText value="Icon" />
+										</f:facet>
+										<ice:graphicImage style="border:none"
+											value="/imageDownload?p=#{sn.icon.id}" width="25px"
+											height="25px" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:outputText
+								value="Number of special need(s) selected : #{studentManagerModel.selectedSpecialNeeds.size()}" />
+							<ice:commandButton id="commandAddSpecialNeeds"
+								value="Add to #{msgs['student_label']}"
+								styleClass="CommandButton" style="float:right;margin-top:-3px"
+								disabled="#{empty(studentManagerModel.selectedSpecialNeeds)}"
+								action="#{studentManagerModel.saveSelectedSpecialNeeds}" />
+						</fieldset>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{studentManagerModel.visibleGroups}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Enroll [#{studentManagerModel.student.contact.name}] with #{msgs['student_label'].toLowerCase()} program(s)"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeGrpStuButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.addGroupPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:750px;margin-top:10px">
+							<ice:panelGrid styleClass="borderBox" style="width:100%">
+								<ice:panelGrid columns="4">
+									<ice:outputText
+										value="Search programs by cost center id or name :"></ice:outputText>
+									<ice:inputText id="inputProgramSearch" maxlength="20"
+										actionListener="#{studentManagerModel.searchGroups}"
+										value="#{studentManagerModel.searchGroupText}">
+										<f:attribute name="proTypeName" value="Student" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonProgramsSearch"
+										actionListener="#{studentManagerModel.searchGroups}"
+										value="#{msgs['search.label']}" styleClass="CommandButton">
+										<f:attribute name="proTypeName" value="Student" />
+									</ice:commandButton>
+									<ice:messages></ice:messages>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent" phase="INVOKE_APPLICATION">
+								<ice:dataTable id="tableStdGrpPopup" scrollable="true"
+									columnWidths="25px,275px,60px,230px,100px" scrollHeight="200px"
+									value="#{studentManagerModel.availableGroups}" var="grp"
+									style="margin-bottom:10px">
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectBooleanAll"
+												partialSubmit="true"
+												value="#{studentManagerModel.selectAllGroups}"
+												valueChangeListener="#{studentManagerModel.selectAllGroups}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{grp.ui_selected}"
+											id="selectBooleanStd" partialSubmit="true"
+											valueChangeListener="#{studentManagerModel.selectGroup}">
+											<f:attribute name="grp" value="#{grp}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column id="columnGrpName">
+										<f:facet name="header">
+											<ice:outputText value="Program Name" />
+										</f:facet>
+										<ice:outputText value="#{grp.name}" />
+									</ice:column>
+									<ice:column id="columnStuProgramId" style="text-align:right"
+										groupOn="#{grp.program.id}">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Id" />
+										</f:facet>
+										<ice:outputText value="#{grp.program.id}" />
+									</ice:column>
+									<ice:column id="columnStuProgramName"
+										groupOn="#{grp.program.id}">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Name" />
+										</f:facet>
+										<ice:outputText value="#{grp.program.name}" />
+									</ice:column>
+									<ice:column id="columnStuProgramStatus"
+										groupOn="#{grp.program.id}" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Cost Center Status" />
+										</f:facet>
+										<ice:outputText value="#{grp.program.status}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:outputText
+								value="Number of Program(s) selected : #{studentManagerModel.selectedGroups.size()}" />
+							<ice:commandButton id="commandAddGrp"
+								value="Add to #{msgs['student_label']}"
+								styleClass="CommandButton" style="float:right;margin-top:-3px"
+								disabled="#{empty(studentManagerModel.selectedGroups)}"
+								action="#{studentManagerModel.saveSelectedGroups}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{studentManagerModel.visibleTransportGroups}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Enroll &lt;#{studentManagerModel.student.contact.name}&gt; with #{msgs['student_label'].toLowerCase()} program(s)"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeGrpTransStuButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.addTransportGroupPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:750px;margin-top:10px">
+							<ice:panelGrid styleClass="borderBox" style="width:100%">
+								<ice:panelGrid columns="4">
+									<ice:outputText
+										value="Search programs by cost center id or name :" />
+									<ice:inputText id="inputTextTransportProgramSearch"
+										style="width:100px"
+										actionListener="#{studentManagerModel.searchGroups}"
+										value="#{studentManagerModel.searchGroupText}" maxlength="20">
+										<f:attribute name="proTypeName" value="Transport" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonTransportProgramsSearch"
+										actionListener="#{studentManagerModel.searchGroups}"
+										value="#{msgs['search.label']}" styleClass="CommandButton">
+										<f:attribute name="proTypeName" value="Transport" />
+									</ice:commandButton>
+									<ice:messages></ice:messages>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:dataTable id="tableTransportStdGrpPopup" scrollable="true"
+								columnWidths="275px,60px,255px,100px" scrollHeight="200px"
+								value="#{studentManagerModel.availableGroups}" var="grp"
+								style="margin-bottom:10px">
+								<ice:column id="columnGrpName">
+									<ice:rowSelector id="rowselectTransStudent"
+										value="#{grp.ui_selected}"
+										clickListener="#{studentManagerModel.selectGroup}">
+										<f:attribute name="grp" value="#{grp}" />
+									</ice:rowSelector>
+									<f:facet name="header">
+										<ice:outputText value="Program Name" />
+									</f:facet>
+									<ice:outputText value="#{grp.name}" />
+								</ice:column>
+								<ice:column id="columnStuProgramId" style="text-align:right">
+									<f:facet name="header">
+										<ice:outputText value="Cost Center Id" />
+									</f:facet>
+									<ice:outputText value="#{grp.program.id}" />
+								</ice:column>
+								<ice:column id="columnStuProgramName">
+									<f:facet name="header">
+										<ice:outputText value="Cost Center Name" />
+									</f:facet>
+									<ice:outputText value="#{grp.program.name}" />
+								</ice:column>
+								<ice:column id="columnGrpProgramType" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Cost Center Status" />
+									</f:facet>
+									<ice:outputText value="#{grp.program.status}" />
+								</ice:column>
+							</ice:dataTable>
+
+							<fieldset style="margin-top: 10px; height: 150px">
+								<legend>
+									<ice:outputLabel value="Program Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{studentManagerModel.groupedStudent == null}">
+									<ice:outputText
+										value="Please select a #{msgs['student_label'].toLowerCase()} program to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									rendered="#{studentManagerModel.groupedStudent != null}"
+									width="100%">
+									<ice:panelGroup style="width:480px">
+										<ice:panelGrid columns="3" cellspacing="10">
+											<ice:outputLabel value="Selected Program" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{studentManagerModel.studentGroup.name}" />
+											<ice:outputLabel value="Pick-up Location" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												rendered="#{studentManagerModel.groupedStudent.pickup != null}"
+												value="#{studentManagerModel.groupedStudent.pickup.name}" />
+											<ice:outputText
+												rendered="#{studentManagerModel.groupedStudent.pickup == null}"
+												value="Not Selected" />
+											<ice:outputLabel value="Drop-off Location" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												rendered="#{studentManagerModel.groupedStudent.dropoff != null}"
+												value="#{studentManagerModel.groupedStudent.dropoff.name}" />
+											<ice:outputText
+												rendered="#{studentManagerModel.groupedStudent.dropoff == null}"
+												value="Not Selected" />
+										</ice:panelGrid>
+									</ice:panelGroup>
+									<ice:panelGroup>
+										<ice:outputLabel value="Available Locations" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListEvent" size="5"
+												value="#{studentManagerModel.selectedLocationId}"
+												partialSubmit="true"
+												style="width:225px;margin-top:5px;height:70px">
+												<f:selectItems
+													value="#{studentManagerModel.locationSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+										<ice:commandButton id="commandAddToPicup"
+											value="Set as Pick-up" styleClass="CommandButton"
+											style="margin-top:10px;margin-left:2px; width:110px"
+											disabled="#{studentManagerModel.selectedLocationId == null || studentManagerModel.selectedLocationId == 0}"
+											action="#{studentManagerModel.addToPicup}" />
+										<ice:commandButton id="commandAddToDropoff"
+											value="Set as Drop-off" styleClass="CommandButton"
+											style="margin-top:10px;margin-left:5px; width:110px"
+											disabled="#{studentManagerModel.selectedLocationId == null || studentManagerModel.selectedLocationId == 0}"
+											action="#{studentManagerModel.addToDropoff}" />
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:commandButton id="commandAddStdNExit"
+								value="Enroll Program &amp; Exit" styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-left:5px"
+								disabled="#{studentManagerModel.studentGroup == null}"
+								rendered="#{studentManagerModel.groupedStudent.id == null}"
+								action="#{studentManagerModel.enrollGroupNExit}" />
+							<ice:commandButton id="commandAddStd" value="Enroll Program"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{studentManagerModel.studentGroup == null}"
+								rendered="#{studentManagerModel.groupedStudent.id == null}"
+								action="#{studentManagerModel.enrollGroup}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+
+				<ice:panelPopup draggable="true" modal="true" styleClass="icePnlPop"
+					rendered="#{studentManagerModel.visibleFunding}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Add New Funding Source to #{studentManagerModel.student.contact.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeFundingButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.addFundingPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:600px">
+							<ice:messages />
+							<fieldset style="margin-top: 10px">
+								<legend>
+									<ice:outputLabel value="List of funding sources" />
+								</legend>
+								<ice:dataTable id="tableFundingPopup" scrollable="true"
+									columnWidths="30px,100px,200px,200px" scrollHeight="150px"
+									value="#{studentManagerModel.fundingSources}" var="afs">
+									<ice:column id="columnPopFundingId" style="text-align:right">
+										<f:facet name="header">
+											<ice:outputText value="Id" />
+										</f:facet>
+										<ice:outputText value="#{afs.id}" />
+									</ice:column>
+									<ice:column id="columnPopFundingCode" style="text-align:center">
+										<ice:rowSelector id="rowselectFunding"
+											value="#{afs.ui_selected}"
+											clickListener="#{studentManagerModel.selectFundingSource}">
+											<f:attribute name="src" value="#{afs}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Funding Code" />
+										</f:facet>
+										<ice:outputText value="#{afs.fundingCode}" />
+									</ice:column>
+									<ice:column id="columnPopFundingType">
+										<f:facet name="header">
+											<ice:outputText value="Funding Source" />
+										</f:facet>
+										<ice:outputText value="#{afs.fundingType}" />
+									</ice:column>
+									<ice:column id="columnPopFundingDescription">
+										<f:facet name="header">
+											<ice:outputText value="Description" />
+										</f:facet>
+										<ice:outputText value="#{afs.fundingDescription}" />
+									</ice:column>
+								</ice:dataTable>
+							</fieldset>
+							<fieldset style="margin-top: 10px; height: 130px">
+								<legend>
+									<ice:outputLabel value="Funding Source Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{studentManagerModel.fundingSource == null}">
+									<ice:outputText
+										value="Please select a funding source to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="4" width="100%"
+									rendered="#{studentManagerModel.fundingSource != null}">
+									<ice:outputText value="Start Date" />
+									<ice:panelGroup id="input_FundingStartDate">
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectInputDate
+												value="#{studentManagerModel.studentFundingSrc.fundingStartDate}"
+												valueChangeListener="#{studentManagerModel.selectStartDate}"
+												partialSubmit="true" renderAsPopup="true"
+												renderMonthAsDropdown="true" renderYearAsDropdown="true"
+												converter="dateConverter">
+											</ice:selectInputDate>
+										</ice:setEventPhase>
+									</ice:panelGroup>
+									<ice:outputText value="Funding Level" />
+									<ice:selectOneMenu id="selectOneFundingLevel"
+										styleClass="SelectOneMenu"
+										value="#{studentManagerModel.studentFundingSrc.fundingLevel}"
+										partialSubmit="true">
+										<f:selectItems value="#{lookupListProvider.fundingLevel}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Contracted Hours" />
+									<ice:inputText id="input_Hours" maxlength="4"
+										value="#{studentManagerModel.studentFundingSrc.fundingHours}">
+										<f:convertNumber integerOnly="true" />
+									</ice:inputText>
+									<ice:outputText value="Outlets" />
+									<ice:selectOneMenu id="select_OneOutlets"
+										styleClass="SelectOneMenu"
+										value="#{studentManagerModel.selectedOutletId}"
+										partialSubmit="true">
+										<f:selectItems
+											value="#{studentManagerModel.outletSelectItems}" />
+									</ice:selectOneMenu>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:commandButton id="commandAddFundings"
+								value="Add to #{msgs['student_label']}"
+								styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-right:3px"
+								disabled="#{studentManagerModel.fundingSource == null}"
+								action="#{studentManagerModel.saveFundingSource}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop"
+					rendered="#{studentManagerModel.visibleGuardian}" draggable="true">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Add/Edit guardian for : #{studentManagerModel.student.contact.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeGuardianButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.addGuardianPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:820px">
+							<ice:panelGrid styleClass="borderBox"
+								style="width:100%;margin-top:10px"
+								rendered="#{!studentManagerModel.editGuardian}">
+								<ice:panelGrid columns="4">
+									<ice:setEventPhase events="ValueChangeEvent"
+										phase="INVOKE_APPLICATION">
+										<ice:selectOneRadio id="guardianSelectRadio"
+											partialSubmit="true"
+											value="#{studentManagerModel.newGuardian}"
+											style="margin-left:-20px;height:10px;margin-top:-22px;border:none"
+											valueChangeListener="#{studentManagerModel.selectGuardianType}">
+											<f:selectItem itemLabel="Add New" itemValue="true" />
+											<f:selectItem itemLabel="Search Contacts" itemValue="false" />
+										</ice:selectOneRadio>
+									</ice:setEventPhase>
+									<ice:inputText id="inputTextGuardianSearch"
+										action="#{studentManagerModel.searchGuardians}"
+										disabled="#{studentManagerModel.newGuardian}"
+										value="#{studentManagerModel.searchGuardianText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonGuardiansSearch"
+										disabled="#{studentManagerModel.newGuardian}"
+										action="#{studentManagerModel.searchGuardians}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+									<ice:messages></ice:messages>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES"
+								rendered="#{!studentManagerModel.editGuardian and !studentManagerModel.newGuardian}">
+								<ice:dataTable id="tableGuardianPopup" scrollable="true"
+									columnWidths="70px,270px,135px,300px" scrollHeight="150px"
+									value="#{studentManagerModel.availableGuardians}" var="ag"
+									rendered="#{not empty(studentManagerModel.availableGuardians)}">
+									<ice:column id="columnGuardianId" style="text-align:right">
+										<ice:rowSelector id="rowselectGuardian"
+											value="#{ag.ui_selected}"
+											clickListener="#{studentManagerModel.selectContact}">
+											<f:attribute name="guardian" value="#{ag}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Contact ID" />
+										</f:facet>
+										<ice:outputText value="#{ag.id}" />
+									</ice:column>
+									<ice:column id="columnGuardianName">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{ag.name}" />
+									</ice:column>
+									<ice:column id="columnGuardianPhone" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Contact Number" />
+										</f:facet>
+										<ice:outputText value="#{ag.contactNumber}" />
+									</ice:column>
+									<ice:column id="columnGuardianAddress">
+										<f:facet name="header">
+											<ice:outputText value="Address" />
+										</f:facet>
+										<ice:outputText value="#{ag.streetAddress}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:messages rendered="#{studentManagerModel.editGuardian}" />
+							<fieldset style="margin-top: 10px">
+								<legend>
+									<ice:outputLabel value="Conatact Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{studentManagerModel.guardian.contact == null}">
+									<ice:outputText
+										value="Please select a contact to view details.." />
+								</ice:panelGroup>
+								<ice:panelGroup
+									rendered="#{studentManagerModel.guardian.contact != null}">
+									<ice:panelGrid columns="6" width="100%">
+										<ice:outputText value="Relationhip" />
+										<ice:selectOneMenu id="select_OneGuardianRelationship"
+											styleClass="SelectOneMenu" tabindex="1"
+											value="#{studentManagerModel.selectedRelationshipId}">
+											<f:selectItems value="#{studentManagerModel.relationships}" />
+										</ice:selectOneMenu>
+										<ice:outputText />
+										<ice:outputText />
+										<ice:outputText />
+										<ice:outputText />
+										<ice:outputText value="Title" />
+										<ice:selectOneMenu id="selectOneGuardianTitle"
+											styleClass="SelectOneMenu" tabindex="1"
+											value="#{studentManagerModel.guardian.contact.title}">
+											<f:selectItems value="#{lookupListProvider.title}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Mobile Number" />
+										<ice:inputText id="input_GuardianMobileNumber" tabindex="5"
+											maxlength="#{msgs['contact.phone.size']}"
+											value="#{studentManagerModel.guardian.contact.mobilePhone}" />
+										<ice:outputText value="Address" />
+										<ice:inputText id="input_GuardianAddress" tabindex="9"
+											maxlength="#{msgs['contact.streetAddress.size']}"
+											value="#{studentManagerModel.guardian.contact.streetAddress}" />
+										<ice:outputText value="First Name" />
+										<ice:inputText id="input_GuardianFirstName"
+											maxlength="#{msgs['contact.postCode.size']}" tabindex="2"
+											value="#{studentManagerModel.guardian.contact.firstName}" />
+										<ice:outputText value="Home Number" />
+										<ice:inputText id="input_GuardianHomeNumber" tabindex="6"
+											maxlength="#{msgs['contact.phone.size']}"
+											value="#{studentManagerModel.guardian.contact.homePhone}" />
+										<ice:outputText value="City" />
+										<ice:inputText id="input_GuardianCity" tabindex="10"
+											maxlength="#{msgs['contact.city.size']}"
+											value="#{studentManagerModel.guardian.contact.city}" />
+										<ice:outputText value="Middle Name" />
+										<ice:inputText id="inputGuardianMiddleName" tabindex="3"
+											maxlength="#{msgs['contact.middleNames.size']}"
+											value="#{studentManagerModel.guardian.contact.middleNames}" />
+										<ice:outputText value="Office Number" />
+										<ice:inputText id="input_GuardianOfficeNumber"
+											maxlength="#{msgs['contact.phone.size']}" tabindex="7"
+											value="#{studentManagerModel.guardian.contact.officePhone}" />
+										<ice:outputText value="State / Province" />
+										<ice:selectOneMenu id="input_GuardianState"
+											partialSubmit="true" tabindex="11"
+											value="#{studentManagerModel.guardian.contact.state}">
+											<f:selectItems value="#{lookupListProvider.states}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Last Name" />
+										<ice:inputText id="input_GuardianLastName" tabindex="4"
+											maxlength="#{msgs['contact.lastName.size']}"
+											value="#{studentManagerModel.guardian.contact.lastName}" />
+										<ice:outputText value="E - Mail" />
+										<ice:inputText id="input_GuardianEmail" tabindex="8"
+											maxlength="#{msgs['contact.email.size']}"
+											value="#{studentManagerModel.guardian.contact.email}" />
+										<ice:outputText value="Postal Code" />
+										<ice:inputText id="input_GuardianPostalCode" tabindex="12"
+											maxlength="#{msgs['contact.postCode.size']}"
+											value="#{studentManagerModel.guardian.contact.postCode}" />
+										<ice:outputText value="Send Newsletter" />
+										<ice:selectBooleanCheckbox
+											value="#{studentManagerModel.guardian.contact.sendNewsletter}" />
+										<ice:outputText value="Send Invoice" />
+										<ice:selectBooleanCheckbox
+											value="#{studentManagerModel.guardian.contact.sendInvoice}" />
+										<ice:outputText value="Country" />
+										<ice:inputText id="inputGuardianCountry" readonly="true"
+											tabindex="13"
+											value="#{studentManagerModel.guardian.contact.country}" />
+									</ice:panelGrid>
+								</ice:panelGroup>
+							</fieldset>
+							<ice:commandButton id="commandAddGuardianToStudent" tabindex="14"
+								rendered="#{!studentManagerModel.editGuardian}"
+								value="Add to #{msgs['student_label']}"
+								styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-right:2px"
+								action="#{studentManagerModel.saveGuardian}" />
+							<ice:commandButton id="commandEditGuardianOfStudent"
+								tabindex="14" rendered="#{studentManagerModel.editGuardian}"
+								value="Save" styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-right:2px;width:90px"
+								action="#{studentManagerModel.saveGuardian}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{studentManagerModel.visibleActRecs}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Active Records Wizard [  #{msgs['student_label']}: #{studentManagerModel.student.contact.name}, Inactive from: "
+								styleClass="popupHeaderText" />
+							<ice:outputText
+								value="#{studentManagerModel.student.serviceEndDate}"
+								converter="dateConverter" styleClass="popupHeaderText" />
+							<ice:outputText value="]" styleClass="popupHeaderText" />
+							<ice:commandButton id="closeActRecs"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{studentManagerModel.activeRecordsPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:messages />
+							<ice:panelGroup style="width: 775px;height: 450px;"
+								rendered="#{studentManagerModel.wizardPage == 0}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel
+										value="#{msgs['student_label']} status is selected as 'Inactive'" />
+									<ice:outputText
+										value="There may be groups with this #{msgs['student_label'].toLowerCase()} assigned and attendance sheets created from the inactive-from date onwards. You can exclude the #{msgs['student_label'].toLowerCase()} from these groups and remove from attendance sheets if exists before changing the status." />
+									<ice:outputText
+										value="Please select next to continue, back to come to the previous page or cancel to exit wizard at any page." />
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 775px;height: 450px;"
+								rendered="#{studentManagerModel.wizardPage == 1}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Exclude from assigned groups" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable id="tblActiveGros" scrollable="true"
+											style="margin-top:-5px" scrollHeight="320px"
+											value="#{studentManagerModel.actGroupedStudents}" var="grp"
+											columnWidths="30px, 270px, 60px, 250px, 60px">
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:selectBooleanCheckbox id="selectAllGS"
+														partialSubmit="true"
+														value="#{studentManagerModel.selectAllGroups}"
+														valueChangeListener="#{studentManagerModel.selectAllGS}" />
+												</f:facet>
+												<ice:selectBooleanCheckbox value="#{grp.ui_selected}"
+													partialSubmit="true"
+													valueChangeListener="#{studentManagerModel.selectGS}">
+													<f:attribute name="student" value="#{grp}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column >
+												<f:facet name="header">
+													<ice:outputText value="Program Name" />
+												</f:facet>
+												<ice:outputText value="#{grp.group.name}" />
+											</ice:column>
+											<ice:column style="text-align:right">
+												<f:facet name="header">
+													<ice:outputText value="Program ID" />
+												</f:facet>
+												<ice:outputText value="#{grp.group.program.id}" />
+											</ice:column>
+											<ice:column   groupOn="#{grp.group.program.name}">
+												<f:facet name="header">
+													<ice:outputText value="Cost Center Name" />
+												</f:facet>
+												<ice:outputText value="#{grp.group.program.name}" />
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Type" />
+												</f:facet>
+												<ice:outputText value="#{grp.group.program.type.name}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 775px;height: 450px;"
+								rendered="#{studentManagerModel.wizardPage == 2}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel
+										value="Remove from attendence sheets already created" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable id="tblActiveStdEvents" scrollable="true"
+											style="margin-top:-5px" scrollHeight="320px"
+											columnWidths="30px,80px,80px,80px,210px,190px"
+											value="#{studentManagerModel.actProEvents}" var="pe">
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:selectBooleanCheckbox id="selectAllPE"
+														partialSubmit="true"
+														value="#{studentManagerModel.selectAllEvents}"
+														valueChangeListener="#{studentManagerModel.selectAllPE}" />
+												</f:facet>
+												<ice:selectBooleanCheckbox value="#{pe.ui_selected}"
+													partialSubmit="true"
+													valueChangeListener="#{studentManagerModel.selectPE}">
+													<f:attribute name="event" value="#{pe}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Event Date" />
+												</f:facet>
+												<ice:outputText value="#{pe.eventDate}"
+													converter="dateConverter" />
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Start Time" />
+												</f:facet>
+												<ice:outputText value="#{pe.startTime}">
+													<f:convertDateTime type="time" timeStyle="short" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="End Time" />
+												</f:facet>
+												<ice:outputText value="#{pe.endTime}">
+													<f:convertDateTime type="time" timeStyle="short" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column>
+												<f:facet name="header">
+													<ice:outputText value="Group Name" />
+												</f:facet>
+												<ice:outputText value="#{pe.group.name}" />
+											</ice:column>
+											<ice:column>
+												<f:facet name="header">
+													<ice:outputText value="Program Name" />
+												</f:facet>
+												<ice:outputText value="#{pe.program.name}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGrid
+								style="float:right;margin-bottom:5px;margin-right:15px"
+								columns="3" cellpadding="2">
+								<ice:commandButton id="btnBack" value="&lt; Back"
+									styleClass="CommandButton"
+									rendered="#{studentManagerModel.wizardPage gt 0}"
+									action="#{studentManagerModel.wizardBack}" style="width:80px" />
+								<ice:commandButton id="btnNxt" styleClass="CommandButton"
+									value="#{studentManagerModel.nxtBtnTxt}"
+									action="#{studentManagerModel.wizardNext}" style="width:80px" />
+								<ice:commandButton id="confirmActRecs" value="Cancel"
+									action="#{studentManagerModel.activeRecordsPopup}"
+									style="width:80px" styleClass="CommandButton" />
+							</ice:panelGrid>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

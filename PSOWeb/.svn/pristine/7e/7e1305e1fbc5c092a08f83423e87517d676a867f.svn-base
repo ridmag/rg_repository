@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Deploy From Eclipse to Tomcat" basedir="." default="deploy">
+	<property name="warfile" value="PSOWeb" />
+	<property name="tomcat_home" value="/etc/tomcat-7.0.26/" />
+
+	<property name="appDeployDir" value="target">
+	</property>
+	<path id="class.path">
+		<fileset dir="libs">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+		<fileset dir="${tomcat_home}/lib">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+	</path>
+	<target name="clean">
+		<echo message="Removing old directory structure..." />
+		<delete dir="build/classes">
+		</delete>
+		<delete dir=".">
+			<filename name="${warfile}.war" />
+		</delete>
+	</target>
+	<target name="mkDeployDir" depends="clean">
+		<mkdir dir="WEB-INF/classes" />
+		<mkdir dir="build/classes" />
+	</target>
+	<target name="compile" depends="mkDeployDir">
+		<echo message="Compiling ${warfile} ..." />
+		<javac classpathref="class.path" srcdir="src" destdir="build/classes" >
+			<compilerarg value="-XDignore.symbol.file"/>
+		</javac>
+		<copy todir="build/classes">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="unpack">
+		<unwar src="${warfile}.war" dest="${warfile}" />
+	</target>
+	<target name="create" depends="compile">
+		<war destfile="${warfile}.war" webxml="WebContent/WEB-INF/web.xml" update="false">
+			<classes dir="build\classes" />
+			<fileset dir="WebContent">
+				<exclude name="WEB-INF/web.xml" />
+			</fileset>
+			<fileset dir="WebContent">
+				<include name="META-INF/**" />
+			</fileset>
+
+		</war>
+	</target>
+	<target name="copy">
+		<copy todir="${tomcat_home}/webapps" overwrite="true">
+			<fileset dir=".">
+				<include name="${warfile}.war" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="database">
+		<sql driver="org.postgresql.Driver" password="postgres" url="jdbc:postgresql://localhost:5432/psodb" userid="postgres" classpathref="class.path" print="true">
+			<fileset dir=".">
+				<include name="data/ddl.sql" />
+			</fileset>
+		</sql>
+		<sql driver="org.postgresql.Driver" password="postgres" url="jdbc:postgresql://localhost:5432/psodb" userid="postgres" classpathref="class.path">
+			<fileset dir=".">
+				<include name="data/data.sql" />
+			</fileset>
+		</sql>
+	</target>
+	<target name="patch">
+		<sql driver="org.postgresql.Driver" password="postgres" url="jdbc:postgresql://localhost:5432/psodb" userid="postgres" classpathref="class.path" print="true">
+			<fileset dir=".">
+				<include name="data/patch_global.sql" />
+			</fileset>
+		</sql>
+	</target>
+	<target name="deploy">
+		<antcall target="database" />
+		<antcall target="create" />
+		<antcall target="copy" />
+	</target>
+	<target name="nodb-deploy">
+		<antcall target="create" />
+	</target>
+	<target name="patcheddb-deploy">
+		<antcall target="patch" />
+		<antcall target="create" />
+		<antcall target="copy" />
+	</target>
+</project>

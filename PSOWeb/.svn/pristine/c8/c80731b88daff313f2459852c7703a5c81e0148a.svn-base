@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql:ndis" />
+		<property name="username" value="postgres" />
+		<property name="password" value="pass" />
+		<property name="defaultAutoCommit" value="false" />
+		<property name="initialSize" value="10" />
+		<property name="maxActive" value="50" />
+	</bean>
+	<!--<bean id="myDataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+		<property name="jndiName"> <value>java:comp/env/jdbc/ndis</value> </property> 
+		</bean> -->
+	<bean id="mySessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="myDataSource" />
+		<!--<property name="mappingResources"> <list> <value>com/itelasoft/pso/dao/User.hbm.xml</value> 
+			<value>com/itelasoft/pso/dao/Configuration.hbm.xml</value> <value>com/itelasoft/pso/dao/Contact.hbm.xml</value> 
+			<value>com/itelasoft/pso/dao/Authority.hbm.xml</value> </list> </property> -->
+		<property name="annotatedClasses">
+			<list>
+				<value>com.itelasoft.pso.beans.Authority</value>
+				<value>com.itelasoft.pso.beans.Contact</value>
+				<value>com.itelasoft.pso.beans.FileData</value>
+				<value>com.itelasoft.pso.beans.FundingSource</value>
+				<value>com.itelasoft.pso.beans.StudentFundingSource</value>
+				<value>com.itelasoft.pso.beans.Invoice</value>
+				<value>com.itelasoft.pso.beans.Location</value>
+				<value>com.itelasoft.pso.beans.Program</value>
+				<value>com.itelasoft.pso.beans.ProgramEvent</value>
+				<value>com.itelasoft.pso.beans.ProgramType</value>
+				<value>com.itelasoft.pso.beans.SpecialNeed</value>
+				<value>com.itelasoft.pso.beans.StaffMember</value>
+				<value>com.itelasoft.pso.beans.StaffType</value>
+				<value>com.itelasoft.pso.beans.Student</value>
+				<value>com.itelasoft.pso.beans.StudentEvent</value>
+				<value>com.itelasoft.pso.beans.Transaction</value>
+				<value>com.itelasoft.pso.beans.User</value>
+				<value>com.itelasoft.pso.beans.Vehicle</value>
+				<value>com.itelasoft.pso.beans.GroupedStudent</value>
+				<value>com.itelasoft.pso.beans.WeekDay</value>
+				<value>com.itelasoft.pso.beans.Calendar</value>
+				<value>com.itelasoft.pso.beans.Holiday</value>
+				<value>com.itelasoft.pso.beans.ExternalOrganization</value>
+				<value>com.itelasoft.pso.beans.CommunicationCat</value>
+				<value>com.itelasoft.pso.beans.Communication</value>
+				<value>com.itelasoft.pso.beans.CommunicationNote</value>
+				<value>com.itelasoft.pso.beans.ServiceArea</value>
+				<value>com.itelasoft.pso.beans.StudentGroup</value>
+				<value>com.itelasoft.pso.beans.ReferenceItem</value>
+				<value>com.itelasoft.pso.beans.StaffSkill</value>
+				<value>com.itelasoft.pso.beans.LeavePolicy</value>
+				<value>com.itelasoft.pso.beans.LeavePolicyDetail</value>
+				<value>com.itelasoft.pso.beans.Leave</value>
+				<value>com.itelasoft.pso.beans.Reminder</value>
+				<value>com.itelasoft.pso.beans.Outlet</value>
+				<value>com.itelasoft.pso.beans.CheckRecord</value>
+				<value>com.itelasoft.pso.beans.StaffCheckRecord</value>
+				<value>com.itelasoft.pso.beans.Consent</value>
+				<value>com.itelasoft.pso.beans.StudentConsent</value>
+				<value>com.itelasoft.pso.beans.HoursUtilizedReportItem</value>
+				<value>com.itelasoft.pso.beans.HoursUtilizedReport</value>
+				<value>com.itelasoft.pso.beans.InvoiceItem</value>
+				<value>com.itelasoft.pso.beans.Collection</value>
+				<value>com.itelasoft.pso.beans.StaffEvent</value>
+				<value>com.itelasoft.pso.beans.LeaveCategory</value>
+				<value>com.itelasoft.pso.beans.GroupedStaff</value>
+				<value>com.itelasoft.pso.beans.Guardian</value>
+				<value>com.itelasoft.pso.beans.BlobFileData</value>
+				<value>com.itelasoft.pso.beans.NdisSupportItem</value>
+				<value>com.itelasoft.pso.beans.NdisInvoiceItem</value>
+				<value>com.itelasoft.pso.beans.NdisPrice</value>
+				<value>com.itelasoft.pso.beans.InternalOrganization</value>
+				<value>com.itelasoft.pso.beans.AuthorisedStaff</value>
+				<value>com.itelasoft.pso.beans.NdisCommittedEvent</value>
+				<value>com.itelasoft.pso.beans.NDISStaffTime</value>
+				<value>com.itelasoft.pso.beans.NdisAncillaryCost</value>
+				<value>com.itelasoft.pso.beans.GroupedStaffWeekday</value>
+				<value>com.itelasoft.pso.beans.NdisContribution</value>
+				<!--<value>com.itelasoft.pso.beans.Configuration</value> -->
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
+				<prop key="hibernate.max_fetch_depth">1</prop>
+				<!--<prop key="hibernate.default_schema">ivetdb</prop> -->
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hbm2ddl.keywords">auto-quote</prop>
+				<prop key="metadata.hibernate.dialect">com.jaspersoft.hibernate.dialect.PostgresqlNoBlobDialect
+				</prop>
+				<prop key="hibernate.search.default.directory_provider">filesystem</prop>
+				<prop key="hibernate.search.default.indexBase">/var/tmp/lucene</prop>
+				<prop key="hibernate.search.default.locking_strategy">none</prop>
+				<prop key="hibernate.search.default.indexmanager">near-real-time</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref local="mySessionFactory" />
+		</property>
+	</bean>
+	<!--<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"> 
+		<property name="dataSource" ref="myDataSource"></property> <property name="jpaVendorAdapter"> 
+		<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"> 
+		<property name="showSql" value="true" /> <property name="generateDdl" value="true" 
+		/> <property name="databasePlatform" value="org.hibernate.dialect.HSQLDialect" 
+		/> </bean> </property> </bean> <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"> 
+		<property name="entityManagerFactory" ref="entityManagerFactory"></property> 
+		</bean> -->
+	<bean id="userDao" class="com.itelasoft.pso.dao.UserDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="staffMemberDao" class="com.itelasoft.pso.dao.StaffMemberDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="contactDao" class="com.itelasoft.pso.dao.ContactDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="locationDao" class="com.itelasoft.pso.dao.LocationDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="vehicleDao" class="com.itelasoft.pso.dao.VehicleDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="programDao" class="com.itelasoft.pso.dao.ProgramDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="programEventDao" class="com.itelasoft.pso.dao.ProgramEventDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="programTypeDao" class="com.itelasoft.pso.dao.ProgramTypeDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="specialNeedDao" class="com.itelasoft.pso.dao.SpecialNeedDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="staffTypeDao" class="com.itelasoft.pso.dao.StaffTypeDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="studentDao" class="com.itelasoft.pso.dao.StudentDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="studentEventDao" class="com.itelasoft.pso.dao.StudentEventDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="configurationDao" class="com.itelasoft.pso.dao.ConfigurationDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="authorityDao" class="com.itelasoft.pso.dao.AuthorityDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="fileDataDao" class="com.itelasoft.pso.dao.FileDataDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="transactionDao" class="com.itelasoft.pso.dao.TransactionDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="invoiceDao" class="com.itelasoft.pso.dao.InvoiceDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="fundingSourceDao" class="com.itelasoft.pso.dao.FundingSourceDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="studentFundingSourceDao" class="com.itelasoft.pso.dao.StudentFundingSourceDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="weekDayDao" class="com.itelasoft.pso.dao.WeekDayDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="calendarDao" class="com.itelasoft.pso.dao.CalendarDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="holidayDao" class="com.itelasoft.pso.dao.HolidayDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="externalOrganizationDao" class="com.itelasoft.pso.dao.ExternalOrganizationDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="internalOrganizationDao" class="com.itelasoft.pso.dao.InternalOrganizationDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisSupportItemDao" class="com.itelasoft.pso.dao.NdisSupportItemDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="communicationDao" class="com.itelasoft.pso.dao.CommunicationDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="communicationCatDao" class="com.itelasoft.pso.dao.CommunicationCatDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="serviceAreaDao" class="com.itelasoft.pso.dao.ServiceAreaDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="studentGroupDao" class="com.itelasoft.pso.dao.StudentGroupDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="groupedStudentDao" class="com.itelasoft.pso.dao.GroupedStudentDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="reportDao" class="com.itelasoft.pso.dao.ReportDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="itemDao" class="com.itelasoft.pso.dao.ReferenceItemDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="skillDao" class="com.itelasoft.pso.dao.StaffSkillDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="leavePolicyDao" class="com.itelasoft.pso.dao.LeavePolicyDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="leaveDao" class="com.itelasoft.pso.dao.LeaveDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="roasterDao" class="com.itelasoft.pso.dao.StaffRoasterDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="reminderDao" class="com.itelasoft.pso.dao.ReminderDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="outletDao" class="com.itelasoft.pso.dao.OutletDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="checkDao" class="com.itelasoft.pso.dao.CheckRecordDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="recordDao" class="com.itelasoft.pso.dao.StaffCheckRecordDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="consentDao" class="com.itelasoft.pso.dao.ConsentDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="studentConsentDao" class="com.itelasoft.pso.dao.StudentConsentDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="utilizedReportDao" class="com.itelasoft.pso.dao.HoursUtilizedReportDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="collectionDao" class="com.itelasoft.pso.dao.CollectionDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="staffEventDao" class="com.itelasoft.pso.dao.StaffEventDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="leaveCategoryDao" class="com.itelasoft.pso.dao.LeaveCategoryDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="guardianDao" class="com.itelasoft.pso.dao.GuardianDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="groupedStaffDao" class="com.itelasoft.pso.dao.GroupedStaffDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="textSearchDao" class="com.itelasoft.pso.dao.TextSearchDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisCommittedEventDao" class="com.itelasoft.pso.dao.NdisCommittedEventDao">
+			<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisInvoiceDao" class="com.itelasoft.pso.dao.NdisInvoiceDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="authorisedStaffDao" class="com.itelasoft.pso.dao.AuthorisedStaffDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisPriceDao" class="com.itelasoft.pso.dao.NdisPriceDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisAncillaryCostDao" class="com.itelasoft.pso.dao.NdisAncillaryCostDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+	<bean id="ndisContributionDao" class="com.itelasoft.pso.dao.NdisContributionDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean> 
+	<bean id="groupedStaffWeekday" class="com.itelasoft.pso.dao.GroupedStaffWeekdayDao">
+		<property name="sessionFactory" ref="mySessionFactory" />
+	</bean>
+</beans>

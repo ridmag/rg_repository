@@ -1,0 +1,273 @@
+package com.itelasoft.pso.services;
+
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class ServiceLocator implements IServiceLocator {
+
+	private static ServiceLocator locator;
+	ApplicationContext context;
+
+	protected ServiceLocator() {
+		if (context == null)
+			context = new ClassPathXmlApplicationContext(new String[] { "services-config.xml", "dao-config.xml" });
+	}
+
+	public static IServiceLocator getServiceLocator() {
+		if (locator == null)
+			locator = new ServiceLocator();
+		return locator;
+	}
+
+	public IUserService getUserService() {
+		return (IUserService) context.getBean("userService");
+	}
+
+	public IVehicleService getVehicleService() {
+		return (IVehicleService) context.getBean("vehicleService");
+	}
+
+	public IContactService getContactService() {
+		return (IContactService) context.getBean("contactService");
+	}
+
+	public ILocationService getLocationService() {
+		return (ILocationService) context.getBean("locationService");
+	}
+
+	public IProgramService getProgramService() {
+		return (IProgramService) context.getBean("programService");
+	}
+
+	public IProgramEventService getProgramEventService() {
+		return (IProgramEventService) context.getBean("programEventService");
+	}
+
+	public IProgramTypeService getProgramTypeService() {
+		return (IProgramTypeService) context.getBean("programTypeService");
+	}
+
+	public ISpecialNeedService getSpecialNeedService() {
+		return (ISpecialNeedService) context.getBean("specialNeedService");
+	}
+
+	public IStaffMemberService getStaffMemberService() {
+		return (IStaffMemberService) context.getBean("staffMemberService");
+	}
+
+	public IStaffTypeService getStaffTypeService() {
+		return (IStaffTypeService) context.getBean("staffTypeService");
+	}
+
+	public IStudentService getStudentService() {
+		return (IStudentService) context.getBean("studentService");
+	}
+
+	public IStudentEventService getStudentEventService() {
+		return (IStudentEventService) context.getBean("studentEventService");
+	}
+
+	public IConfigurationService getConfigurationService() {
+		return (IConfigurationService) context.getBean("configurationService");
+	}
+
+	public ILicenseService getLicenseService() {
+		return (ILicenseService) context.getBean("licenseService");
+	}
+
+	public IFileDataService getFileDataService() {
+		return (IFileDataService) context.getBean("fileDataService");
+	}
+
+	public ITransactionService getTransactionService() {
+		return (ITransactionService) context.getBean("transactionService");
+	}
+
+	public VelocityEngine getVelocityEngine() {
+		return (VelocityEngine) context.getBean("velocityEngine");
+	}
+
+	public IInvoiceService getInvoiceService() {
+		return (IInvoiceService) context.getBean("invoiceService");
+	}
+
+	public IFundingSourceService getFundingSourceService() {
+		return (IFundingSourceService) context.getBean("fundingSourceService");
+	}
+
+	public ITestService getTestService() {
+		return (ITestService) context.getBean("testService");
+	}
+
+	public IWeekDayService getWeekDayService() {
+		return (IWeekDayService) context.getBean("weekDayService");
+	}
+
+	public ICalendarService getCalendarService() {
+		return (ICalendarService) context.getBean("calendarService");
+	}
+
+	public IHolidayService getHolidayService() {
+		return (IHolidayService) context.getBean("holidayService");
+	}
+
+	public IExternalOrganizationService getExternalOrganizationService() {
+		return (IExternalOrganizationService) context.getBean("externalOrganizationService");
+	}
+
+	public INdisSupportItemService getNdisSupportItemService() {
+		return (INdisSupportItemService) context.getBean("ndisSupportItemService");
+	}
+
+	public ICommunicationCatService getCommunicationCatService() {
+		return (ICommunicationCatService) context.getBean("categoryService");
+	}
+
+	public ICommunicationService getCommunicationService() {
+		return (ICommunicationService) context.getBean("communicationService");
+	}
+
+	public IServiceAreaService getServiceAreaService() {
+		return (IServiceAreaService) context.getBean("serviceAreaService");
+	}
+
+	public IStudentGroupService getStudentGroupService() {
+		return (IStudentGroupService) context.getBean("studentGroupService");
+	}
+
+	public IGroupedStudentService getGroupedStudentService() {
+		return (IGroupedStudentService) context.getBean("groupedStudentService");
+	}
+
+	public IReportService getReportService() {
+		return (IReportService) context.getBean("reportService");
+	}
+
+	public IReferenceItemService getReferenceItemService() {
+		return (IReferenceItemService) context.getBean("referenceItemService");
+	}
+
+	public ILeavePolicyService getLeavePolicyService() {
+		return (ILeavePolicyService) context.getBean("leavePolicyService");
+	}
+
+	public ILeaveService getLeaveService() {
+		return (ILeaveService) context.getBean("leaveService");
+	}
+
+	public IStaffSkillService getStaffSkillService() {
+		return (IStaffSkillService) context.getBean("staffSkillService");
+	}
+
+	public IReminderService getReminderService() {
+		return (IReminderService) context.getBean("reminderService");
+	}
+
+	public IOutletService getOutletService() {
+		return (IOutletService) context.getBean("outletService");
+	}
+
+	public ICheckRecordService getCheckRecordService() {
+		return (ICheckRecordService) context.getBean("checkRecordService");
+	}
+
+	public IStaffCheckRecordService getStaffCheckRecordService() {
+		return (IStaffCheckRecordService) context.getBean("staffCheckRecordService");
+	}
+
+	public IConsentService getConsentService() {
+		return (IConsentService) context.getBean("consentService");
+	}
+
+	public IStudentConsentService getStudentConsentService() {
+		return (IStudentConsentService) context.getBean("studentConsentService");
+	}
+
+	public IHoursUtilizedReportService getUtilizedReportService() {
+		return (IHoursUtilizedReportService) context.getBean("utilizedReportService");
+	}
+
+	public IStaffRoasterService getStaffRoasterService() {
+		return (IStaffRoasterService) context.getBean("roasterService");
+	}
+
+	public IBusinessRulesService getBusinessRulesService() {
+		return (IBusinessRulesService) context.getBean("businessRulesService");
+	}
+
+	public ICollectionService getCollectionService() {
+		return (ICollectionService) context.getBean("collectionService");
+	}
+
+	public IStaffEventService getStaffEventService() {
+		return (IStaffEventService) context.getBean("staffEventService");
+	}
+
+	public IStudentFundingSourceService getStudentFundingSourceService() {
+		return (IStudentFundingSourceService) context.getBean("studentFundingSourceService");
+	}
+
+	public ILeaveCategoryService getLeaveCategoryService() {
+		return (ILeaveCategoryService) context.getBean("leaveCategoryService");
+	}
+
+	public IGuardianService getGuardianService() {
+		return (IGuardianService) context.getBean("guardianService");
+	}
+
+	public IGroupedStaffService getGroupedStaffService() {
+		return (IGroupedStaffService) context.getBean("groupedStaffService");
+	}
+
+	public ITextSearchService getTextSearchService() {
+		return (ITextSearchService) context.getBean("textSearchService");
+	}
+
+	public INdisInvoiceItemService getNdisInvoiceItemService() {
+		return (INdisInvoiceItemService) context.getBean("ndisService");
+	}
+
+	public IInternalOrganizationService getInternalOrganizationService() {
+		return (IInternalOrganizationService) context.getBean("internalOrganizationService");
+	}
+
+	@Override
+	public IAuthorisedStaffService getAuthorisedStaffService() {
+		return (IAuthorisedStaffService) context.getBean("authorisedStaffService");
+	}
+
+	public INdisPriceService getNdisPriceService() {
+		return (INdisPriceService) context.getBean("ndisPriceService");
+	}
+
+	public INdisCommittedEventService getNdisCommittedEventService() {
+		return (INdisCommittedEventService) context.getBean("ndisCommittedEventService");
+	}
+
+	@Override
+	public INdisAncillaryCostService getNdisAncillaryCostService() {
+		return (INdisAncillaryCostService) context.getBean("ndisAncillaryCostService");
+	}
+
+	public INdisContributionService getNdisContributionService() {
+		return (INdisContributionService) context.getBean("ndisContributionService");
+	}
+
+	public IGroupedStaffWeekdayService getGroupedStaffWeekdayService() {
+		return (IGroupedStaffWeekdayService) context.getBean("GroupedStaffWeekday");
+	}
+
+	public IDashboardService getDashboardService() {
+		return (IDashboardService) context.getBean("dashboardService");
+	}
+
+	public INdisInvoiceItemService getNdisAncillaryService() {
+		return (INdisInvoiceItemService) context.getBean("ndisService");
+	}
+	
+	public INdisInvoiceService getNdisInvoiceService(){
+		return (INdisInvoiceService) context.getBean("ndisInvoiceService");
+	}
+	
+}

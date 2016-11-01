@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="REPORTHU"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Hours Utilized Report</ui:define>
+		<ui:define name="pageDescription">This allows you to view or generate hours utilized report for the selected week.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formReport">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="9">
+						<ice:outputLabel value="Select a date of the week" />
+						<ice:selectInputDate renderMonthAsDropdown="true"
+							renderYearAsDropdown="true" renderAsPopup="true"
+							value="#{reportManagerModel.weekDate}" style="margin-left:20px"
+							converter="dateConverter">
+						</ice:selectInputDate>
+						<ice:commandButton id="commanGenerateAbsenteeRpt"
+							action="#{reportManagerModel.genereteHoursUtilizedReport}"
+							value="Generate Report" styleClass="CommandButton"
+							style="width:120px;margin-left:20px" />
+						<ice:panelGroup style="margin-left:30px"
+							rendered="#{reportManagerModel.hoursUtilizedReport != null}">
+							<comp:printPopup label="Print Report"
+								resource="#{printModel.pdfUtilized}"
+								fileName="Hours Utilized Report" />
+						</ice:panelGroup>
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+					style="margin-top:10px">
+					<ice:panelGroup>
+						<fieldset style="height: 500px">
+							<legend>
+								<ice:outputLabel value="Available Reports" />
+							</legend>
+							<ice:setEventPhase events="ValueChangeEvent"
+								phase="INVOKE_APPLICATION">
+								<ice:selectOneListbox id="selectListReport"
+									value="#{reportManagerModel.selectedReportId}" size="15"
+									partialSubmit="true" style="width:190px;height:475px"
+									valueChangeListener="#{reportManagerModel.selectReport}">
+									<f:selectItems value="#{reportManagerModel.reportSelectItems}" />
+								</ice:selectOneListbox>
+							</ice:setEventPhase>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 935px; height: 500px">
+							<legend>
+								<ice:outputLabel value="Hours Utilized Report" />
+							</legend>
+							<ice:commandButton id="commandSaveReport"
+								action="#{reportManagerModel.saveReport}" value="Save Report"
+								styleClass="CommandButton" style="width:120px"
+								rendered="#{reportManagerModel.hoursUtilizedReport != null}" />
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{reportManagerModel.hoursUtilizedReport == null}">
+								<ice:outputText value="Please select a report to view details." />
+							</ice:panelGroup>
+							<ice:dataTable scrollable="true" scrollHeight="400px"
+								value="#{reportManagerModel.hoursUtilizedReport.reportItems}"
+								var="item" id="tableUtilItems"
+								rendered="#{reportManagerModel.hoursUtilizedReport != null}"
+								columnWidths="40px,160px,70px,130px,65px,65px,65px,65px,170px">
+								<ice:column id="columnUtilItemId" style="text-align:right">
+									<f:facet name="header">
+										<ice:outputText value="#{msgs['student_label']} ID" />
+									</f:facet>
+									<ice:outputText value="#{item.student.id}" />
+								</ice:column>
+								<ice:column id="columnUtilItemStudentId">
+									<f:facet name="header">
+										<ice:outputText value="#{msgs['student_label']} Name" />
+									</f:facet>
+									<ice:outputText value="#{item.student.contact.name}"
+										title="#{item.student.contact.name}" />
+								</ice:column>
+								<ice:column id="columnUtilItemStudentCISID"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="CISID" />
+									</f:facet>
+									<ice:outputText value="#{item.student.cisid}"
+										title="#{item.student.cisid}"
+										style="overflow:hidden;width:65px;height:1em" />
+								</ice:column>
+								<ice:column id="columnUtilItemFundingType">
+									<f:facet name="header">
+										<ice:outputText value="Funding Source" />
+									</f:facet>
+									<ice:outputText value="#{item.fundingType}" />
+								</ice:column>
+								<ice:column id="columnUtilItemTotalHours"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Total Hours" />
+									</f:facet>
+									<ice:outputText value="#{item.totalHours}">
+										<f:convertNumber minIntegerDigits="2" minFractionDigits="0" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnUtilItemProgramHrsUsed"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Program Hours Used" />
+									</f:facet>
+									<ice:outputText value="#{item.programHrsUsed}">
+										<f:convertNumber minIntegerDigits="2" minFractionDigits="0" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnUtilItemTransportHrsUsed"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Transport Hours Used" />
+									</f:facet>
+									<ice:outputText value="#{item.transportHrsUsed}">
+										<f:convertNumber minIntegerDigits="2" minFractionDigits="0" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnUtilItemBalanceHrs"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Remaining Hours" />
+									</f:facet>
+									<ice:outputText value="#{item.balanceHrs}">
+										<f:convertNumber minIntegerDigits="2" minFractionDigits="0" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnUtilItemRemarks" style="padding:0">
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:inputText value="#{item.remarks}" style="width:168px"
+										id="inputUtilItemRemarks" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,2667 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="EVENT"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Event Manager</ui:define>
+		<ui:define name="pageDescription">This allows you to search and deal with program events and attendance sheets.</ui:define>
+		<ui:define name="extraHeader">
+			<script type="text/javascript" src="js/pdfobject.js"></script>
+		</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="eventForm">
+				<ice:panelGrid styleClass="borderBox" width="100%" cellpadding="0"
+					cellspacing="0">
+					<ice:panelGroup
+						style="margin-top:5px;margin-bottom:10px;margin-left:5px;margin-right:5px">
+						<fieldset>
+							<legend>
+								<ice:outputLabel value="Search events filtered by" />
+							</legend>
+							<ice:panelGrid columns="14" cellpadding="0" cellspacing="10"
+								style="margin: -5px;">
+								<ice:outputLabel value="Program Type" style="width :50px" />
+								<ice:setEventPhase events="ValueChangeEvent"
+									phase="INVOKE_APPLICATION">
+									<ice:selectOneMenu id="select_ProgramTypes"
+										value="#{eventManagerModel.selectedProTypeId}"
+										partialSubmit="true"
+										valueChangeListener="#{eventManagerModel.selectProgramType}">
+										<f:selectItem itemValue="0" itemLabel="All Types"></f:selectItem>
+										<f:selectItems value="#{eventManagerModel.programTypes}"
+											var="type" itemLabel="#{type.name}" itemValue="#{type.id}" />
+									</ice:selectOneMenu>
+								</ice:setEventPhase>
+								<ice:outputLabel value="Cost Center" />
+								<ice:setEventPhase events="ValueChangeEvent"
+									phase="INVOKE_APPLICATION">
+									<ice:selectOneMenu id="selectOneProgram"
+										value="#{eventManagerModel.selectedProgramId}"
+										valueChangeListener="#{eventManagerModel.refreshStudentGroups}"
+										partialSubmit="true" style="width:160px"
+										disabled="#{eventManagerModel.selectedProTypeId == 0}">
+										<f:selectItems value="#{eventManagerModel.programSelectItems}" />
+									</ice:selectOneMenu>
+								</ice:setEventPhase>
+								<ice:outputLabel value="Program" />
+								<ice:selectOneMenu id="selectOneGroup"
+									value="#{eventManagerModel.selectedGroupId}"
+									style="width:160px"
+									disabled="#{eventManagerModel.selectedProgramId == 0}">
+									<f:selectItems value="#{eventManagerModel.groupSelectItems}" />
+								</ice:selectOneMenu>
+								<ice:outputLabel value="Event Status" />
+								<ice:panelGrid columns="8" cellpadding="0" cellspacing="0"
+									style="background: white;border:1px solid CadetBlue;padding: 5px 10px 5px 0px;">
+									<ice:selectBooleanCheckbox id="selectNew"
+										value="#{eventManagerModel.filterNew}"
+										style="margin-left: 10px" />
+									<ice:outputText value="New" />
+									<ice:selectBooleanCheckbox id="selectGenerated"
+										value="#{eventManagerModel.filterGenerated}"
+										style="margin-left: 15px" />
+									<ice:outputText value="Generated" />
+									<ice:selectBooleanCheckbox id="selectCompleted"
+										value="#{eventManagerModel.filterCompleted}"
+										style="margin-left: 15px" />
+									<ice:outputText value="Completed" />
+									<ice:selectBooleanCheckbox id="selectBanked"
+										value="#{eventManagerModel.filterBanked}"
+										style="margin-left: 15px" />
+									<ice:outputText value="Banked" />
+									<!-- <ice:selectBooleanCheckbox id="selectNotBanked"
+										value="#{eventManagerModel.filterNotBanked}"
+										disabled="#{!eventManagerModel.filterCompleted}"
+										style="margin-left: 15px" partialSubmit="true" />
+									<ice:outputText value="Not Banked"
+										style="white-space: nowrap;" /> -->
+								</ice:panelGrid>
+								<!-- <ice:outputText value="Event Status" />
+								<ice:selectOneMenu id="selectOneEventStatus"
+									value="#{eventManagerModel.selectedStatus}"
+									partialSubmit="true" style="width:90px">
+									<f:selectItem itemLabel="All" itemValue="all" />
+									<f:selectItems
+										value="#{lookupListProvider.proEventStatusSelectItems}" />
+								</ice:selectOneMenu> -->
+								<ice:outputLabel value="Period" />
+								<ice:selectOneMenu id="selectOneTimePeriod"
+									value="#{eventManagerModel.timePeriod}" partialSubmit="true"
+									style="width:90px">
+									<f:selectItems value="#{lookupListProvider.timePeriods}" />
+								</ice:selectOneMenu>
+
+								<ice:outputLabel value="Upto" />
+								<ice:panelGroup style="width:200px">
+									<ice:selectInputDate id="inputEventToDate"
+										value="#{eventManagerModel.toDate}" renderAsPopup="true"
+										renderMonthAsDropdown="true" renderYearAsDropdown="true"
+										converter="dateConverter"
+										converterMessage="Enter a valid date" />
+								</ice:panelGroup>
+								<ice:commandButton id="commandSearchEvents" style="width:70px"
+									value="Search" styleClass="CommandButton"
+									action="#{eventManagerModel.searchEvents}"
+									disabled="#{eventManagerModel.selectedGroupId == -1}" />
+							</ice:panelGrid>
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:panelGrid columns="2" width="100%" cellpadding="0"
+						cellspacing="0" style="margin-top:10px;margin-bottom:10px">
+						<ice:panelGrid columns="7" cellpadding="0" cellspacing="0">
+							<ice:commandButton id="commandGenerateAttendance"
+								value="Generate Attendance Sheet(s)" styleClass="CommandButton"
+								renderedOnUserRole="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE,ROLE_SUPERVISOR"
+								disabled="#{empty(eventManagerModel.selectedEventsMap)}"
+								style="margin-right:5px;width:200px"
+								action="#{eventManagerModel.generateAttendanceSheets}" />
+							<comp:printPopup label="Print Attendance Sheet(s)"
+								resource="#{printModel.pdfAttendanceList}"
+								fileName="AttendanceSheet.pdf" printType="attendanceList"
+								style="margin-right:5px;width:170px" commandType="button"
+								disabled="#{empty(eventManagerModel.selectedEventsMap)}" />
+							<ice:commandButton id="commandMarkAsBanked"
+								value="Mark as Banked"
+								renderedOnUserRole="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+								disabled="#{empty(eventManagerModel.selectedEventsMap)}"
+								style="margin-left:5px;width:120px" styleClass="CommandButton"
+								action="#{eventManagerModel.markEventsAsBanked}" />
+							<ice:commandButton id="commandDeleteEvents"
+								renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_ADMIN,ROLE_FINANCE"
+								value="Delete Event(s)" panelConfirmation="deleteConfirmation"
+								disabled="#{empty(eventManagerModel.selectedEventsMap)}"
+								style="margin-left:5px;width:120px" styleClass="CommandButton"
+								action="#{eventManagerModel.deleteEvents}" />
+							<ice:panelGroup style="margin-left:5px;">
+								<comp:ajaxReportPopup label="Print Event Report"
+									params="#{eventManagerModel.jsonString}"
+									status="#{eventManagerModel.printStatus}"
+									reportName="eventReport"
+									submitDisabled="#{empty(eventManagerModel.events)}" />
+							</ice:panelGroup>
+						</ice:panelGrid>
+						<ice:panelGrid style="float:right" cellpadding="0" cellspacing="0">
+							<ice:outputText rendered="#{not empty(eventManagerModel.events)}"
+								value="Number of event(s) selected : #{eventManagerModel.selectedEventsMap.size()}" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+					<ice:panelGroup
+						style="border:1px solid black; max-height:560px;margin-top:5px">
+						<ice:setEventPhase events="FacesEvent" phase="UPDATE_MODEL_VALUES">
+							<ice:dataTable rows="20" value="#{eventManagerModel.events}"
+								var="pe" id="tableProgramEvents" style="margin-top:0px"
+								width="100%" binding="#{eventManagerModel.dataTable}">
+								<ice:column style="text-align:center;width:20px">
+									<f:facet name="header">
+										<ice:selectBooleanCheckbox
+											value="#{eventManagerModel.selectAllEvents}"
+											id="selectAllEvents" partialSubmit="true"
+											disabled="#{empty(eventManagerModel.events)}"
+											valueChangeListener="#{eventManagerModel.selectAllEvents}" />
+									</f:facet>
+									<ice:selectBooleanCheckbox value="#{pe.ui_selected}"
+										id="selectBooleanStd" partialSubmit="true"
+										valueChangeListener="#{eventManagerModel.selectEvent}">
+										<f:attribute name="event" value="#{pe}" />
+									</ice:selectBooleanCheckbox>
+								</ice:column>
+								<ice:column id="columnProEventDate"
+									style="width:150px;text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Event Date" />
+									</f:facet>
+									<ice:outputText value="#{pe.eventDate}" title="#{pe.name}"
+										style="font-size:11px" converter="dateConverter"
+										rendered="#{pe.id != null}" />
+									<ice:outputText value="#{pe.eventDate}" title="#{pe.name}"
+										rendered="#{pe.id == null}" converter="dateConverter"
+										style="color:grey;font-size:11px" />
+									<!-- <ice:graphicImage
+										style="border:none; float:right;margin-left:5px;margin-top:-2px"
+										title="Actual Event times are not present." height="11"
+										width="11"
+										rendered="#{eventManagerModel.isExpired(pe.eventDate) and (pe.actualStartTime == null || pe.actualEndTime == null)}"
+										url="images/icons/warning_s.png" />  -->
+								</ice:column>
+								<ice:column id="columnProEventProName">
+									<f:facet name="header">
+										<ice:outputText value="Cost Center" />
+									</f:facet>
+									<ice:outputText value="#{pe.program.name}"
+										rendered="#{pe.id != null}" style="font-size:11px" />
+									<ice:outputText value="#{pe.program.name}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px" />
+								</ice:column>
+								<ice:column id="columnProEventGroupName">
+									<f:facet name="header">
+										<ice:outputText value="#{msgs['student_label']} Program" />
+									</f:facet>
+									<ice:outputText value="#{pe.group.name}"
+										rendered="#{pe.id != null}" style="font-size:11px" />
+									<ice:outputText value="#{pe.group.name}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px" />
+								</ice:column>
+								<ice:column id="columnProEventStartTime"
+									style="text-align:center;width:55px">
+									<f:facet name="header">
+										<ice:outputText value="Start Time" />
+									</f:facet>
+									<ice:outputText value="#{pe.startTime}"
+										rendered="#{pe.id != null}" style="font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value="#{pe.startTime}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnProEventEndTime"
+									style="text-align:center;width:55px">
+									<f:facet name="header">
+										<ice:outputText value="End Time" />
+									</f:facet>
+									<ice:outputText value="#{pe.endTime}"
+										rendered="#{pe.id != null}" style="font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value="#{pe.endTime}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnProEventActStartTime"
+									style="text-align:center;width:55px">
+									<f:facet name="header">
+										<ice:outputText value="Act.Start Time" />
+									</f:facet>
+									<ice:outputText value="#{pe.actualStartTime}"
+										rendered="#{pe.id != null}" style="font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value="#{pe.actualStartTime}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnProEventActEndTime"
+									style="text-align:center;width:55px">
+									<f:facet name="header">
+										<ice:outputText value="Act.End Time" />
+									</f:facet>
+									<ice:outputText value="#{pe.actualEndTime}"
+										rendered="#{pe.id != null}" style="font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value="#{pe.actualEndTime}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{eventManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnProEventGeneratedDate"
+									style="text-align:center;width:60px">
+									<f:facet name="header">
+										<ice:outputText value="Generated Date" />
+									</f:facet>
+									<ice:outputText value="#{pe.generatedDate}"
+										style="font-size:11px" rendered="#{pe.id != null}"
+										converter="dateConverter" />
+									<ice:outputText value="#{pe.generatedDate}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column id="columnProEventPrintedtedDate"
+									style="text-align:center;width:60px">
+									<f:facet name="header">
+										<ice:outputText value="Printed Date" />
+									</f:facet>
+									<ice:outputText value="#{pe.printedDate}"
+										style="font-size:11px" rendered="#{pe.id != null}"
+										converter="dateConverter" />
+									<ice:outputText value="#{pe.printedDate}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column id="columnProEventCompletedtedDate"
+									style="text-align:center;width:60px">
+									<f:facet name="header">
+										<ice:outputText value="Completed Date" />
+									</f:facet>
+									<ice:outputText value="#{pe.completedDate}"
+										style="font-size:11px" rendered="#{pe.id != null}"
+										converter="dateConverter" />
+									<ice:outputText value="#{pe.completedDate}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column id="columnProEventTotalCollected"
+									style="text-align:right;width:120px">
+									<f:facet name="header">
+										<ice:outputText value="Total Money Collected ($)" />
+									</f:facet>
+									<ice:outputText value="#{pe.totalMoneyCollectedString}"
+										rendered="#{pe.id != null}" style="font-size:11px" />
+									<ice:outputText value="#{pe.totalMoneyCollectedString}"
+										rendered="#{pe.id == null}" style="color:grey;font-size:11px" />
+								</ice:column>
+								<ice:column id="columnProEventStatus"
+									style="text-align:center;width:65px">
+									<f:facet name="header">
+										<ice:outputText value="Status" />
+									</f:facet>
+									<ice:outputText value="Completed"
+										rendered="#{pe.id != null and pe.status == 'finished'}"
+										style="font-size:11px" />
+									<ice:outputText value="Generated"
+										rendered="#{pe.id != null and pe.status == 'pending'}"
+										style="font-size:11px" />
+									<ice:outputText value="Banked"
+										rendered="#{pe.id != null and pe.status == 'banked'}"
+										style="font-size:11px" />
+									<ice:outputText value="New" rendered="#{pe.id == null}"
+										style="color:grey;font-size:11px" />
+								</ice:column>
+								<ice:column style="text-align:center;width:35px">
+									<f:facet name="header">
+										<ice:outputText value="Event" />
+									</f:facet>
+									<ice:commandLink style="border:none;font-size:11px"
+										id="commandOpenTab"
+										actionListener="#{eventManagerModel.openTab}" title="Open"
+										value="Open">
+										<f:attribute name="event" value="#{pe}" />
+									</ice:commandLink>
+								</ice:column>
+							</ice:dataTable>
+						</ice:setEventPhase>
+					</ice:panelGroup>
+					<center>
+						<ice:dataPaginator for="tableProgramEvents" paginator="true"
+							rendered="#{eventManagerModel.events.size() > 20}"
+							paginatorMaxPages="20"
+							actionListener="#{eventManagerModel.paginatorClicked}">
+							<f:facet name="first">
+								<ice:graphicImage url="images/paginator/arrow-first.gif"
+									style="border:none;" title="First Page" />
+							</f:facet>
+							<f:facet name="previous">
+								<ice:graphicImage url="images/paginator/arrow-previous.gif"
+									style="border:none;" title="Previous Page" />
+							</f:facet>
+							<f:facet name="next">
+								<ice:graphicImage url="images/paginator/arrow-next.gif"
+									style="border:none;" title="Next Page" />
+							</f:facet>
+							<f:facet name="last">
+								<ice:graphicImage url="images/paginator/arrow-last.gif"
+									style="border:none;" title="Last Page" />
+							</f:facet>
+						</ice:dataPaginator>
+					</center>
+					<ice:panelGrid style="float:right;margin-top:10px" cellpadding="0"
+						cellspacing="0" rendered="#{!empty(eventManagerModel.events)}">
+						<ice:outputText
+							value="Total money collected for the above event(s) : #{eventManagerModel.totalMoneyCollected}" />
+					</ice:panelGrid>
+
+					<ice:panelTabSet var="event" value="#{eventManagerModel.tabs}"
+						rendered="#{not empty(eventManagerModel.tabs)}"
+						selectedIndex="#{eventManagerModel.tabIndex}"
+						tabChangeListener="#{eventManagerModel.selectTab}"
+						style="margin-top:10px" id="panelTabSetEvents">
+						<ice:panelTab title="#{event.name}">
+							<f:facet name="label">
+								<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+									<ice:panelGroup style="width:155px;overflow:hidden">
+										<ice:outputText value="#{event.name}" style="height:15px"
+											id="outPutEventName" />
+									</ice:panelGroup>
+									<ice:commandButton image="#{msgs['panelPopup.closeImage']}"
+										actionListener="#{eventManagerModel.closeTab}"
+										id="commandCloseTab" style="margin-left:10px">
+										<f:attribute name="event" value="#{event}" />
+									</ice:commandButton>
+								</ice:panelGrid>
+							</f:facet>
+							<ice:panelGroup
+								style="margin-left:-20px;margin-top:-20px;min-height:40px;border:1px solid #F7F7F7">
+								<ice:messages tooltip="true" showDetail="true"
+									showSummary="true">
+									<ice:message for="error" showDetail="true" showSummary="true" />
+								</ice:messages>
+							</ice:panelGroup>
+
+							<ace:panel header="Event Details" toggleable="true"
+								style="padding:0" collapsed="false">
+								<!-- <f:subview id="event">								
+								<ui:include src="WEB-INF/includes/progevent.xhtml">
+									<ui:param name="eventManager" value="#{eventManagerModel}"></ui:param>
+									<ui:param name="progEvent" value="#{eventManagerModel.programEvent}"></ui:param>
+								</ui:include>
+								</f:subview> -->
+								<ice:panelGrid columns="6" width="100%"
+									rendered="#{eventManagerModel.programEvent != null}">
+									<ice:panelGroup style="width:110px">
+										<ice:outputText value="Event Date" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:250px">
+										<ice:inputText
+											value="#{eventManagerModel.programEvent.eventDate}"
+											style="border: 1px solid grey; width: 185px" readonly="true">
+											<f:convertDateTime timeZone="Australia/Sydney"
+												pattern="dd/MM/yyyy"></f:convertDateTime>
+										</ice:inputText>
+										<!-- <ice:selectInputDate id="inputProgramEventDate"
+											renderedOnUserRole="ROLE_SUPERUSER"
+											rendered="#{!(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked')}"
+											value="#{eventManagerModel.programEvent.eventDate}"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											partialSubmit="true" renderMonthAsDropdown="true"
+											converter="dateConverter"
+											disabled="#{eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked'}"
+											valueChangeListener="#{eventManagerModel.eventDateChanged}" />
+										<ice:panelGrid
+											style="border:1px solid grey;width:250px;height:25px"
+											rendered="#{eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked'}">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.eventDate}">
+												<f:convertDateTime timeZone="Australia/Sydney"
+													pattern="dd/MM/yyyy"></f:convertDateTime>
+											</ice:outputText>
+										</ice:panelGrid> -->
+									</ice:panelGroup>
+									<ice:panelGroup style="width:100px">
+										<ice:outputText value="Coordinator" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:200px">
+										<ice:selectOneMenu id="selectProEventCoordinator"
+											rendered="#{!(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked' ) and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+											style="width:190px"
+											value="#{eventManagerModel.selectedCoordinatorId}">
+											<f:selectItems
+												value="#{eventManagerModel.coordinatorSelectItems}" />
+										</ice:selectOneMenu>
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')) }">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.coordinator.contact.name}">
+											</ice:outputText>
+										</ice:panelGrid>
+									</ice:panelGroup>
+									<ice:panelGroup style="width:100px">
+										<ice:outputText value="Location"
+											rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport'}" />
+										<ice:outputText value="Vehicle"
+											rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:250px">
+										<ice:selectOneMenu id="selectProEventLocation"
+											rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport'  and eventManagerModel.eventStatus == 'pending' and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+											value="#{eventManagerModel.selectedLocationId}"
+											style="width:182px">
+											<f:selectItems
+												value="#{eventManagerModel.locationSelectItems}" />
+										</ice:selectOneMenu>
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport' and (eventManagerModel.eventStatus != 'pending' or !(request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE')))}">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.location.name}">
+											</ice:outputText>
+										</ice:panelGrid>
+										<ice:selectOneMenu id="selectTransportEventVehicle"
+											value="#{eventManagerModel.selectedVehicleId}"
+											valueChangeListener="#{eventManagerModel.selectEventVehicle}"
+											partialSubmit="true" style="width:188px"
+											rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.eventStatus == 'pending' and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}">
+											<f:selectItems
+												value="#{eventManagerModel.vehicleSelectItems}" />
+										</ice:selectOneMenu>
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and (eventManagerModel.eventStatus != 'pending' or !(request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE')))}">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.vehicle.name}" />
+										</ice:panelGrid>
+									</ice:panelGroup>
+									<ice:outputText value="Roster Start Time" />
+									<comp:timeControl value="#{eventManagerModel.rosterStartTime}"
+										id="startTime1" renderedOnUserRole="ROLE_SUPERUSER"
+										rendered="#{!(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+										disabled="#{eventManagerModel.setActualEventTimes==true}" />
+									<ice:panelGrid
+										style="border:1px solid grey;width:200px;height:25px"
+										rendered="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+										<ice:outputText
+											value="#{eventManagerModel.rosterStartTime.timeAsString}">
+										</ice:outputText>
+									</ice:panelGrid>
+
+									<ice:outputText value="Roster End Time" />
+									<comp:timeControl value="#{eventManagerModel.rosterEndTime}"
+										renderedOnUserRole="ROLE_SUPERUSER"
+										disabled="#{eventManagerModel.setActualEventTimes==true}"
+										rendered="#{!(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+										id="endTime1" />
+									<ice:panelGrid
+										style="border:1px solid grey;width:200px;height:25px"
+										rendered="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+										<ice:outputText
+											value="#{eventManagerModel.rosterEndTime.timeAsString}" />
+									</ice:panelGrid>
+									<ice:outputText value="Set Actual Event Times" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectBooleanCheckbox id="setActualTimes"
+											rendered="#{eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+											value="#{eventManagerModel.setActualEventTimes}"
+											partialSubmit="true"
+											disabled="#{eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked' || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+											valueChangeListener="#{eventManagerModel.setActualEventTimes}" />
+										<ice:selectBooleanCheckbox id="setActualTimesDisabled"
+											rendered="#{!eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+											value="#{eventManagerModel.setActualEventTimes}"
+											partialSubmit="true" disabled="true"
+											title="Not allowed for future events.."
+											valueChangeListener="#{eventManagerModel.setActualEventTimes}" />
+									</ice:setEventPhase>
+									<ice:outputText value="Actual Start Time"
+										rendered="#{eventManagerModel.setActualEventTimes}" />
+									<comp:timeControl id="startTime2"
+										value="#{eventManagerModel.actualStartTime}"
+										rendered="#{eventManagerModel.setActualEventTimes and !(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+									<ice:panelGrid
+										style="border:1px solid grey;width:200px;height:25px"
+										rendered="#{eventManagerModel.setActualEventTimes and (eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (eventManagerModel.setActualEventTimes and request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+										<ice:outputText
+											value="#{eventManagerModel.actualStartTime.timeAsString}" />
+									</ice:panelGrid>
+									<ice:outputText value="Actual End Time"
+										rendered="#{eventManagerModel.setActualEventTimes}" />
+									<comp:timeControl value="#{eventManagerModel.actualEndTime}"
+										id="endTime2"
+										rendered="#{eventManagerModel.setActualEventTimes and !(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+									<ice:panelGrid
+										style="border:1px solid grey;width:200px;height:25px"
+										rendered="#{eventManagerModel.setActualEventTimes and (eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (eventManagerModel.setActualEventTimes and request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+										<ice:outputText
+											value="#{eventManagerModel.actualEndTime.timeAsString}" />
+									</ice:panelGrid>
+									<ice:outputText value="Charge Amount($)" />
+									<ice:panelGrid columns="3">
+										<ice:inputText id="inputTextSingleChargeAmount"
+											value="#{eventManagerModel.programEvent.chargeAmount}"
+											style="width:112px"
+											rendered="#{!(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+										<ice:panelGrid
+											style="border:1px solid grey;width:112px;height:25px"
+											rendered="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.chargeAmount}">
+												<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+											</ice:outputText>
+										</ice:panelGrid>
+										<ice:setEventPhase events="FacesEvent"
+											phase="UPDATE_MODEL_VALUES">
+											<ice:selectBooleanCheckbox id="OverridePrice"
+												rendered="#{eventManagerModel.programEvent.program.type.name != 'Staff'}"
+												disabled="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+												value="#{eventManagerModel.setOverridePrice}"
+												valueChangeListener="#{eventManagerModel.setOverridePrice}"
+												partialSubmit="true" />
+										</ice:setEventPhase>
+										<ice:outputText value="Override"
+											rendered="#{eventManagerModel.programEvent.program.type.name != 'Staff'}" />
+									</ice:panelGrid>
+									<ice:outputText value="Status"
+										rendered="#{eventManagerModel.programEvent.generatedDate != null}" />
+									<ice:selectOneRadio id="selectProEventStatus"
+										styleClass="radio"
+										value="#{eventManagerModel.programEvent.status}"
+										rendered="#{eventManagerModel.programEvent.generatedDate != null}">
+										<f:selectItem itemLabel="Generated" itemValue="pending"
+											itemDisabled="#{(eventManagerModel.eventStatus == 'finished' || eventManagerModel.eventStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+										<f:selectItem itemLabel="Completed" itemValue="finished"
+											itemDisabled="#{(eventManagerModel.eventStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+										<f:selectItem itemLabel="Banked" itemValue="banked"
+											itemDisabled="#{(!request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_FINANCE') ) or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}" />
+									</ice:selectOneRadio>
+								</ice:panelGrid>
+								<ice:panelGroup
+									rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}">
+									<ice:panelGrid columns="3" cellspacing="3">
+										<ice:outputLabel value="Return" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											renderedOnUserRole="ROLE_SUPERUSER"
+											phase="UPDATE_MODEL_VALUES">
+											<ice:selectBooleanCheckbox id="selectReturn"
+												partialSubmit="true"
+												disabled="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												valueChangeListener="#{eventManagerModel.returnEventChanged}"
+												value="#{eventManagerModel.programEvent.group.returnAvailable}" />
+										</ice:setEventPhase>
+										<hr width="980px" />
+									</ice:panelGrid>
+									<ice:panelGrid style="height:10px"
+										rendered="#{!eventManagerModel.programEvent.group.returnAvailable}">
+										<ice:outputText value="" />
+									</ice:panelGrid>
+									<!-- <f:subview id="returnEvent" >
+								<ui:include src="WEB-INF/includes/progevent.xhtml">
+									<ui:param name="eventManager" value="#{eventManagerModel}"></ui:param>
+									<ui:param name="progEvent" value="#{eventManagerModel.programEvent.returnEvent}"></ui:param>
+								</ui:include>
+								</f:subview> -->
+
+									<ice:panelGrid columns="6" width="100%"
+										rendered="#{eventManagerModel.programEvent.group.returnAvailable}">
+										<ice:panelGroup style="width:110px">
+											<ice:outputText value="Event Date" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:250px">
+											<ice:inputText readonly="true"
+												value="#{eventManagerModel.programEvent.eventDate}"
+												style="border:1px solid grey;width:185px">
+												<f:convertDateTime timeZone="Australia/Sydney"
+													pattern="dd/MM/yyyy"></f:convertDateTime>
+											</ice:inputText>
+										</ice:panelGroup>
+										<ice:panelGroup style="width:100px">
+											<ice:outputText value="Coordinator" />
+										</ice:panelGroup>
+										<ice:selectOneMenu id="selectReturnCoordinator"
+											rendered="#{!(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked' ) and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+											style="width:188px"
+											value="#{eventManagerModel.selectedReturnCoordinatorId}">
+											<f:selectItems
+												value="#{eventManagerModel.returnCoordinatorSelectItems}" />
+										</ice:selectOneMenu>
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')) }">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.coordinator.contact.name}" />
+										</ice:panelGrid>
+
+										<ice:outputText value="Vehicle" />
+										<ice:panelGroup style="width:250px"
+											rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.returnStatus == 'pending' and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}">
+											<ice:selectOneMenu id="selectReturnVehicle"
+												value="#{eventManagerModel.returnVehicleId}"
+												valueChangeListener="#{eventManagerModel.selectEventVehicle}"
+												partialSubmit="true" style="width:188px">
+												<f:selectItems
+													value="#{eventManagerModel.vehicleSelectItems}" />
+											</ice:selectOneMenu>
+										</ice:panelGroup>
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{eventManagerModel.returnStatus != 'pending' || (eventManagerModel.programEvent.program.type.name == 'Transport' and request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')) }">
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.returnEvent.vehicle.name}"></ice:outputText>
+										</ice:panelGrid>
+										<ice:panelGroup>
+											<ice:outputText value="Roster Start Time" />
+										</ice:panelGroup>
+										<ice:panelGroup>
+											<comp:timeControl
+												value="#{eventManagerModel.returnStartTime}"
+												id="returnStartTime" renderedOnUserRole="ROLE_SUPERUSER"
+												style="width:182px"
+												rendered="#{!(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+												disabled="#{eventManagerModel.setActualReturnEventTimes==true}" />
+											<ice:panelGrid
+												style="border:1px solid grey;width:200px;height:25px"
+												rendered="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+												<ice:outputText
+													value="#{eventManagerModel.returnStartTime.timeAsString}">
+												</ice:outputText>
+											</ice:panelGrid>
+										</ice:panelGroup>
+										<ice:panelGroup style="width:100px">
+											<ice:outputText value="Roster End Time" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:200px">
+											<comp:timeControl value="#{eventManagerModel.returnEndTime}"
+												id="returnEndTime" renderedOnUserRole="ROLE_SUPERUSER"
+												style="width:182px"
+												rendered="#{!(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}"
+												disabled="#{eventManagerModel.setActualReturnEventTimes==true}" />
+											<ice:panelGrid
+												style="border:1px solid grey;width:200px;height:25px"
+												rendered="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+												<ice:outputText
+													value="#{eventManagerModel.returnEndTime.timeAsString}">
+												</ice:outputText>
+											</ice:panelGrid>
+
+										</ice:panelGroup>
+										<!--set actual time to Transport event  -->
+										<ice:outputText value="Set Actual Event Times" />
+										<ice:setEventPhase events="FacesEvent"
+											phase="UPDATE_MODEL_VALUES">
+											<ice:selectBooleanCheckbox id="setActualTimesReturn"
+												rendered="#{eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+												value="#{eventManagerModel.setActualReturnEventTimes}"
+												partialSubmit="true"
+												disabled="#{eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked' || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												valueChangeListener="#{eventManagerModel.setActualReturnEventTimes}" />
+											<ice:selectBooleanCheckbox id="setActualTimesDisabledReturn"
+												rendered="#{!eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+												value="#{eventManagerModel.setActualReturnEventTimes}"
+												partialSubmit="true" disabled="true"
+												title="Not allowed for future events.."
+												valueChangeListener="#{eventManagerModel.setActualReturnEventTimes}" />
+										</ice:setEventPhase>
+										<ice:outputText value="Actual Start Time"
+											rendered="#{eventManagerModel.setActualReturnEventTimes}" />
+										<comp:timeControl id="startTime2Return"
+											value="#{eventManagerModel.actualReturnStartTime}"
+											rendered="#{eventManagerModel.setActualReturnEventTimes and !(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{eventManagerModel.setActualReturnEventTimes and (eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (eventManagerModel.setActualReturnEventTimes and request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+											<ice:outputText
+												value="#{eventManagerModel.actualReturnStartTime.timeAsString}" />
+										</ice:panelGrid>
+										<ice:outputText value="Actual End Time"
+											rendered="#{eventManagerModel.setActualReturnEventTimes}" />
+										<comp:timeControl id="endTime2Return"
+											value="#{eventManagerModel.actualReturnEndTime}"
+											rendered="#{eventManagerModel.setActualReturnEventTimes and !(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+										<ice:panelGrid
+											style="border:1px solid grey;width:200px;height:25px"
+											rendered="#{eventManagerModel.setActualReturnEventTimes and (eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (eventManagerModel.setActualReturnEventTimes and request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}">
+											<ice:outputText
+												value="#{eventManagerModel.actualReturnEndTime.timeAsString}" />
+										</ice:panelGrid>
+										<ice:outputText value="Charge Amount($)" />
+										<ice:panelGrid columns="3">
+											<ice:inputText id="returnSingleChargeAmount"
+												value="#{eventManagerModel.programEvent.returnEvent.chargeAmount}"
+												style="width:112px"
+												rendered="#{!(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') and (request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_ADMIN') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE'))}" />
+											<ice:panelGrid
+												style="border:1px solid grey;width:112px;height:25px"
+												rendered="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}">
+												<ice:outputText
+													value="#{eventManagerModel.programEvent.returnEvent.chargeAmount}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+											</ice:panelGrid>
+											<ice:setEventPhase events="FacesEvent"
+												phase="UPDATE_MODEL_VALUES">
+												<ice:selectBooleanCheckbox id="OverrideReturnPrice"
+													rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}"
+													value="#{eventManagerModel.setReturnOverridePrice}"
+													disabled="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+													valueChangeListener="#{eventManagerModel.setReturnOverridePrice}"
+													partialSubmit="true" />
+											</ice:setEventPhase>
+											<ice:outputText value="Override" />
+										</ice:panelGrid>
+										<ice:outputText value="Status"
+											rendered="#{eventManagerModel.programEvent.returnEvent.generatedDate != null}" />
+										<ice:selectOneRadio id="selectReturnEventStatus"
+											styleClass="radio"
+											value="#{eventManagerModel.programEvent.returnEvent.status}"
+											rendered="#{eventManagerModel.programEvent.returnEvent.generatedDate != null}">
+											<f:selectItem itemLabel="Generated" itemValue="pending"
+												itemDisabled="#{(eventManagerModel.returnStatus == 'finished' || eventManagerModel.returnStatus == 'banked') || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+											<f:selectItem itemLabel="Completed" itemValue="finished"
+												itemDisabled="#{eventManagerModel.returnStatus == 'banked' || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+											<f:selectItem itemLabel="Banked" itemValue="banked"
+												itemDisabled="#{eventManagerModel.returnStatus == 'banked' || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+										</ice:selectOneRadio>
+									</ice:panelGrid>
+
+								</ice:panelGroup>
+							</ace:panel>
+							<ace:panel header="Attendance Details" toggleable="true"
+								style="padding:0; margin-top:10px;padding-bottom:10px">
+								<ice:panelGrid columns="5" cellpadding="0" cellspacing="5"
+									style="margin-left:-5px">
+									<ice:commandButton value="Create Attendance Sheet"
+										styleClass="CommandButton" style="float:left"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										rendered="#{((eventManagerModel.programEvent.program.type.name == 'Student' || eventManagerModel.programEvent.program.type.name == 'Individual') and empty(eventManagerModel.programEvent.studentEvents)) || (eventManagerModel.programEvent.program.type.name == 'Staff' and empty(eventManagerModel.programEvent.staffEvents))}"
+										actionListener="#{eventManagerModel.createAttendanceSheet}"
+										id="commandGenerateAttendance">
+										<f:attribute name="return" value="mainOnly" />
+									</ice:commandButton>
+									<ice:commandButton value="Create Return Attendance Sheet"
+										styleClass="CommandButton"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and !empty(eventManagerModel.programEvent.studentEvents) and eventManagerModel.programEvent.group.returnAvailable and empty(eventManagerModel.programEvent.returnEvent.studentEvents)}"
+										actionListener="#{eventManagerModel.createAttendanceSheet}"
+										id="commandGenerateReturnAttendance">
+										<f:attribute name="return" value="returnOnly" />
+									</ice:commandButton>
+									<ice:commandButton value="Create Main Attendance Sheet"
+										styleClass="CommandButton"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.programEvent.studentEvents) and eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}"
+										actionListener="#{eventManagerModel.createAttendanceSheet}"
+										id="commandGenerateMainAttendance">
+										<f:attribute name="return" value="mainOnly" />
+									</ice:commandButton>
+									<ice:commandButton value="Create Attendance Sheets"
+										styleClass="CommandButton"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.programEvent.studentEvents) and eventManagerModel.programEvent.group.returnAvailable and empty(eventManagerModel.programEvent.returnEvent.studentEvents)}"
+										actionListener="#{eventManagerModel.createAttendanceSheet}"
+										id="commandGenerateAllAttendance" />
+									<ice:commandButton value="Create Attendance Sheet"
+										styleClass="CommandButton"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.programEvent.studentEvents) and !eventManagerModel.programEvent.group.returnAvailable}"
+										actionListener="#{eventManagerModel.createAttendanceSheet}"
+										id="commandGenerateTransportAttendance">
+										<f:attribute name="return" value="mainOnly" />
+									</ice:commandButton>
+									<ice:commandButton id="commandMarkAttd"
+										renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_FINANCE,ROLE_ADMIN"
+										action="#{eventManagerModel.attendancePopup}"
+										value="Mark Attendance"
+										disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.returnStatus == 'banked' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+										rendered="#{empty(eventManagerModel.eventsAttended) and empty(eventManagerModel.returnsAttended) and (!empty(eventManagerModel.programEvent.studentEvents) || !empty(eventManagerModel.programEvent.returnEvent.studentEvents))}"
+										styleClass="CommandButton" />
+									<ice:outputLabel value="Total money collected :"
+										rendered="#{(eventManagerModel.programEvent.program.type.name != 'Transport' || (eventManagerModel.programEvent.program.type.name == 'Transport' and (!eventManagerModel.programEvent.group.returnAvailable || empty(eventManagerModel.programEvent.returnEvent.studentEvents)))) and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}" />
+									<ice:outputLabel
+										value="Total money collected for the main Event :"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}" />
+									<ice:outputText
+										rendered="#{!empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}"
+										value="#{eventManagerModel.programEvent.totalMoneyCollectedString}" />
+									<ice:outputLabel value="Total money collected :"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.returnsAttended)}" />
+									<ice:outputText
+										value="#{eventManagerModel.programEvent.returnEvent.totalMoneyCollectedString}"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.returnsAttended)}" />
+								</ice:panelGrid>
+								<ice:panelGrid width="100%" cellpadding="0" cellspacing="0"
+									style="margin-top:-25px"
+									rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}">
+									<ice:panelGrid columns="2" cellpadding="0" cellspacing="5"
+										style="float:right">
+										<ice:outputLabel
+											value="Total money collected for the return Event :" />
+										<ice:outputText
+											value="#{eventManagerModel.programEvent.returnEvent.totalMoneyCollectedString}" />
+									</ice:panelGrid>
+								</ice:panelGrid>
+								<ice:panelGroup style="height:10px"
+									rendered="#{(eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)) || (!empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)) || (eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.returnsAttended))}" />
+								<ice:panelGrid width="100%"
+									style="border:1px solid grey;height:100px;text-align:center"
+									rendered="#{(eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.transportStdEvents)) || ((eventManagerModel.programEvent.program.type.name == 'Student' || eventManagerModel.programEvent.program.type.name == 'Individual') and empty(eventManagerModel.programEvent.studentEvents))}">
+									<ice:outputText
+										value="No #{msgs['student_label'].toLowerCase()} attendance information found." />
+								</ice:panelGrid>
+								<ice:setEventPhase events="FacesEvent"
+									phase="UPDATE_MODEL_VALUES">
+									<ice:dataTable style="margin-top:0px"
+										value="#{eventManagerModel.programEvent.studentEvents}"
+										var="stuEve" id="tableStudentEvents"
+										rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport' and !empty(eventManagerModel.programEvent.studentEvents)}"
+										columnWidths="60px,400px,80px,100px,100px,300px">
+										<ice:column id="columnStudentEveId" style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="ID" />
+											</f:facet>
+											<ice:outputText value="#{stuEve.groupedStudent.student.id}" />
+										</ice:column>
+										<ice:column id="columnStudentEveName">
+											<f:facet name="header">
+												<ice:outputText value="#{msgs['student_label']} Name" />
+											</f:facet>
+											<ice:panelGrid columns="2" cellspacing="0" cellpadding="0"
+												style="margin-right:-25px">
+												<ice:outputText style="margin-right:10px"
+													title="#{stuEve.groupedStudent.student.contact.name}"
+													value="#{stuEve.groupedStudent.student.contact.name}" />
+												<ice:graphicImage style="border:none; float:right"
+													title="#{stuEve.fundingStatus}"
+													rendered="#{stuEve.remainingHours gt 0 and stuEve.remainingHours le 10}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="#{stuEve.fundingStatus}"
+													rendered="#{stuEve.remainingHours le 0}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<!-- <ice:graphicImage style="border:none; float:right"
+													title="Only 1Hr remaining.."
+													rendered="#{stuEve.remainingHours == 1}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="Only #{stuEve.remainingHours}Hrs remaining.."
+													rendered="#{stuEve.remainingHours != 1 and stuEve.remainingHours gt 0 and stuEve.remainingHours le 10}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="No contracted hours remaining.."
+													rendered="#{stuEve.remainingHours == 0}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<ice:graphicImage style="border:none; float:right"
+													title="1Hr elapsed.."
+													rendered="#{stuEve.remainingHours == -1}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<ice:graphicImage style="border:none; float:right"
+													title="#{-stuEve.remainingHours}Hrs elapsed.."
+													rendered="#{stuEve.remainingHours lt -1}"
+													url="images/icons/warning_s_red.png" height="18" width="18" /> -->
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStudentEveAttendance"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Attended" />
+												<br></br>
+												<ice:selectBooleanCheckbox id="selectBooleanAtAll"
+													partialSubmit="true"
+													disabled="#{(eventManagerModel.eventStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate))  || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+													rendered="#{not empty(eventManagerModel.programEvent.studentEvents)}"
+													value="#{eventManagerModel.selectAllAtd}"
+													valueChangeListener="#{eventManagerModel.markAllStdEvents}">
+													<f:attribute name="mark" value="normal" />
+												</ice:selectBooleanCheckbox>
+											</f:facet>
+											<ice:selectBooleanCheckbox id="selectAttd"
+												value="#{stuEve.attended}" partialSubmit="true"
+												disabled="#{(eventManagerModel.eventStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												valueChangeListener="#{eventManagerModel.markStdEvent}">
+												<f:attribute name="event" value="#{stuEve}" />
+												<f:attribute name="mark" value="normal" />
+											</ice:selectBooleanCheckbox>
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Amount Charged" />
+												<br />
+												<ice:commandLink id="commandAddCharge"
+													actionListener="#{eventManagerModel.additionalChargesPopup}"
+													value="[+]" title="Add Additional Charges"
+													style="color:teal"
+													rendered="#{eventManagerModel.eventStatus != 'banked' and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents) and !request.isUserInRole('ROLE_USER') and request.isUserInRole('ROLE_SUPERUSER') and request.isUserInRole('ROLE_ADMIN') and request.isUserInRole('ROLE_SUPERVISOR') and request.isUserInRole('ROLE_FINANCE')}" />
+											</f:facet>
+											<ice:panelGrid columns="2" width="100%"
+												style="text-align:right">
+												<ice:outputText value="#{stuEve.totalCharges}"
+													rendered="#{stuEve.attended}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink
+													actionListener="#{eventManagerModel.createNewCharge}"
+													id="commandlinkNewCharge" rendered="#{stuEve.attended}">
+													<ice:graphicImage style="border:none"
+														rendered="#{eventManagerModel.eventStatus != 'banked'}"
+														title="Add new additional charges"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none"
+														title="Additional charges"
+														rendered="#{eventManagerModel.eventStatus == 'banked' and !empty(stuEve.otherChargeTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{stuEve}" />
+												</ice:commandLink>
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStudentEveAmount">
+											<f:facet name="header">
+												<ice:outputText value="Amount Paid" />
+											</f:facet>
+											<ice:panelGrid columns="2" width="100%"
+												style="text-align:right">
+												<ice:outputText value="#{stuEve.amountPaid}"
+													rendered="#{stuEve.attended}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink
+													actionListener="#{eventManagerModel.createNewPayment}"
+													id="commandlinkNewPayment" rendered="#{stuEve.attended}">
+													<ice:graphicImage style="border:none"
+														title="Make new payments"
+														rendered="#{eventManagerModel.eventStatus != 'banked'}"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none" title="Payments"
+														rendered="#{eventManagerModel.eventStatus == 'banked' and !empty(stuEve.paymentTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{stuEve}" />
+												</ice:commandLink>
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStudentEveRemarks" style="padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Remarks" />
+											</f:facet>
+											<ice:inputText id="inputRemarks" value="#{stuEve.remarks}"
+												style="width:298px" disabled="#{!stuEve.attended}" />
+										</ice:column>
+									</ice:dataTable>
+
+									<ace:dataTable id="studentEventsTable"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and !empty(eventManagerModel.transportStdEvents)}"
+										value="#{eventManagerModel.transportStdEvents}" var="event">
+										<ace:columnGroup id="columnGroup" type="header">
+											<ace:row>
+												<ace:column headerText="ID" rowspan="2"
+													style="font-size:12px;vertical-align:middle" />
+												<ace:column headerText="Name" rowspan="2"
+													style="font-size:12px;vertical-align:middle" />
+												<ace:column headerText="Main Event" colspan="7"
+													style="font-size:12px" />
+												<ace:column headerText="Return Event" colspan="7"
+													style="font-size:12px" />
+											</ace:row>
+											<ace:row>
+												<ace:column headerText="#"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column
+													style="font-size:10px;width:50px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<br />
+														<ice:selectBooleanCheckbox id="selectAllTransportMainAttd"
+															partialSubmit="true"
+															disabled="#{(eventManagerModel.eventStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+															value="#{eventManagerModel.selectAllAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStdEvents}"
+															rendered="#{!empty(eventManagerModel.programEvent.studentEvents)}">
+															<f:attribute name="mark" value="normal" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column
+													style="font-size:11px;width:50px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Charged" />
+														<br />
+														<ice:commandLink id="commandAddMainCharge"
+															actionListener="#{eventManagerModel.additionalChargesPopup}"
+															value="[+]" title="Add additional charges"
+															style="color:teal"
+															rendered="#{eventManagerModel.eventStatus != 'banked' and !empty(eventManagerModel.eventsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}" />
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Paid"
+													style="font-size:11px;width:60px;vertical-align:middle" />
+												<ace:column headerText="Pick-up"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column headerText="Drop-off"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column headerText="Remarks"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column headerText="#"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column
+													style="font-size:10px;width:50px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<br />
+														<ice:selectBooleanCheckbox
+															id="selectAllTransportReturnAttd" partialSubmit="true"
+															disabled="#{(eventManagerModel.returnStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+															value="#{eventManagerModel.selectAllReturnAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStdEvents}"
+															rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}">
+															<f:attribute name="mark" value="normal" />
+															<f:attribute name="return" value="return" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column
+													style="font-size:11px;width:50px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Charged" />
+														<br />
+														<ice:commandLink id="commandAddReturnCharge"
+															actionListener="#{eventManagerModel.additionalChargesPopup}"
+															value="[+]" title="Add additional charges"
+															style="color:teal"
+															rendered="#{eventManagerModel.returnStatus != 'banked' and !empty(eventManagerModel.returnsAttended) and !empty(eventManagerModel.programEvent.studentEvents)}">
+															<f:attribute name="return" value="return" />
+														</ice:commandLink>
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Paid"
+													style="font-size:11px;width:60px;vertical-align:middle" />
+												<ace:column headerText="Pick-up"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column headerText="Drop-off"
+													style="font-size:11px;vertical-align:middle" />
+												<ace:column headerText="Remarks"
+													style="font-size:11px;vertical-align:middle" />
+											</ace:row>
+										</ace:columnGroup>
+										<ace:column style="text-align:right;padding:5px">
+											<h:outputText value="#{event.student.id}"
+												style="font-size:12px" />
+										</ace:column>
+										<ace:column style="padding:5px">
+											<ice:panelGrid columns="2" cellspacing="0" cellpadding="0">
+												<ice:panelGroup
+													style="text-align:left;height:12px;width:120px;overflow:hidden">
+													<ice:outputText style="font-size:12px"
+														title="#{event.student.contact.name}"
+														value="#{event.student.contact.name}" />
+												</ice:panelGroup>
+												<ice:panelGroup>
+													<ice:graphicImage style="border:none; float:right"
+														title="#{event.fundingStatus}"
+														rendered="#{event.remainingHours gt 0 and event.remainingHours le 10}"
+														url="images/icons/warning_s.png" />
+													<ice:graphicImage style="border:none; float:right"
+														title="#{event.fundingStatus}"
+														rendered="#{event.remainingHours le 0}"
+														url="images/icons/warning_s_red.png" height="15"
+														width="15" />
+													<!-- <ice:graphicImage style="border:none;"
+														title="Only 1Hr remaining.."
+														rendered="#{event.remainingHours == 1}"
+														url="images/icons/warning_s.png" />
+													<ice:graphicImage style="border:none; "
+														title="Only #{event.remainingHours}Hrs remaining.."
+														rendered="#{event.remainingHours != 1 and event.remainingHours gt 0 and event.remainingHours le 10}"
+														url="images/icons/warning_s.png" />
+													<ice:graphicImage style="border:none;"
+														title="No contracted hours remaining.."
+														rendered="#{event.remainingHours == 0}"
+														url="images/icons/warning_s_red.png" height="15"
+														width="15" />
+													<ice:graphicImage style="border:none;"
+														title="1Hr elapsed.."
+														rendered="#{event.remainingHours == -1}"
+														url="images/icons/warning_s_red.png" height="15"
+														width="15" />
+													<ice:graphicImage style="border:none;"
+														title="#{-event.remainingHours}Hrs elapsed.."
+														rendered="#{event.remainingHours lt -1}"
+														url="images/icons/warning_s_red.png" height="15"
+														width="15" /> -->
+												</ice:panelGroup>
+											</ice:panelGrid>
+										</ace:column>
+										<ace:column styleClass="tableColBg" style="padding:5px">
+											<ice:outputText rendered="#{event.mainEvent != null}"
+												value="#{event.mainEvent.groupedStudent.sequence}" />
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg" style="padding:0">
+											<ice:selectBooleanCheckbox id="selectTransportMainAttd"
+												value="#{event.mainEvent.attended}" partialSubmit="true"
+												valueChangeListener="#{eventManagerModel.markStdEvent}"
+												disabled="#{(eventManagerModel.eventStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												rendered="#{event.mainEvent != null}">
+												<f:attribute name="event" value="#{event.mainEvent}" />
+												<f:attribute name="mark" value="normal" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="text-align:right;padding:5px">
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rendered="#{event.mainEvent != null}">
+												<ice:outputText value="#{event.mainEvent.totalCharges}"
+													rendered="#{event.mainEvent.attended}"
+													style="font-size:12px">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink style="margin-left:3px"
+													actionListener="#{eventManagerModel.createNewCharge}"
+													id="transportNewMainCharge"
+													rendered="#{event.mainEvent.attended}">
+													<ice:graphicImage style="border:none"
+														title="Add new additional charges"
+														rendered="#{eventManagerModel.eventStatus != 'banked'}"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none"
+														title="Additional charges"
+														rendered="#{eventManagerModel.eventStatus == 'banked' and !empty(event.mainEvent.paymentTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{event.mainEvent}" />
+												</ice:commandLink>
+											</ice:panelGrid>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="text-align:right;padding:5px">
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rendered="#{event.mainEvent != null}">
+												<ice:outputText value="#{event.mainEvent.amountPaid}"
+													rendered="#{event.mainEvent.attended}"
+													style="font-size:12px">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink style="margin-left:3px"
+													actionListener="#{eventManagerModel.createNewPayment}"
+													id="transportNewMainPayment"
+													rendered="#{event.mainEvent.attended}">
+													<ice:graphicImage style="border:none"
+														title="Make new payment"
+														rendered="#{eventManagerModel.eventStatus != 'banked'}"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none" title="Payments"
+														rendered="#{eventManagerModel.eventStatus == 'banked' and !empty(event.mainEvent.paymentTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{event.mainEvent}" />
+												</ice:commandLink>
+											</ice:panelGrid>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="text-align:left;padding:5px">
+											<ice:panelGroup
+												style="width:70px;height:12px;overflow:hidden"
+												rendered="#{event.mainEvent != null}">
+												<ice:outputText
+													value="#{event.mainEvent.groupedStudent.pickup.name}"
+													title="#{event.mainEvent.groupedStudent.pickup.name}" />
+											</ice:panelGroup>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="text-align:left;padding:5px">
+											<ice:panelGroup
+												style="width:70px;height:12px;overflow:hidden"
+												rendered="#{event.mainEvent != null}">
+												<ice:outputText
+													value="#{event.mainEvent.groupedStudent.dropoff.name}"
+													title="#{event.mainEvent.groupedStudent.dropoff.name}" />
+											</ice:panelGroup>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg" style="padding:0">
+											<ice:inputText id="transportMainRemarks"
+												value="#{event.mainEvent.remarks}"
+												disabled="#{!event.mainEvent.attended}" style="width:85%;"
+												rendered="#{event.mainEvent != null}" />
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+
+										<!-- rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}" -->
+										<ace:column styleClass="tableColRightBg" style="padding:5px">
+											<ice:outputText rendered="#{event.returnEvent != null}"
+												value="#{event.returnEvent.groupedStudent.sequence}" />
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg">
+											<ice:selectBooleanCheckbox id="selectTransportReturnAttd"
+												value="#{event.returnEvent.attended}" partialSubmit="true"
+												disabled="#{(eventManagerModel.returnStatus == 'banked' or !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												valueChangeListener="#{eventManagerModel.markStdEvent}"
+												rendered="#{event.returnEvent != null}">
+												<f:attribute name="event" value="#{event.returnEvent}" />
+												<f:attribute name="mark" value="normal" />
+												<f:attribute name="return" value="return" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="text-align:right;padding:5px">
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rendered="#{event.returnEvent != null}">
+												<ice:outputText value="#{event.returnEvent.totalCharges}"
+													rendered="#{event.returnEvent.attended}"
+													style="font-size:12px">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink style="margin-left:3px"
+													actionListener="#{eventManagerModel.createNewCharge}"
+													id="transportNewReturnCharge"
+													rendered="#{event.returnEvent.attended}">
+													<ice:graphicImage style="border:none"
+														title="Add new additional charges"
+														rendered="#{eventManagerModel.returnStatus != 'banked'}"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none"
+														title="Additional charges"
+														rendered="#{eventManagerModel.returnStatus == 'banked' and !empty(event.returnEvent.paymentTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{event.returnEvent}" />
+													<f:attribute name="eventType" value="return" />
+												</ice:commandLink>
+											</ice:panelGrid>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="text-align:right;padding:5px">
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rendered="#{event.returnEvent != null}">
+												<ice:outputText value="#{event.returnEvent.amountPaid}"
+													rendered="#{event.returnEvent.attended}"
+													style="font-size:12px">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:commandLink style="margin-left:3px"
+													actionListener="#{eventManagerModel.createNewPayment}"
+													id="transportNewReturnPayment"
+													rendered="#{event.returnEvent.attended}">
+													<ice:graphicImage style="border:none"
+														title="Make new payments"
+														rendered="#{eventManagerModel.returnStatus != 'banked'}"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<ice:graphicImage style="border:none" title="Payments"
+														rendered="#{eventManagerModel.returnStatus == 'banked' and !empty(event.returnEvent.paymentTxs)}"
+														url="images/icons/information.png" width="13" height="13" />
+													<div style="width: 18px" />
+													<f:attribute name="stdEvent" value="#{event.returnEvent}" />
+													<f:attribute name="eventType" value="return" />
+												</ice:commandLink>
+											</ice:panelGrid>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="text-align:left;padding:5px">
+											<ice:panelGroup
+												style="width:70px;height:12px;overflow:hidden"
+												rendered="#{event.returnEvent != null}">
+												<ice:outputText
+													value="#{event.returnEvent.groupedStudent.pickup.name}"
+													title="#{event.returnEvent.groupedStudent.pickup.name}" />
+											</ice:panelGroup>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="text-align:left;padding:5px">
+											<ice:panelGroup
+												style="width:70px;height:12px;overflow:hidden"
+												rendered="#{event.returnEvent != null}">
+												<ice:outputText
+													value="#{event.returnEvent.groupedStudent.dropoff.name}"
+													title="#{event.returnEvent.groupedStudent.dropoff.name}" />
+											</ice:panelGroup>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg" style="padding:0">
+											<ice:inputText id="transportReturnRemarks"
+												value="#{event.returnEvent.remarks}"
+												disabled="#{!event.returnEvent.attended}"
+												rendered="#{event.returnEvent != null}"
+												style="width:85%;text-align:left" />
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+									</ace:dataTable>
+
+									<ice:panelGrid columns="2"
+										style="margin-top:10px;margin-bottom:10px;">
+										<ice:outputLabel value="Staff Attendance" />
+										<ice:panelGroup
+											style="height: 4px;width: 1000px;border-bottom: 1px solid grey;" />
+									</ice:panelGrid>
+									<ice:panelGrid width="100%"
+										style="border:1px solid grey;height:100px;text-align:center"
+										rendered="#{(eventManagerModel.programEvent.program.type.name == 'Transport' and empty(eventManagerModel.transportStdEvents)) || (eventManagerModel.programEvent.program.type.name != 'Transport' and empty(eventManagerModel.programEvent.staffEvents))}">
+										<ice:outputText value="No staff attendance infomation found." />
+									</ice:panelGrid>
+									<ace:dataTable
+										value="#{eventManagerModel.programEvent.staffEvents}" var="se"
+										id="tableStaffEvents"
+										rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport' and !empty(eventManagerModel.programEvent.staffEvents)}"
+										columnWidths="60px,400px,80px,255px,255px">
+										<ace:column style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="ID" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.id}" />
+										</ace:column>
+										<ace:column>
+											<f:facet name="header">
+												<ice:outputText value="Staff Name" />
+											</f:facet>
+											<ice:outputText title="#{se.staffMember.contact.name}"
+												value="#{se.staffMember.contact.name}" />
+										</ace:column>
+										<ace:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Attended" />
+												<br></br>
+												<ice:selectBooleanCheckbox id="attAllStaff"
+													partialSubmit="true"
+													disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) and (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+													value="#{eventManagerModel.selectAllStfAtd}"
+													valueChangeListener="#{eventManagerModel.markAllStfEvents}">
+													<f:attribute name="mark" value="normal" />
+												</ice:selectBooleanCheckbox>
+											</f:facet>
+											<ice:selectBooleanCheckbox id="attStf" value="#{se.attended}"
+												disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) and (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												partialSubmit="true"
+												valueChangeListener="#{eventManagerModel.markStfEvent}">
+												<f:attribute name="event" value="#{se}" />
+												<f:attribute name="mark" value="normal" />
+											</ice:selectBooleanCheckbox>
+										</ace:column>
+										<ace:column style="padding-top:0;padding-bottom:0">
+											<f:facet name="header">
+												<ice:outputText value="Roster Start Time" />
+											</f:facet>
+											<center>
+												<comp:timeControl value="#{se.rosterStatTimeBean}"
+													id="stfRosterStartTimeBean"
+													disabled="#{eventManagerModel.eventStatus == 'banked'  || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) and (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+											</center>
+										</ace:column>
+										<ace:column style="padding-top:0;padding-bottom:0">
+											<f:facet name="header">
+												<ice:outputText value="Roster End Time" />
+											</f:facet>
+											<center>
+												<comp:timeControl value="#{se.rosterEndTimeBean}"
+													id="stfRosterEndTimeBean"
+													disabled="#{eventManagerModel.eventStatus == 'banked'  || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) and (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}" />
+											</center>
+										</ace:column>
+										<ace:column style="padding-top:0;padding-bottom:0">
+											<f:facet name="header">
+												<ice:outputText value="Actual Start Time" />
+											</f:facet>
+											<center>
+												<comp:timeControl value="#{se.startTimeBean}"
+													id="stfStartTimeBean"
+													disabled="#{eventManagerModel.eventStatus == 'banked'  || eventManagerModel.eventStatus == 'finished' || !se.attended}" />
+											</center>
+										</ace:column>
+										<ace:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Actual End Time" />
+											</f:facet>
+											<center>
+												<comp:timeControl value="#{se.endTimeBean}"
+													id="stfEndTimeBean"
+													disabled="#{eventManagerModel.eventStatus == 'banked'  || eventManagerModel.eventStatus == 'finished' ||!se.attended}" />
+											</center>
+										</ace:column>
+									</ace:dataTable>
+									<ace:dataTable id="staffEventsTable"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport' and !empty(eventManagerModel.transportStfEvents)}"
+										value="#{eventManagerModel.transportStfEvents}" var="event">
+										<ace:columnGroup id="columnGroup" type="header">
+											<ace:row>
+												<ace:column headerText="ID" rowspan="2"
+													style="font-size:12px;width:30px;vertical-align:middle" />
+												<ace:column headerText="Staff Name" rowspan="2"
+													style="font-size:12px;width:130px;vertical-align:middle" />
+												<ace:column headerText="Main Event" colspan="3"
+													style="font-size:12px" />
+												<ace:column headerText="Return Event" colspan="3"
+													style="font-size:12px" />
+											</ace:row>
+											<ace:row>
+												<ace:column
+													style="font-size:10px;width:45px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<br />
+														<ice:selectBooleanCheckbox id="selectAllStfMainAttd"
+															disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+															partialSubmit="true"
+															value="#{eventManagerModel.selectAllStfAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStfEvents}"
+															rendered="#{!empty(eventManagerModel.programEvent.staffEvents)}">
+															<f:attribute name="mark" value="normal" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Actual Start Time"
+													style="font-size:11px;width:200px;vertical-align:middle" />
+												<ace:column headerText="Actual End Time"
+													style="font-size:11px;width:200px;vertical-align:middle" />
+												<ace:column
+													style="font-size:10px;width:45px;vertical-align:middle">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<br />
+														<ice:selectBooleanCheckbox id="selectAllStfReturnAttd"
+															partialSubmit="true"
+															disabled="#{eventManagerModel.returnStatus == 'banked' || eventManagerModel.returnStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+															value="#{eventManagerModel.selectAllStfReturnAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStfEvents}"
+															rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.staffEvents)}">
+															<f:attribute name="mark" value="normal" />
+															<f:attribute name="return" value="return" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Actual Start Time"
+													style="font-size:11px;width:200px;vertical-align:middle" />
+												<ace:column headerText="Actual End Time"
+													style="font-size:11px;width:200px;vertical-align:middle" />
+											</ace:row>
+										</ace:columnGroup>
+										<ace:column style="text-align:right">
+											<h:outputText value="#{event.staff.staffId}"
+												style="font-size:12px" />
+										</ace:column>
+										<ace:column style="text-align:left;padding:5px">
+											<h:outputText value="#{event.staff.contact.name}"
+												style="font-size:12px" />
+										</ace:column>
+										<ace:column styleClass="tableColBg" style="padding:0">
+											<ice:selectBooleanCheckbox id="selectTransportStfMainAttd"
+												disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												value="#{event.mainEvent.attended}" partialSubmit="true"
+												valueChangeListener="#{eventManagerModel.markStfEvent}"
+												rendered="#{event.mainEvent != null}">
+												<f:attribute name="event" value="#{event.mainEvent}" />
+												<f:attribute name="mark" value="normal" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="height:32px;padding:5px">
+											<comp:timeControl value="#{event.mainEvent.startTimeBean}"
+												rendered="#{event.mainEvent != null}"
+												id="transStfStartTimeBean"
+												disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' ||!event.mainEvent.attended}" />
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColBg"
+											style="height:32px;padding:5px">
+											<comp:timeControl value="#{event.mainEvent.endTimeBean}"
+												rendered="#{event.mainEvent != null}"
+												id="transRStfEndTimeBean"
+												disabled="#{eventManagerModel.eventStatus == 'banked' || eventManagerModel.eventStatus == 'finished' ||!event.mainEvent.attended}" />
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+
+										<!-- rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}" -->
+										<ace:column styleClass="tableColRightBg">
+											<ice:selectBooleanCheckbox id="selectTransportStfReturnAttd"
+												disabled="#{eventManagerModel.returnStatus == 'banked' || eventManagerModel.returnStatus == 'finished' || !eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate) || (request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE'))}"
+												value="#{event.returnEvent.attended}" partialSubmit="true"
+												valueChangeListener="#{eventManagerModel.markStfEvent}"
+												rendered="#{event.returnEvent != null}">
+												<f:attribute name="event" value="#{event.returnEvent}" />
+												<f:attribute name="mark" value="normal" />
+												<f:attribute name="return" value="return" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="height:32px;padding:5px">
+											<comp:timeControl value="#{event.returnEvent.startTimeBean}"
+												rendered="#{event.returnEvent != null}"
+												id="transStfRStartTimeBean"
+												disabled="#{eventManagerModel.returnStatus == 'banked' || eventManagerModel.returnStatus == 'finished' || !event.returnEvent.attended}" />
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column styleClass="tableColRightBg"
+											style="height:32px;padding:5px">
+											<comp:timeControl value="#{event.returnEvent.endTimeBean}"
+												rendered="#{event.returnEvent != null}"
+												id="transStfREndTimeBean"
+												disabled="#{eventManagerModel.returnStatus == 'banked' || eventManagerModel.returnStatus == 'finished' || !event.returnEvent.attended}" />
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+									</ace:dataTable>
+								</ice:setEventPhase>
+							</ace:panel>
+							<ice:commandButton value="Save All" styleClass="CommandButton"
+								renderedOnUserRole="ROLE_SUPERUSER,ROLE_SUPERVISOR,ROLE_ADMIN,ROLE_FINANCE"
+								style="width:90px;margin-right:2px;float:right;margin-top:10px"
+								rendered="#{eventManagerModel.programEvent != null}"
+								actionListener="#{eventManagerModel.saveAll}"
+								id="commandSaveEvent" />
+							<ice:commandButton value="Delete All" styleClass="CommandButton"
+								panelConfirmation="deleteAtdConfirmation"
+								id="commandDeleteEvent"
+								style="float:right;width:95px;margin-right:5px;margin-top:10px"
+								rendered="#{request.isUserInRole('ROLE_SUPERUSER') and (eventManagerModel.programEvent.id != null || (eventManagerModel.programEvent.returnEvent != null and eventManagerModel.programEvent.returnEvent.id != null))}"
+								actionListener="#{eventManagerModel.deleteProgramEvent}" />
+							<ice:commandButton value="Delete Return Event"
+								styleClass="CommandButton"
+								panelConfirmation="deleteAtdConfirmation"
+								id="commandDeleteReturnEvent"
+								style="float:right;width:135px;margin-right:5px;margin-top:10px"
+								actionListener="#{eventManagerModel.deleteProgramEvent}"
+								rendered="#{request.isUserInRole('ROLE_SUPERUSER') and (eventManagerModel.programEvent.program.type.name == 'Transport' and eventManagerModel.programEvent.id != null and eventManagerModel.programEvent.group.returnAvailable)}">
+								<f:attribute name="event" value="returnOnly" />
+							</ice:commandButton>
+							<ice:commandButton value="Delete Attendance Sheet"
+								style="float:right;margin-top:10px;margin-right:5px"
+								styleClass="CommandButton" partialSubmit="true"
+								rendered="#{(request.isUserInRole('ROLE_SUPERUSER') || request.isUserInRole('ROLE_SUPERVISOR') || request.isUserInRole('ROLE_FINANCE') || request.isUserInRole('ROLE_ADMIN')) and (eventManagerModel.programEvent.program.type.name != 'Transport' and !empty(eventManagerModel.programEvent.studentEvents))}"
+								actionListener="#{eventManagerModel.deleteAttendanceSheet}"
+								id="commandDeleteAttendance"
+								panelConfirmation="deleteAtdConfirmation" />
+							<ice:panelGroup
+								rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}">
+								<ice:commandButton value="Delete Return Attendance Sheet"
+									style="float:right;margin-top:10px;margin-right:5px"
+									styleClass="CommandButton" partialSubmit="true"
+									rendered="#{request.isUserInRole('ROLE_SUPERUSER') and (eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents))}"
+									actionListener="#{eventManagerModel.deleteAttendanceSheet}"
+									id="commandDeleteReturnAttendance"
+									panelConfirmation="deleteAtdConfirmation">
+									<f:attribute name="return" value="return" />
+								</ice:commandButton>
+								<ice:commandButton value="Delete Main Attendance Sheet"
+									style="float:right;margin-top:10px;margin-right:5px"
+									styleClass="CommandButton" partialSubmit="true"
+									rendered="#{request.isUserInRole('ROLE_SUPERUSER') and (!empty(eventManagerModel.programEvent.studentEvents) and !empty(eventManagerModel.programEvent.returnEvent.studentEvents))}"
+									actionListener="#{eventManagerModel.deleteAttendanceSheet}"
+									id="commandDeleteMainAttendance"
+									panelConfirmation="deleteAtdConfirmation" />
+								<ice:commandButton value="Delete Attendance Sheet"
+									style="float:right;margin-top:10px;margin-right:5px"
+									styleClass="CommandButton" partialSubmit="true"
+									rendered="#{request.isUserInRole('ROLE_SUPERUSER') and (!empty(eventManagerModel.programEvent.studentEvents) and empty(eventManagerModel.programEvent.returnEvent.studentEvents))}"
+									actionListener="#{eventManagerModel.deleteAttendanceSheet}"
+									id="commandDeleteTransportAttendance"
+									panelConfirmation="deleteAtdConfirmation" />
+							</ice:panelGroup>
+							<ice:panelConfirmation id="deleteAtdConfirmation"
+								acceptLabel="Yes" cancelLabel="No" draggable="true"
+								title="Confirm"
+								message="Are you sure you want to perform this action?" />
+						</ice:panelTab>
+					</ice:panelTabSet>
+				</div>
+				<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+					cancelLabel="No" draggable="true" title="Confirm"
+					message="Are you sure you want to perform this action?" />
+
+				<comp:confirmationPopup id="compDeleteConfirmation"
+					rendered="#{eventManagerModel.visibleConfirmation}"
+					actionListener="#{eventManagerModel.confirmationAction}"
+					message="#{eventManagerModel.confirmationMessage}" />
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{eventManagerModel.visibleAttendance}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Mark Attendance"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeAtdButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{eventManagerModel.attendancePopup}"
+								styleClass="popupHeaderImage" title="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:panelGroup style="margin-left:-20px">
+								<ice:messages tooltip="true" showDetail="true"
+									showSummary="true">
+									<ice:message for="error" showDetail="true" showSummary="true" />
+								</ice:messages>
+							</ice:panelGroup>
+							<ice:panelGroup
+								style="margin-top:10px;width:650px;height:300px;overflow:auto"
+								rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport'}">
+								<ice:panelGrid columns="2" width="100%">
+									<!-- <ice:panelGrid columns="2" style="float:left;">
+										<ice:outputLabel value="Event charge : " />
+										<ice:outputLabel
+											value="#{eventManagerModel.programEvent.chargeAmount}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputLabel>
+									</ice:panelGrid> -->
+									<ice:panelGrid columns="2" style="float:right">
+										<ice:outputLabel value="Total money collected : " />
+										<ice:outputText
+											value="#{eventManagerModel.mainEventCollection}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+									</ice:panelGrid>
+								</ice:panelGrid>
+								<ice:setEventPhase events="FacesEvent"
+									phase="UPDATE_MODEL_VALUES">
+									<ice:dataTable id="attendanceTable" var="se"
+										value="#{eventManagerModel.programEvent.studentEvents}"
+										style="margin-bottom:5px"
+										columnWidths="50px,40px,150px,60px,80px,200px">
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Attended" />
+												<br />
+												<ice:selectBooleanCheckbox id="selectAllStds"
+													partialSubmit="true"
+													value="#{eventManagerModel.selectAllAtd}"
+													valueChangeListener="#{eventManagerModel.markAllStdEvents}">
+													<f:attribute name="mark" value="popup" />
+												</ice:selectBooleanCheckbox>
+											</f:facet>
+											<ice:selectBooleanCheckbox id="selectStd"
+												value="#{se.attended}" partialSubmit="true"
+												valueChangeListener="#{eventManagerModel.markStdEvent}">
+												<f:attribute name="event" value="#{se}" />
+												<f:attribute name="mark" value="popup" />
+											</ice:selectBooleanCheckbox>
+										</ice:column>
+										<ice:column style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="ID" />
+											</f:facet>
+											<ice:outputText value="#{se.groupedStudent.student.id}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="#{msgs['student_label']} Name" />
+											</f:facet>
+											<ice:panelGroup style="width:147px;overflow:hidden">
+												<ice:outputText style="height:13px"
+													title="#{se.groupedStudent.student.contact.name}"
+													value="#{se.groupedStudent.student.contact.name}" />
+											</ice:panelGroup>
+										</ice:column>
+										<ice:column style="text-align:center;padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Amount Paid" />
+											</f:facet>
+											<ice:inputText id="inputChrgAmnt" value="#{se.tmpAmount}"
+												disabled="#{!se.attended}"
+												style="width:57px;text-align:right">
+												<f:convertNumber type="number" maxFractionDigits="2"
+													minFractionDigits="2" />
+											</ice:inputText>
+										</ice:column>
+										<ice:column style="text-align:center;padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Payment Method" />
+											</f:facet>
+											<ice:selectOneMenu id="selectOnePaymentMethod"
+												style="width:85px" styleClass="SelectOneMenu"
+												value="#{se.paymentMethod}" disabled="#{!se.attended}">
+												<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+											</ice:selectOneMenu>
+										</ice:column>
+										<ice:column style="text-align:center;padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Remarks" />
+											</f:facet>
+											<ice:inputText id="inputSERmks" value="#{se.tmpRemarks}"
+												disabled="#{!se.attended}" style="width:197px"
+												maxlength="#{msgs['studentEvent.remarks.size']}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:setEventPhase>
+							</ice:panelGroup>
+							<ice:panelGroup
+								style="margin-top:10px;height:350px;overflow:auto"
+								rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}">
+								<!-- <ice:panelGrid width="100%" columns="2">
+									<ice:panelGrid columns="2" style="float:left">
+										<ice:outputLabel value="Event charge : "
+											rendered="#{!eventManagerModel.programEvent.group.returnAvailable || empty(eventManagerModel.programEvent.returnEvent.studentEvents) || (empty(eventManagerModel.programEvent.studentEvents) and !empty(eventManagerModel.programEvent.returnEvent.studentEvents))}" />
+										<ice:outputLabel value="Event charge of the main Event :"
+											rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.programEvent.studentEvents)}" />
+										<ice:outputText
+											rendered="#{!empty(eventManagerModel.programEvent.studentEvents)}"
+											value="#{eventManagerModel.programEvent.chargeAmount}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+										<ice:outputText
+											value="#{eventManagerModel.programEvent.returnEvent.chargeAmount}"
+											rendered="#{empty(eventManagerModel.programEvent.studentEvents) and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+									</ice:panelGrid>
+									<ice:panelGrid style="float:right" columns="2"
+										rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.programEvent.studentEvents)}">
+										<ice:outputLabel value="Event charge of the return event :" />
+										<ice:outputText
+											value="#{eventManagerModel.programEvent.returnEvent.chargeAmount}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+									</ice:panelGrid>
+								</ice:panelGrid> -->
+								<ice:panelGrid width="100%" columns="2">
+									<ice:panelGrid columns="2" style="float:left">
+										<ice:outputLabel value="Total money collected : "
+											rendered="#{!eventManagerModel.programEvent.group.returnAvailable || empty(eventManagerModel.programEvent.returnEvent.studentEvents) || (empty(eventManagerModel.programEvent.studentEvents) and !empty(eventManagerModel.programEvent.returnEvent.studentEvents))}" />
+										<ice:outputLabel
+											value="Total money collected for the main Event : "
+											rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.programEvent.studentEvents)}" />
+										<ice:outputText
+											rendered="#{!empty(eventManagerModel.programEvent.studentEvents)}"
+											value="#{eventManagerModel.mainEventCollection}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+										<ice:outputText
+											value="#{eventManagerModel.returnEventCollection}"
+											rendered="#{empty(eventManagerModel.programEvent.studentEvents) and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" style="float:right"
+										rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents) and !empty(eventManagerModel.programEvent.studentEvents)}">
+										<ice:outputLabel
+											value="Total money collected for the return Event : " />
+										<ice:outputText
+											value="#{eventManagerModel.returnEventCollection}">
+											<f:convertNumber type="currency" currencySymbol="$"
+												minFractionDigits="2" maxFractionDigits="2" />
+										</ice:outputText>
+									</ice:panelGrid>
+								</ice:panelGrid>
+								<br />
+								<ice:setEventPhase events="FacesEvent"
+									phase="UPDATE_MODEL_VALUES">
+									<ace:dataTable id="markStudentEventsTable"
+										value="#{eventManagerModel.transportStdEvents}" var="event"
+										style="width:950px">
+										<ace:columnGroup id="columnGroup" type="header">
+											<ace:row>
+												<ace:column headerText="ID" rowspan="2"
+													style="font-size:12px" />
+												<ace:column headerText="Name" rowspan="2"
+													style="font-size:12px" />
+												<ace:column headerText="Main Event" colspan="4"
+													style="font-size:12px" />
+												<ace:column headerText="Return Event" colspan="4"
+													style="font-size:12px" />
+											</ace:row>
+											<ace:row>
+												<ace:column style="font-size:11px">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<ice:selectBooleanCheckbox id="selectAllMainAttd"
+															partialSubmit="true"
+															rendered="#{!empty(eventManagerModel.programEvent.studentEvents)}"
+															value="#{eventManagerModel.selectAllAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStdEvents}">
+															<f:attribute name="mark" value="popup" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Amount Paid" style="font-size:11px" />
+												<ace:column headerText="Payment Method"
+													style="font-size:11px" />
+												<ace:column headerText="Remarks" style="font-size:11px" />
+												<ace:column style="font-size:11px">
+													<f:facet name="header">
+														<ice:outputText value="Attended" />
+														<br />
+														<ice:selectBooleanCheckbox id="selectAllReturnAttd"
+															partialSubmit="true"
+															value="#{eventManagerModel.selectAllReturnAtd}"
+															valueChangeListener="#{eventManagerModel.markAllStdEvents}"
+															rendered="#{eventManagerModel.programEvent.group.returnAvailable and !empty(eventManagerModel.programEvent.returnEvent.studentEvents)}">
+															<f:attribute name="mark" value="popup" />
+															<f:attribute name="return" value="return" />
+														</ice:selectBooleanCheckbox>
+													</f:facet>
+												</ace:column>
+												<ace:column headerText="Amount Paid" style="font-size:11px" />
+												<ace:column headerText="Payment Method"
+													style="font-size:11px" />
+												<ace:column headerText="Remarks" style="font-size:11px" />
+											</ace:row>
+										</ace:columnGroup>
+										<ace:column>
+											<h:outputText value="#{event.student.id}" />
+										</ace:column>
+										<ace:column>
+											<ice:panelGrid columns="2" cellspacing="0" cellpadding="0"
+												style="margin-right:-5px">
+												<ice:panelGroup
+													style="text-align:left; width:150px;overflow:hidden">
+													<ice:outputText style="height:15px"
+														title="#{event.student.contact.name}"
+														value="#{event.student.contact.name}" />
+												</ice:panelGroup>
+												<ice:graphicImage style="border:none; float:right"
+													title="#{event.fundingStatus}"
+													rendered="#{event.remainingHours gt 0 and event.remainingHours le 10}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="#{event.fundingStatus}"
+													rendered="#{event.remainingHours le 0}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<!-- <ice:graphicImage style="border:none; float:right"
+													title="Only 1Hr remaining.."
+													rendered="#{event.remainingHours == 1}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="Only #{event.remainingHours}Hrs remaining.."
+													rendered="#{event.remainingHours != 1 and event.remainingHours gt 0 and event.remainingHours le 10}"
+													url="images/icons/warning_s.png" />
+												<ice:graphicImage style="border:none; float:right"
+													title="No contracted hours remaining.."
+													rendered="#{event.remainingHours == 0}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<ice:graphicImage style="border:none; float:right"
+													title="1Hr elapsed.."
+													rendered="#{event.remainingHours == -1}"
+													url="images/icons/warning_s_red.png" height="18" width="18" />
+												<ice:graphicImage style="border:none; float:right"
+													title="#{-event.remainingHours}Hrs elapsed.."
+													rendered="#{event.remainingHours lt -1}"
+													url="images/icons/warning_s_red.png" height="18" width="18" /> -->
+											</ice:panelGrid>
+										</ace:column>
+										<ace:column>
+											<ice:selectBooleanCheckbox id="selectMainAttd"
+												value="#{event.mainEvent.attended}" partialSubmit="true"
+												disabled="#{eventManagerModel.programEvent.invoiced}"
+												valueChangeListener="#{eventManagerModel.markStdEvent}"
+												rendered="#{event.mainEvent != null}">
+												<f:attribute name="event" value="#{event.mainEvent}" />
+												<f:attribute name="mark" value="popup" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:inputText id="inputMainPaymentAmnt"
+												value="#{event.mainEvent.tmpAmount}"
+												disabled="#{!event.mainEvent.attended}"
+												style="width:57px;text-align:right"
+												rendered="#{event.mainEvent != null}">
+												<f:convertNumber type="number" maxFractionDigits="2"
+													minFractionDigits="2" />
+											</ice:inputText>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:selectOneMenu id="selectMainPaymentMethod"
+												style="width:85px" styleClass="SelectOneMenu"
+												value="#{event.mainEvent.paymentMethod}"
+												disabled="#{!event.mainEvent.attended}"
+												rendered="#{event.mainEvent != null}">
+												<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+											</ice:selectOneMenu>
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:inputText id="inputMainRemarks"
+												value="#{event.mainEvent.tmpRemarks}"
+												disabled="#{!event.mainEvent.attended}" style="width:115px"
+												maxlength="#{msgs['studentEvent.remarks.size']}"
+												rendered="#{event.mainEvent != null}" />
+											<ice:outputText value="-"
+												rendered="#{event.mainEvent == null}" />
+										</ace:column>
+
+										<ace:column>
+											<ice:selectBooleanCheckbox id="selectReturnAttd"
+												value="#{event.returnEvent.attended}" partialSubmit="true"
+												disabled="#{eventManagerModel.programEvent.returnEvent.invoiced}"
+												valueChangeListener="#{eventManagerModel.markStdEvent}"
+												rendered="#{event.returnEvent != null}">
+												<f:attribute name="event" value="#{event.returnEvent}" />
+												<f:attribute name="mark" value="popup" />
+												<f:attribute name="return" value="return" />
+											</ice:selectBooleanCheckbox>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:inputText id="inputReturnPaymentAmnt"
+												value="#{event.returnEvent.tmpAmount}"
+												disabled="#{!event.returnEvent.attended}"
+												style="width:57px;text-align:right"
+												rendered="#{event.returnEvent != null}">
+												<f:convertNumber type="number" maxFractionDigits="2"
+													minFractionDigits="2" />
+											</ice:inputText>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:selectOneMenu id="selectReturnPaymentMethod"
+												style="width:85px" styleClass="SelectOneMenu"
+												value="#{event.returnEvent.paymentMethod}"
+												disabled="#{!event.returnEvent.attended}"
+												rendered="#{event.returnEvent != null}">
+												<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+											</ice:selectOneMenu>
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+										<ace:column style="padding:0">
+											<ice:inputText id="inputReturnRemarks"
+												value="#{event.returnEvent.tmpRemarks}"
+												disabled="#{!event.returnEvent.attended}"
+												style="width:115px"
+												maxlength="#{msgs['studentEvent.remarks.size']}"
+												rendered="#{event.returnEvent != null}" />
+											<ice:outputText value="-"
+												rendered="#{event.returnEvent == null}" />
+										</ace:column>
+									</ace:dataTable>
+								</ice:setEventPhase>
+							</ice:panelGroup>
+							<ice:commandButton id="commandAtdClose" value="Cancel"
+								action="#{eventManagerModel.attendancePopup}"
+								style="float:right;width:60px;margin-top:5px"
+								styleClass="CommandButton" />
+							<ice:commandButton id="commandMarkAtd" value="Mark"
+								action="#{eventManagerModel.markAttendance}"
+								style="float:right;width:60px;margin-top:5px;margin-right:5px"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{eventManagerModel.visiblePayment}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="#{((eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus == 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus == 'banked'))
+								 ? 'Payments' : 'Make new payments'}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closePaymentButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{eventManagerModel.paymentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages tooltip="true" showDetail="true" showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true" />
+							</ice:messages>
+							<ice:setEventPhase phase="UPDATE_MODEL_VALUES"
+								events="FacesEvent"
+								rendered="#{(eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus != 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus != 'banked')}">
+								<ice:panelGrid columns="2" width="100%" style="margin-top:10px"
+									rowClasses="topAlignedTableCell">
+									<ice:panelGrid columns="2">
+										<ice:panelGroup style="width: 120px">
+											<ice:outputText value="Payment Type " />
+										</ice:panelGroup>
+										<ice:panelGroup style="width: 200px">
+											<ice:selectOneMenu id="selectOnePayment"
+												disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+												valueChangeListener="#{eventManagerModel.changePaymentType}"
+												value="#{eventManagerModel.paymentTx.paymentType}"
+												partialSubmit="true">
+												<f:selectItems var="paymentType"
+													itemLabel="#{paymentType.id}" itemValue="#{paymentType}"
+													value="#{eventManagerModel.paymentTypes}" />
+											</ice:selectOneMenu>
+										</ice:panelGroup>
+										<ice:outputText value="Collection Type "
+											rendered="#{eventManagerModel.paymentTx.paymentType == 'COLLECTION'}" />
+										<ice:selectOneMenu id="selectoneCollection"
+											disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+											valueChangeListener="#{eventManagerModel.collectionChanged}"
+											value="#{eventManagerModel.collectionId}"
+											partialSubmit="true"
+											rendered="#{eventManagerModel.paymentTx.paymentType == 'COLLECTION'}">
+											<f:selectItem itemValue="0" itemLabel="Please Select"
+												itemDisabled="true" />
+											<f:selectItems var="collection"
+												itemLabel="#{collection.name}" itemValue="#{collection.id}"
+												value="#{eventManagerModel.collection}" />
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Amount Payable :"
+											rendered="#{eventManagerModel.paymentTx.paymentType != 'COLLECTION'}" />
+										<ice:outputText style="margin-left:5px"
+											value="#{eventManagerModel.studentEvent.tmpAmount}"
+											rendered="#{eventManagerModel.paymentTx.paymentType != 'COLLECTION'}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2"
+												type="currency" currencySymbol="$" />
+										</ice:outputText>
+									</ice:panelGrid>
+									<ice:panelGrid columns="2">
+										<ice:outputText value="Amount " />
+										<ice:inputText id="inputAmount"
+											disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+											value="#{eventManagerModel.paymentTx.amount}"
+											partialSubmit="true">
+											<f:convertNumber type="number" maxFractionDigits="2"
+												minFractionDigits="2" />
+										</ice:inputText>
+										<ice:outputText value="Remarks " />
+										<ice:inputText id="inputRemarks"
+											disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+											value="#{eventManagerModel.paymentTx.remarks}"
+											partialSubmit="true" />
+										<ice:outputText value="Payment Method " />
+										<ice:selectOneMenu id="selectOnePaymentMethod"
+											disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+											styleClass="SelectOneMenu"
+											value="#{eventManagerModel.paymentTx.paymentMethod}">
+											<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+										</ice:selectOneMenu>
+										<ice:outputText />
+										<ice:commandButton id="buttonAdd" value="Add"
+											renderedOnUserRole="ROLE_SUPERUSER,ROLE_SUPERVISOR,ROLE_ADMIN,ROLE_FINANCE"
+											action="#{eventManagerModel.addPayment}"
+											style="float:right;width:60px" styleClass="CommandButton" />
+									</ice:panelGrid>
+								</ice:panelGrid>
+							</ice:setEventPhase>
+							<ice:panelGrid columns="2"
+								rendered="#{eventManagerModel.payType == 'COLLECTION' and eventManagerModel.collectionId != 0}">
+								<ice:outputLabel value="Amount Payable : " />
+								<ice:outputText
+									value="#{eventManagerModel.studentEvent.tmpAmount}">
+									<f:convertNumber maxFractionDigits="2" minFractionDigits="2"
+										type="currency" currencySymbol="$" />
+								</ice:outputText>
+							</ice:panelGrid>
+							<ice:dataTable id="paymentTable" var="tx"
+								value="#{eventManagerModel.studentEvent.paymentTxs}"
+								style="margin-bottom:5px" width="600">
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Payment Type" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.paymentType != 'COLLECTION'}" />
+									<ice:outputText
+										value="#{tx.paymentType.id}: #{tx.collection.name}"
+										rendered="#{tx.paymentType == 'COLLECTION'}" />
+								</ice:column>
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Payment Method" style="font-size:10px" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentMethod}" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+								</ice:column>
+								<ice:column style="text-align:center;width:40px"
+									rendered="#{!eventManagerModel.programEvent.invoiced}">
+									<f:facet name="header">
+										<ice:outputText value="Remove" />
+									</f:facet>
+									<ice:graphicImage style="border:none"
+										rendered="#{tx.invoiceId != null}"
+										title="Can not remove. Transaction is invoiced"
+										url="images/icons/delete-icon-disabled.png" />
+									<ice:commandLink style="border:none"
+										rendered="#{tx.invoiceId == null}"
+										renderedOnUserRole="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE,ROLE_SUPERVISOR"
+										actionListener="#{eventManagerModel.deletePayment}"
+										title="Remove" id="commandDeleteTx">
+										<ice:graphicImage style="border:none"
+											url="images/icons/delete-icon.png" />
+										<f:attribute name="tx" value="#{tx}" />
+									</ice:commandLink>
+									<ice:commandLink style="border:none"
+										rendered="#{tx.invoiceId == null and (!request.isUserInRole('ROLE_SUPERVISOR')) and ((!request.isUserInRole('ROLE_SUPERUSER')) and (!request.isUserInRole('ROLE_FINANCE')) and (!request.isUserInRole('ROLE_ADMIN')))}"
+										title="Not Authorized" id="commandDeleteDisTx">
+										<ice:graphicImage style="border:none"
+											url="images/icons/delete-icon-disabled.png" />
+										<f:attribute name="tx" value="#{tx}" />
+									</ice:commandLink>
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandTxCancel"
+								renderedOnUserRole="ROLE_SUPERUSER,ROLE_SUPERVISOR,ROLE_ADMIN,ROLE_FINANCE"
+								value="#{((eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus == 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus == 'banked'))
+								 ? 'Close' : 'Cancel'}"
+								action="#{eventManagerModel.paymentPopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandTxAdd" value="Save"
+								renderedOnUserRole="ROLE_SUPERUSER,ROLE_SUPERVISOR,ROLE_ADMIN,ROLE_FINANCE"
+								action="#{eventManagerModel.savePayment}"
+								rendered="#{(eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus != 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus != 'banked')}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{eventManagerModel.visibleCharge}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="#{((eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus == 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus == 'banked'))
+								 ? 'Additional charges' : 'Add additional charges'}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeChargeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{eventManagerModel.chargePopup}"
+								styleClass="popupHeaderImage" title="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px; width: 550px">
+							<ice:messages tooltip="true" showDetail="true" showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true" />
+							</ice:messages>
+							<ice:panelGrid columns="2"
+								rendered="#{(eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus != 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus != 'banked')}"
+								rowClasses="topAlignedTableCell" width="100%">
+								<ice:panelGrid columns="2">
+									<ice:outputText value="Amount" />
+									<ice:inputText id="inputChrgeAmnt"
+										disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+										value="#{eventManagerModel.chargeTx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText>
+									<ice:outputText value="GST Included" />
+									<ice:selectBooleanCheckbox id="selectGSTIncluded"
+										disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+										value="#{eventManagerModel.chargeTx.gstIncluded}" />
+								</ice:panelGrid>
+								<ice:panelGrid columns="2" style="margin-right:-5px">
+									<ice:panelGroup style="height:40px">
+										<ice:outputText value="Remarks" />
+									</ice:panelGroup>
+									<ice:inputTextarea id="inputChrgeRemarks"
+										disabled="#{request.isUserInRole('ROLE_USER') and !request.isUserInRole('ROLE_SUPERUSER') and !request.isUserInRole('ROLE_ADMIN') and !request.isUserInRole('ROLE_SUPERVISOR') and !request.isUserInRole('ROLE_FINANCE')}"
+										style="height:40px;width:220px"
+										value="#{eventManagerModel.chargeTx.remarks}"
+										maxlength="#{msgs['transaction.remarks.size']}" />
+								</ice:panelGrid>
+								<div />
+								<ice:commandButton id="commandAddCharge" value="Add"
+									renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+									action="#{eventManagerModel.addCharge}"
+									style="float:right;width:60px" styleClass="CommandButton" />
+							</ice:panelGrid>
+							<ice:dataTable id="chargeTable" var="tx"
+								value="#{eventManagerModel.studentEvent.otherChargeTxs}"
+								style="margin-bottom:5px" width="100%">
+								<ice:column style="text-align:center;width:100px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column style="text-align:center;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="GST Included" />
+									</f:facet>
+									<ice:selectBooleanCheckbox value="#{tx.gstIncluded}"
+										disabled="true" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandChargeTxCancel"
+								renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+								value="#{((eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus == 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus == 'banked'))
+								 ? 'Close' : 'Cancel'}"
+								action="#{eventManagerModel.chargePopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandChargeTxAdd" value="Save"
+								renderedOnUserRole="ROLE_SUPERVISOR,ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+								action="#{eventManagerModel.saveCharges}"
+								style="float:right;width:60px;margin-right:5px"
+								rendered="#{(eventManagerModel.stdEventType == 'return' and eventManagerModel.returnStatus != 'banked') || 
+								(eventManagerModel.stdEventType != 'return' and eventManagerModel.eventStatus != 'banked')}"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{eventManagerModel.visibleCharges}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add new charges"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeChargesButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								actionListener="#{eventManagerModel.additionalChargesPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages tooltip="true" showDetail="true" showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true" />
+							</ice:messages>
+							<ice:panelGrid columns="4" cellspacing="5">
+								<ice:outputText value="Charge Amount " />
+								<ice:inputText id="inputChargeAmount"
+									value="#{eventManagerModel.chargeAmount}"
+									style="width:50px;text-align:right;margin-right:30px"
+									partialSubmit="true">
+									<f:convertNumber type="number" maxFractionDigits="2"
+										minFractionDigits="2" />
+								</ice:inputText>
+								<ice:outputText value="Remarks " />
+								<ice:inputText id="inputTxRemarks" partialSubmit="true"
+									style="width:330px" value="#{eventManagerModel.txRemarks}" />
+								<ice:outputText value="GST Included " />
+								<ice:selectBooleanCheckbox id="selectGstIncluded"
+									value="#{eventManagerModel.gstIncluded}" />
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="ChargeTableAll" var="se"
+									value="#{eventManagerModel.txStudentEvents}"
+									style="margin-bottom:5px">
+									<ice:column style="text-align:center;width:30px">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectAllStudents"
+												partialSubmit="true" value="#{eventManagerModel.selectAll}"
+												disabled="#{!(eventManagerModel.chargeAmount gt 0) || empty(eventManagerModel.txRemarks)}"
+												valueChangeListener="#{eventManagerModel.markAllStudents}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox id="selectStudent"
+											value="#{se.ui_selected}" partialSubmit="true"
+											rendered="#{se.attended}"
+											disabled="#{!(eventManagerModel.chargeAmount gt 0) || empty(eventManagerModel.txRemarks)}"
+											valueChangeListener="#{eventManagerModel.markStudent}">
+											<f:attribute name="se" value="#{se}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column style="text-align:right;width:40px">
+										<f:facet name="header">
+											<ice:outputText value="ID" />
+										</f:facet>
+										<ice:outputText value="#{se.groupedStudent.student.id}"
+											rendered="#{se.attended}" />
+									</ice:column>
+									<ice:column style="width:150px">
+										<f:facet name="header">
+											<ice:outputText value="#{msgs['student_label']} Name" />
+										</f:facet>
+										<ice:panelGroup style="width:147px;overflow:hidden"
+											rendered="#{se.attended}">
+											<ice:outputText style="height:13px"
+												title="#{se.groupedStudent.student.contact.name}"
+												value="#{se.groupedStudent.student.contact.name}" />
+										</ice:panelGroup>
+									</ice:column>
+									<ice:column style="text-align:center;padding:0;width:50px">
+										<f:facet name="header">
+											<ice:outputText value="Charge Amount" />
+										</f:facet>
+										<ice:inputText id="inputChrgAmnt" value="#{se.tmpAmount}"
+											disabled="#{!se.ui_selected}" rendered="#{se.attended}"
+											style="width:47px;text-align:right" partialSubmit="true">
+											<f:convertNumber type="number" maxFractionDigits="2"
+												minFractionDigits="2" />
+										</ice:inputText>
+									</ice:column>
+									<ice:column style="text-align:center;width:60px">
+										<f:facet name="header">
+											<ice:outputText value="GST Included" />
+										</f:facet>
+										<ice:selectBooleanCheckbox id="selectGSTIncluded1"
+											value="#{se.tmpGST}" disabled="#{!se.ui_selected}"
+											rendered="#{se.attended}" />
+									</ice:column>
+									<ice:column style="text-align:center;padding:0">
+										<f:facet name="header">
+											<ice:outputText value="Remarks" />
+										</f:facet>
+										<ice:inputText id="inputTxRmks" value="#{se.tmpRemarks}"
+											disabled="#{!se.ui_selected}"
+											style="width:200px;margin:0px -23px 0px -23px"
+											rendered="#{se.attended}"
+											maxlength="#{msgs['transaction.remarks.size']}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:commandButton id="commandTxClose" value="Cancel"
+								actionListener="#{eventManagerModel.additionalChargesPopup}"
+								style="float:right;width:60px;margin-top:5px"
+								styleClass="CommandButton" />
+							<ice:commandButton id="commandTxAddCharge" value="Add"
+								action="#{eventManagerModel.addCharges}"
+								style="float:right;width:60px;margin-top:5px;margin-right:5px"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+
+
+
+
+
+
+
+				<!--	<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{eventManagerModel.visibleProEvent}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Edit Program Event"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButtonProEvnt"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{eventManagerModel.proEventPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<fieldset>
+								<legend>
+									<ice:outputLabel value="Event Details" />
+								</legend>
+								<ice:panelGrid columns="2" width="100%" cellpadding="2"
+									rendered="#{eventManagerModel.programEvent != null}">
+									<ice:panelGroup style="width:170px">
+										<ice:outputText value="Event Date" />
+									</ice:panelGroup>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectInputDate id="inputProgramEventDate"
+											value="#{eventManagerModel.programEvent.eventDate}"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											partialSubmit="true" renderMonthAsDropdown="true"
+											converter="dateConverter"
+											disabled="#{eventManagerModel.programEvent.status == 'finished'}"
+											valueChangeListener="#{eventManagerModel.eventDateChanged}" />
+									</ice:setEventPhase>
+									<ice:outputText value="Roster Start Time" />
+									<comp:timeControl value="#{eventManagerModel.rosterStartTime}"
+										id="startTime1"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}" />
+									<ice:outputText value="Roster End Time" />
+									<comp:timeControl value="#{eventManagerModel.rosterEndTime}"
+										id="endTime1"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}" />
+									<ice:outputText value="Set Actual Event Times" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectBooleanCheckbox id="setActualTimes"
+											rendered="#{eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+											value="#{eventManagerModel.setActualEventTimes}"
+											partialSubmit="true"
+											disabled="#{eventManagerModel.programEvent.status == 'finished'}"
+											valueChangeListener="#{eventManagerModel.setActualEventTimes}" />
+										<ice:selectBooleanCheckbox id="setActualTimesDisabled"
+											rendered="#{!eventManagerModel.isExpired(eventManagerModel.programEvent.eventDate)}"
+											value="#{eventManagerModel.setActualEventTimes}"
+											partialSubmit="true" disabled="true"
+											title="Not allowed for future events.."
+											valueChangeListener="#{eventManagerModel.setActualEventTimes}" />
+									</ice:setEventPhase>
+									<ice:outputText value="Actual Start Time"
+										rendered="#{eventManagerModel.setActualEventTimes}" />
+									<comp:timeControl value="#{eventManagerModel.actualStartTime}"
+										rendered="#{eventManagerModel.setActualEventTimes}"
+										id="startTime2"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}" />
+									<ice:outputText value="Actual End Time"
+										rendered="#{eventManagerModel.setActualEventTimes}" />
+									<comp:timeControl value="#{eventManagerModel.actualEndTime}"
+										id="endTime2"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}"
+										rendered="#{eventManagerModel.setActualEventTimes}" />
+									<ice:outputText value="Coordinator" />
+									<ice:selectOneMenu id="selectProEventStaff" style="width:188px"
+										value="#{eventManagerModel.selectedStaffId}">
+										<f:selectItems
+											value="#{eventManagerModel.coordinatorSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Location"
+										rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport'}" />
+									<ice:selectOneMenu id="selectProEventLocation"
+										rendered="#{eventManagerModel.programEvent.program.type.name != 'Transport'}"
+										style="width:188px"
+										value="#{eventManagerModel.selectedLocationId}"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}">
+										<f:selectItems
+											value="#{eventManagerModel.locationSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Status" />
+									<ice:selectOneMenu id="selectProStatus" style="width:188px"
+										value="#{eventManagerModel.programEvent.status}"
+										disabled="#{eventManagerModel.programEvent.status == 'finished'}">
+										<f:selectItems
+											value="#{lookupListProvider.proEventStatusSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Funding Status" />
+									<ice:selectOneMenu id="selectOneProgramFundingStatus"
+										styleClass="SelectOneMenu" style="width:188px"
+										value="#{eventManagerModel.programEvent.fundingsStatus}">
+										<f:selectItems value="#{lookupListProvider.fundingStatus}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Vehicle"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}" />
+									<ice:setEventPhase events="ValueChangeEvent"
+										phase="INVOKE_APPLICATION"
+										rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}">
+										<ice:selectOneMenu id="selectTransportEventVehicle"
+											value="#{eventManagerModel.selectedVehicleId}"
+											valueChangeListener="#{eventManagerModel.selectEventVehicle}"
+											partialSubmit="true" style="width:188px"
+											disabled="#{eventManagerModel.programEvent.status == 'finished'}">
+											<f:selectItems
+												value="#{eventManagerModel.vehicleSelectItems}" />
+										</ice:selectOneMenu>
+									</ice:setEventPhase>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:panelGroup
+								rendered="#{eventManagerModel.programEvent.program.type.name == 'Transport'}">
+								<fieldset style="height: 155px; margin-top: 10px">
+									<legend>
+										<ice:outputLabel value="Vehicle Details" />
+									</legend>
+									<ice:panelGroup style="margin-top:10px">
+										<ice:outputText
+											value="Please select a vehicle to view details.."
+											rendered="#{eventManagerModel.selectedVehicleId == 0}" />
+									</ice:panelGroup>
+									<ice:panelGrid columns="2" width="400px"
+										rowClasses="topAlignedTableCell">
+										<ice:panelGrid columns="3" cellspacing="2" width="100%"
+											style="margin-top:5px" rowClasses="topAlignedTableCell"
+											rendered="#{eventManagerModel.selectedVehicleId != 0}">
+											<ice:panelGroup style="margin-bottom:10px">
+												<ice:outputText value="Type" />
+											</ice:panelGroup>
+											<ice:outputText value=":" />
+											<ice:panelGroup style="margin-bottom:10px;width:100px">
+												<ice:outputText
+													value="#{eventManagerModel.programEvent.vehicle.type}" />
+											</ice:panelGroup>
+											<ice:panelGroup style="margin-bottom:10px">
+												<ice:outputText value="Passengers" />
+											</ice:panelGroup>
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.vehicle.passengers}" />
+											<ice:panelGroup style="margin-bottom:10px">
+												<ice:outputText value="Wheel Chairs" />
+											</ice:panelGroup>
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{eventManagerModel.programEvent.vehicle.wheelChairs}" />
+										</ice:panelGrid>
+										<ice:panelGrid
+											rendered="#{eventManagerModel.selectedVehicleId != 0}"
+											style="border:thick double grey;width:170px;height:120px;text-align:center">
+											<ice:graphicImage url="images/no_logo.jpg" id="imgVehice2"
+												rendered="#{eventManagerModel.programEvent.vehicle.photo == null}"
+												style="height:100px;width:150px">
+											</ice:graphicImage>
+											<ice:graphicImage
+												value="#{eventManagerModel.programEvent.vehicle.photo.thumbnail}"
+												id="imgVehicle3"
+												rendered="#{eventManagerModel.programEvent.vehicle.photo != null}"
+												width="#{eventManagerModel.photoW}"
+												height="#{eventManagerModel.photoH}">
+											</ice:graphicImage>
+										</ice:panelGrid>
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:commandButton value="Save Event" styleClass="CommandButton"
+								style="margin-right:5px;width:85px;float:right;margin-top:10px"
+								rendered="#{eventManagerModel.programEvent != null}"
+								action="#{eventManagerModel.saveProgramEvent}"
+								id="commandSaveEvent" />
+							<ice:commandButton value="Delete Event"
+								styleClass="CommandButton" id="commandDeleteEvent"
+								style="float:right;width:95px;margin-right:5px;margin-top:10px"
+								action="#{eventManagerModel.deleteProgramEvent}"
+								rendered="#{eventManagerModel.programEvent.id != null}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup> -->
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

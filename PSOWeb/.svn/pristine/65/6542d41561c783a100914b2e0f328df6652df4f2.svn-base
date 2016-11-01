@@ -1,0 +1,225 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formMenu:menuBarTop:configMenuItem:LocationMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td>Some Location</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCode</td>
+	<td>some1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber1</td>
+	<td>12345678901234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber2</td>
+	<td>123456789001234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationEmail</td>
+	<td>some@some.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationAddress</td>
+	<td>123,some Street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCity</td>
+	<td>Some City</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationPostCode</td>
+	<td>32456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationGeoCode</td>
+	<td>5678</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:tabSetLocationDetails:0:commandLocationSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formMenu:menuBarTop:configMenuItem:LocationMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td>Some Location</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCode</td>
+	<td>some2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber1</td>
+	<td>12345678901234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber2</td>
+	<td>123456789001234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationEmail</td>
+	<td>some@some.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationAddress</td>
+	<td>123,some Street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCity</td>
+	<td>Some City</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationPostCode</td>
+	<td>32456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationGeoCode</td>
+	<td>5678</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:tabSetLocationDetails:0:commandLocationSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formMenu:menuBarTop:configMenuItem:LocationMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:commandLocatonAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationName</td>
+	<td>Some Location</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCode</td>
+	<td>some2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber1</td>
+	<td>12345678901234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationContactNumber2</td>
+	<td>123456789001234</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationEmail</td>
+	<td>some@some.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationAddress</td>
+	<td>123,some Street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationCity</td>
+	<td>Some City</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationPostCode</td>
+	<td>32456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLocation:tabSetLocationDetails:0:inputLocationGeoCode</td>
+	<td>5678</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLocation:tabSetLocationDetails:0:commandLocationSave</td>
+	<td></td>
+</tr>

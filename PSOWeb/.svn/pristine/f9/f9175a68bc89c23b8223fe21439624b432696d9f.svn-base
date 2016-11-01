@@ -1,0 +1,198 @@
+// Helper class to maintain UI layer specific utility functions
+// Define all methods as static here
+
+package com.itelasoft.pso.web;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
+import com.icesoft.faces.component.ext.HtmlInputText;
+import com.icesoft.faces.component.ext.HtmlInputTextarea;
+import com.icesoft.faces.component.ext.HtmlSelectOneMenu;
+import com.icesoft.faces.component.selectinputdate.SelectInputDate;
+
+public class Util {
+
+	// Path for the message bundle
+	public static final String MESSAGE_PATH = "com.itelasoft.pso.web.resources.messages_en";
+	private static HashMap messageBundles = new HashMap();
+
+	// Retrieve managed bean by name. An instance will be automatically created
+	// if not already exist.
+	public static Object getManagedBean(String instanceName) {
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		return facesContext.getELContext().getELResolver().getValue(facesContext.getELContext(), null, instanceName);
+	}
+
+	// Calculates midnight of the day in which date lies with respect to a time
+	// zone.
+	public static Date getDayStartTime(Date dateTime) {
+		Calendar cal = new GregorianCalendar(TimeZone.getDefault());
+		cal.setTime(dateTime);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
+	}
+
+	public static Date getDayEndTime(Date dateTime) {
+		Calendar cal = new GregorianCalendar(TimeZone.getDefault());
+		cal.setTime(dateTime);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+		return cal.getTime();
+	}
+
+	// Adds a number of days to a date. DST change dates are handled
+	// according to the time zone. That's necessary as these days don't have 24
+	// hours.
+	public static Date addDays(Date date, int days) {
+		Calendar cal = new GregorianCalendar(TimeZone.getDefault());
+		cal.setTime(date);
+		cal.add(Calendar.DATE, days);
+		return cal.getTime();
+	}
+
+	// Add a number of minutes to a date object
+	public static Date addMinutes(Date date, int minutes) {
+		Calendar cal = new GregorianCalendar(TimeZone.getDefault());
+		cal.setTime(date);
+		cal.add(Calendar.MINUTE, minutes);
+		return cal.getTime();
+	}
+
+	// Forcefully set the value of a Date Input by ignoring it's submit value
+	public static void forceInput(SelectInputDate selectInputDate, Date newDate) {
+		selectInputDate.setValue(newDate);
+		selectInputDate.setSubmittedValue(null);
+	}
+
+	// Forcefully set the value of a Text Input by ignoring it's submit value
+	public static void forceInput(HtmlInputText htmlInputText, String newText) {
+		htmlInputText.setValue(newText);
+		htmlInputText.setSubmittedValue(null);
+	}
+
+	// Forcefully set the value of a Text Input by ignoring it's submit value
+	public static void forceInput(HtmlInputTextarea htmlInputTextarea, String newText) {
+		htmlInputTextarea.setValue(newText);
+		htmlInputTextarea.setSubmittedValue(null);
+	}
+
+	// Forcefully set the value of a SelectOneMenu Input by ignoring it's submit
+	// value
+	public static void forceInput(HtmlSelectOneMenu htmlSelectOneMenu, String newValue) {
+		htmlSelectOneMenu.setValue(newValue);
+		htmlSelectOneMenu.setSubmittedValue(null);
+	}
+
+	public static void showInfo(String message) {
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
+	}
+
+	public static void showError(String message) {
+		FacesContext.getCurrentInstance().addMessage(null,
+				new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+	}
+
+	// Gets a string for the given key from this resource bundle or one of its
+	// parents.
+	public static String getMessage(String key) {
+		if (key == null) {
+			return null;
+		}
+		try {
+			Locale locale = null;
+			if (FacesContext.getCurrentInstance() != null && FacesContext.getCurrentInstance().getViewRoot() != null)
+				locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+			if (locale == null) {
+				locale = Locale.ENGLISH;
+			}
+			ResourceBundle messages = (ResourceBundle) messageBundles.get(locale.toString());
+			if (messages == null) {
+				messages = ResourceBundle.getBundle(MESSAGE_PATH, locale);
+				messageBundles.put(locale.toString(), messages);
+			}
+			return messages.getString(key);
+		} catch (Exception e) {
+			// on any failure just return the key, which should aid in
+			// debugging.
+			return key;
+		}
+	}
+
+	/*
+	 * public static Image getLogo() throws BadElementException,
+	 * MalformedURLException, IOException { String stringId =
+	 * ServiceLocator.getServiceLocator()
+	 * .getConfigurationService().retrieveContents("LOGO_ID"); Image image; if
+	 * (stringId == null || stringId.isEmpty()) { image = Image.getInstance(new
+	 * URL("http://localhost:8080/ITelapso/" + "images/no_logo.jpg")); } else {
+	 * long logoId = Long.parseLong(stringId); FileData logoImage =
+	 * ServiceLocator.getServiceLocator()
+	 * .getFileDataService().retrieve(logoId); image =
+	 * Image.getInstance(logoImage.getThumbnail()); } image.scaleToFit(100,
+	 * 100); return image; }
+	 */
+	/*
+	 * public static DataSource getLogoAsDataSource() throws
+	 * MalformedURLException, IOException { String stringId =
+	 * ServiceLocator.getServiceLocator()
+	 * .getConfigurationService().retrieveContents("LOGO_ID"); // Image image;
+	 * DataSource imageSource; if (stringId == null || stringId.isEmpty()) {
+	 * imageSource = new URLDataSource(new URL(
+	 * "http://localhost:8080/ITelapso/" + "images/no_logo.jpg"));
+	 * 
+	 * } else { long logoId = Long.parseLong(stringId); FileData logoImage =
+	 * ServiceLocator.getServiceLocator()
+	 * .getFileDataService().retrieve(logoId); imageSource = new
+	 * ByteArrayDataSource(
+	 * logoImage.getThumbnail(),logoImage.getContentType()); } return
+	 * imageSource; }
+	 */
+	public static boolean validatePhoneNumberAndFax(String phoneNo, String phn) {
+		if (!phoneNo.isEmpty()) {
+			if (phoneNo.matches("^\\+?[0-9. ()-]{1,25}$")) {
+				return true;
+				// return false if nothing matches the input
+			} else {
+				showError((phn.equals("Fax") ? "Fax" : phn) + " number is not valide  ");
+				return false;
+			} 
+		}else{
+			showError((phn.equals("Fax") ? "Fax" : phn) + " number is empty  ");
+			return false;
+		}
+
+	}
+
+	public static boolean validateEmail(String email) {
+		if (email != null && !email.isEmpty()) {
+			// email validation
+			Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
+			Matcher mat = pattern.matcher(email);
+			if (mat.matches()) {
+				return true;
+			} else {
+				showError("Email address is not valide");
+				return false;
+			}
+
+		}
+		showError("Email address is empty");
+		return false;
+	}
+}

@@ -1,0 +1,746 @@
+/* STRUCTURE STYLES*/
+body {
+	padding: 0px;
+	margin: 0px;
+	font-family: Arial;
+	font-size: 100%;
+	color: gray;
+	font-weight: normal;
+	min-width: 980px;
+}
+
+.iceSelOneRb table tr td {
+	padding: 10px;
+	margin: 1px;
+}
+
+.icePnlPop {
+	border: solid 1px LightBlue;
+	background: url(../images/dialogbg.png);
+	background-repeat: repeat-x;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.icePnlPopHdr {
+	background-image: url(../images/dialogbg.png);
+	background-repeat: repeat-x;
+}
+
+.icePnlPopBody {
+	padding: 5px;
+	padding-top: 0px;
+}
+
+.iceOutLbl {
+	font-family: Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+h1 {
+	font-weight: normal;
+	font-size: 18px;
+	color: #666666;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+h2 {
+	font-weight: bold;
+	font-size: 16px;
+	color: #666666;
+	font-family: Arial, Helvetica, sans-serif;
+	margin-top: 05px;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 14px;
+	color: #333333;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+p {
+	color: #666666
+}
+
+table {
+	font-size: 10pt;
+}
+
+.myGutter {
+	display: none
+}
+
+.rightHeader {
+	font-size: 11pt;
+	font-weight: bolder;
+}
+
+#mainWrapper {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+	width: 100%;
+}
+#mainWrapper table{
+	
+}
+
+#bodyWrapper {
+	border-color: Gray;
+	border-style: solid;
+	border-width: 1px;
+	background-color: White
+}
+
+#menuWrapper .ui-widget-header {
+	
+	border-color: Gray;
+	border-style: solid;
+	border-width: 1px;
+	background: lightblue;
+	/*background: url(../images/menu_btn_bg.png) repeat-x;
+	background-size: 100% 100%;*/
+}
+
+.rghtPddn10 {
+	padding-right: 10px;
+}
+
+.menu-column {
+	width: 240px;
+}
+
+.body-column {
+}
+
+.ui-state-hover {
+	
+}
+
+#menuWrapper  a {
+	padding-bottom:1px;
+	padding-top:0;
+	color:black;
+}
+
+#menuWrapper span div{
+	border:none;
+	font-size: .9em;
+	width: 100%;
+}
+
+#menuWrapper img{
+	height:1em;
+	width:1.1em;
+	margin-right:16px;
+}
+
+.alerts {
+	padding: 0px 5px 0px 5px;
+	border: 1px solid black;
+	-webkit-border-radius: 10px;
+	background-color: lightyellow;
+	color: white;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: center;
+	font-size: 0.8em;	
+}
+
+.bubble {
+	line-height: 12px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	background-color: #DF0101;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: center;
+	font-size: 0.6em;
+	padding: 0px 4px 0px 4px;
+	margin: 0px 0px -15px -7px;
+}
+
+.bubble span {
+	color: white;	
+}
+
+.spclNewRow {
+	background-color: #E0ECF8;
+	font-weight: bold;
+}
+.spclNewRowSelected {
+	background-color: #CEE3F6;
+	font-weight: bold;
+}
+.spclOldRow {
+	background-color: #E0ECF8;
+}
+.spclOldRowSelected {
+	background-color: #CEE3F6;
+}
+.newRow, .newRowSelected {
+	font-weight: bold;
+}
+
+.PageTitleWrapper {
+	height: 40px;
+	margin-bottom: 10px;
+}
+
+.PageTitleIcon {
+	width: 32px;
+	float: left;
+}
+
+.PageTitleRight {
+	float: left;
+	margin-left: 10px
+}
+
+.PageTitle {
+	font-size: 16px;
+	padding-bottom: 3px;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 5px;
+	font-family: ARIAL;
+	color: #666;
+	font-weight: bold
+}
+
+.PageTdescription {
+	font-size: 11px;
+	color: #666666;
+}
+
+#MessageContainer {
+	
+}
+
+.topAlignedTableCell {
+	vertical-align: top;
+	padding: 0px;
+}
+
+.TableBlockHighlight {
+	background-color: Lavender
+}
+
+#Footer {
+	font-size: 8pt;
+	text-align: center;
+	}
+
+#Footer a {
+	font-weight: none;
+	text-decoration: none;
+}
+
+#Footer a:hover {
+	text-decoration: none;
+	color: orange
+}
+
+/* COMPONENT STYLES */
+.TextBox {
+	border: 1px solid #CCCCCC;
+	padding: 5px;
+	margin-bottom: 10px
+}
+
+.TextBoxLarge {
+	border: 1px solid #CCCCCC;
+	height: 20px;
+	padding: 5px;
+	font-size: 12px;
+	color: #666666;
+	font-weight: bold;
+}
+
+.CommandButton,PrintButton {
+	background: url(../images/btn_bg.jpg) repeat-x;
+	-moz-border-radius: 5px;
+	border-radius: 3px;
+	padding: 3px;
+	border: 1px solid #4D565E;
+	color: #FFFFFF;
+	cursor: pointer
+}
+
+.CommandLink {
+	color: teal;	
+}
+
+.HeaderCaption {
+	font-weight: bold;
+	color: DarkOrange
+}
+
+.Caption {
+	font-weight: bold;
+	color: #555555
+}
+
+/* REPORT STYLES */
+.reportBackNavigation {
+	float: right;
+}
+
+.reportWrapper {
+	border-color: Silver;
+	border-style: solid;
+	border-width: 1px;
+	background-color: White
+}
+
+.ReportTitlestyle {
+	font-size: 18px;
+	font-weight: bold
+}
+
+.ReportSectionHeader {
+	font-weight: bold
+}
+
+.ReportTable {
+	border-style: solid;
+	border-color: Silver;
+	border-width: thin
+}
+
+/* DECORATION STYLES */
+.AppointmentStatusSCH {
+	border: 1px solid Gold;
+	background-color: LightYellow;
+}
+
+.AppointmentStatusVIS {
+	border: 1px solid LimeGreen;
+	background-color: PaleGreen;
+}
+
+.AppointmentStatusCAN {
+	border: 1px solid LightCoral;
+	background-color: LightPink;
+}
+
+.AppointmentStatusCLO {
+	border: 1px solid Silver;
+	background: url(../images/apptClosed.png) repeat-x;
+}
+
+/* ICEFACES OVERRIDES */
+.icePnlGrd {
+	cellspacing: 0px;
+	cellpadding: 0px;
+}
+
+.iceInpTxt {
+	font-size: 10pt;
+	width: 144px;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpTxt:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceInpTxtArea {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpTxtArea:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceInpFileTxt {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.fileUploadText {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpFileTxt:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelOneMnu {
+	margin: 3px;
+	font-size: 10pt;
+	width: 152px;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelOneMnu-dis {
+	font-size: 10pt;
+	width: 152px;
+	margin: 3px;
+	border: lightgrey 1px solid
+}
+
+.iceSelOneMnu:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelOneLb {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelOneLb:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelInpDateInput {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelInpDateInput:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceCmdLnk {
+	color: Teal
+}
+
+.iceCmdLnk:hover {
+	text-decoration: none;
+	color: DarkOrange
+}
+
+.iceMnuBar {
+	width: auto;
+}
+
+.iceMnuBarItem {
+	/*font-size: 10pt;*/
+	width: 85px;
+	height: auto;
+}
+
+.iceMnuBarItem a {
+	background-image: url(../images/menu_btn_bg.png)
+}
+
+.iceMnuBarItem a:hover{
+	background-image: url(../images/menu_btn_bg-hover.png)
+}
+.iceMnuBarSubMenu{
+	width:auto;
+}
+.iceMnuItm a{
+	/*font-size: 10pt;*/
+	margin-right: 10px;
+	background-color:lightblue;
+}
+.iceMnuItm a:hover{
+	margin-right: 10px;
+}
+.iceMsgsError {
+	color: red;
+}
+
+.iceMsgsInfo {
+	color: green
+}
+
+.iceRowSelSelected .iceOutTxt {
+	color: Crimson
+}
+
+.icePnlTbSet {
+	margin-top: 10px;	
+}
+
+.popupHeaderWrapper {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.popupHeaderText {
+	float: left;
+	color: red;
+}
+
+.popupHeaderImage {
+	float: right;
+	margin-top: 2px;
+	margin-right: 2px;
+}
+
+.fileUploadText {
+	width: 50px;
+}
+
+.borderPnlGroup { /*padding: 10px;*/
+	margin: 5px;
+}
+
+.borderPnlGroup .box {
+	margin-right: 20px;
+}
+
+.fieldPnlGrp {
+	margin: 5px;
+}
+
+.autocomplete input {
+	background: #FFFFFF url(../images/icons/arrow_18.gif) no-repeat;
+	padding: 4px 4px 4px 14px;
+	background-position: 2px 2px;
+	margin-top: 2px;
+}
+
+.iceDatTbl {
+	border: solid 1px;
+	border-color: grey;
+}
+
+#formReservation\:panelTabSetBoarding\:0\:FacilityReservation .iceDatTblCol
+	{
+	padding: 0;
+}
+
+fieldset {
+	border: solid 1px lightgrey;
+}
+
+/*------- TESTING ------------*/ /*for schedule*/
+.columnClass { /*height:100px;*/
+	background: url(../images/apptBg.png) repeat-y;
+}
+
+.freeReddish1 {
+	background-color: lightgrey;
+}
+
+.entryClass {
+	text-decoration: none;
+	color: black;
+	border: none;
+}
+
+.entryClass1 {
+	text-decoration: none;
+	color: black;
+	border: none;
+}
+
+.entryClass input {
+	margin: 5px;
+}
+
+.entryClass1 input {
+	margin: 5px;
+}
+
+.PrintButton {
+	background: url(../images/icons/printer_s.png) no-repeat;
+	padding-left: 25px;
+}
+
+.apptDayHeader {
+	display: none;
+	height: 20px;
+}
+
+.detail {
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.detail img {
+	border: none;
+}
+
+.field-set {
+	padding: 10px;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-right: 15px;
+	border: none;
+	border-top: 1px solid;
+}
+
+/*
+.columnClass{
+height:100px;
+
+}
+
+.gutterClass{
+display: none;
+background: yellow;
+border: none;
+}
+
+.headerClass1{
+	display:none;
+
+
+}*/
+.borderBox {
+	background: url(../images/borderBoxBg.png) repeat-x;
+	border: 1px solid lightblue;
+	height: 100%;
+}
+
+.tabSideBox {
+	background: url(../images/borderBoxBg.png) repeat-x;
+	border: 1px solid lightblue;
+	margin: 15px 0px -40px 0px;
+	width: 100%;
+}
+
+.imgContainer {
+	border:thick double grey;
+	width:250px;
+	height:200px;
+	margin:auto;
+}
+
+.icePnlGrdHdr { 
+	#background: url(../images/dialogbg.png);
+	padding: 5px;
+	color: #484848;
+	font: 11px tahoma;
+	font-weight: bold;
+}
+
+.iceMenuBarItem {
+	border: 3px;
+}
+
+.borderBoxHeaderRow1 {
+	background-image: url(../images/menu_btn_bg.png);
+}
+
+.iceOutLbl {
+	font-weight: bold;
+	color: black;
+}
+
+.PanelGridHeader {
+	height: 1em;
+	background-color: #fff;
+	border: 1px solid LightBlue;
+}
+
+.PanelGridHeight {
+	height: 1em;
+}
+
+.menutrueItem  {
+	background-size: 100% 100%;
+	font-weight:bold;
+	text-decoration:underline;
+}
+.menutrueItem span{
+	background:none;
+	color:red;
+}
+
+.tableColBg{
+	font-size:12px;
+	background:#ccccff;
+}
+.tableColRightBg{
+	font-size:12px;
+	background:#cbffcb;
+}
+
+.bodyContainer {
+	max-width: 1190px;
+}
+
+.radio {
+	padding: 0;
+	border: none;
+}
+.radio table {
+	margin-right: -50px;
+}
+.radio td {
+	padding: 5px 0px 5px 0px !important;
+}
+.radio input {
+	margin-left: 0;
+}
+.radio label {
+	margin-right: 10px;
+}
+.radio td:last-child label {
+	margin-right: 0px;
+}
+.listBox .item {
+	width: 150px;
+	padding: 3px;
+	font-weight: bold;
+	border: none;
+}
+.listBox .item:hover {
+	background: lightblue;
+}
+.current {
+	color: black;
+	background: lightyellow;
+}
+.current:hover {
+	background: orange !important;
+}
+.partial {
+	color: red;
+}
+.completed {
+	color:black;
+}
+.incomplete {
+	color: grey;
+	font-weight: normal !important;
+}
+.error-highlight {
+	border: 1px solid #DF0101;
+	background: #FBEFEF;	
+}
+
+input[readonly]{
+	border:0;
+	background:none;
+	color:#000;
+}
+select[readonly]{
+	border:0;
+	background:none;
+	color:#000;
+	-moz-appearance:none;
+	text-indent:0.01px;
+	text-overflow:'';
+	
+}
+
+select::-ms-expand{
+	display:none;
+}

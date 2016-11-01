@@ -1,0 +1,5 @@
+ALTER TABLE ALTER TABLE contacts ADD COLUMN staffid TYPE bigint NOT NULL;
+
+ALTER TABLE authorisedstaff ADD CONSTRAINT fk_staffid FOREIGN KEY (staffid)
+      REFERENCES staffmembers (id) MATCH FULL
+      ON UPDATE NO ACTION ON DELETE NO ACTION;

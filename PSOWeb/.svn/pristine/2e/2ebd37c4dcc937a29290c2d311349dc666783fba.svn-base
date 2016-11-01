@@ -1,0 +1,487 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+<h:body >
+	<ui:composition template="/PageTemplate.xhtml" >
+		<ui:param name="selectedMenu" value="CONFIO"></ui:param>
+		<ui:define name="pageTitle">Internal Organizations</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Internal Organizations</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each organization.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formInternalSources">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText
+							value="Search Internal organization(s) by name or id" />
+						<ice:inputText id="inputTextOrgSearch"
+							action="#{internalOrganizationModel.searchOrganizations}"
+							value="#{internalOrganizationModel.searchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonOrgMainSearch"
+							action="#{internalOrganizationModel.searchOrganizations}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandOrgAdd"
+							value="Add Internal Organization" style="margin-left:5px"
+							styleClass="CommandButton"
+							action="#{internalOrganizationModel.newOrganization}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer" >
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{internalOrganizationModel.allOrgs}" var="org"
+						id="tableOrganizations"
+						columnWidths="100px,200px,200px,150px,300px">
+						<ice:column id="columnOrgId" style="text-align:center;width:100px">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectInternalSources"
+									value="#{org.ui_selected}"
+									clickListener="#{internalOrganizationModel.selectOrganization}">
+									<f:attribute name="org" value="#{org}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Organization ID" style="width:100px" />
+							</f:facet>
+							<ice:outputText value="#{org.id}" style="width:100px" />
+						</ice:column>
+						<ice:column id="columnOrgName" style="width:200px">
+							<f:facet name="header">
+								<ice:outputText value="Organization Name" style="width:200px" />
+							</f:facet>
+							<ice:outputText value="#{org.name}" style="width:200px" />
+						</ice:column>
+					<!-- 	<ice:column id="columnorgServiceArea" style="width:150px">
+							<f:facet name="header">
+								<ice:outputText value="Service Area" style="width:150px" />
+							</f:facet>
+							<ice:outputText value="#{org.serviceArea.name}"
+								style="width:150px" />
+						</ice:column> -->
+						<ice:column id="columnOrgAddress" style="width:200px">
+							<f:facet name="header">
+								<ice:outputText value="Address" style="width:200px" />
+							</f:facet>
+							<ice:outputText value="#{org.contact.address}"
+								style="width:200px" />
+						</ice:column>
+						<ice:column id="columnNDISRegistrationCode" style="width:150px">
+							<f:facet name="header">
+								<ice:outputText value="NDIS Registration Code" style="width:150px" />
+							</f:facet>
+							<ice:outputText value="#{org.NDISRegistrationCode}"
+								style="width:150px" />
+						</ice:column>
+						<ice:column id="columnGSTCode" style="width:300px">
+							<f:facet name="header">
+								<ice:outputText value="GST Code" style="width:300px" />
+							</f:facet>
+							<ice:outputText value="#{org.gst}" style="width:300px" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelTabSet id="tabSetOrgDetails" style="margin-top:10px"
+						columnWidths="80px,200px,150px,100px,200px,100px,300px">
+						<ice:panelTab id="tabOrgProfile" label="Organization Profile">
+							<ice:panelGroup>
+								<fieldset style="height: 290px">
+									<ice:panelGrid columns="2" width="100%"
+										rowClasses="topAlignedTableCell">
+										<ice:panelGroup style="width: 650px;">
+											<fieldset style="height: 275px">
+												<legend>
+													<ice:outputLabel value="Internal Organization Details" />
+												</legend>
+												<ice:panelGroup style="margin-top:10px"
+													rendered="#{internalOrganizationModel.org == null}">
+													<ice:outputText
+														value="Please select a internal organization to view details.." />
+												</ice:panelGroup>
+												<ice:panelGrid columns="4" cellspacing="5" width="100%"
+													rendered="#{internalOrganizationModel.org != null}">
+													<ice:outputText value="Organization Name" />
+													<ice:inputText id="input_OrganizationName" tabindex="1"
+														value="#{internalOrganizationModel.org.name}" 
+														maxlength="#{msgs['oragnaization.name.size']}"
+														title="#{internalOrganizationModel.org.name}" />
+													<ice:outputText value="Street Address" />
+													<ice:inputText id="input_OrganizationAddress" tabindex="6"
+														value="#{internalOrganizationModel.org.contact.streetAddress}"
+														maxlength="#{msgs['contact.streetAddress.size']}" />
+														<ice:panelGroup style="width:120px">
+														<ice:outputText value="NDIS Registration Code" />
+													</ice:panelGroup>
+													<ice:inputText id="input_Ndisregcode" tabindex="5"
+														value="#{internalOrganizationModel.org.NDISRegistrationCode}"
+														converterMessage="NDIS Registration code must be a numeric value" />	
+												<!-- 	<ice:outputText value="Service Area" />
+													<ice:selectOneMenu id="selectOneServiceArea"
+														styleClass="SelectOneMenu" tabindex="2"
+														value="#{internalOrganizationModel.selectedServiceAreaId}">
+														<f:selectItems
+															value="#{internalOrganizationModel.serviceAreaSelectItems}" />
+													</ice:selectOneMenu> -->
+													<ice:outputText value="City" />
+													<ice:inputText id="input_OrganizationCity" tabindex="7"
+														value="#{internalOrganizationModel.org.contact.city}"
+														maxlength="#{msgs['contact.city.size']}" />
+														<ice:panelGroup style="width:80px">
+														<ice:outputText value="NDIS GST default Code" />
+													</ice:panelGroup>
+													<ice:setEventPhase events="ValueChangeEvent"
+														phase="INVOKE_APPLICATION">
+														<ice:selectOneMenu id="selectGSTcode"
+															value="#{internalOrganizationModel.org.gst}"
+															partialSubmit="true" tabindex="6">
+															<f:selectItems value="#{lookupListProvider.GSTCodes}" />
+														</ice:selectOneMenu>
+													</ice:setEventPhase>	
+												
+													<ice:outputText value="State" />
+													<ice:selectOneMenu id="selectState" tabindex="9"
+														value="#{internalOrganizationModel.org.contact.state}">
+														<f:selectItems value="#{lookupListProvider.states}" />
+													</ice:selectOneMenu>
+														<ice:outputText value="Phone Number" />
+													<ice:inputText id="inputOrganizationPhoneNumber"
+														tabindex="3"
+														value="#{internalOrganizationModel.org.contact.officePhone}"
+														maxlength="#{msgs['contact.phone.size']}" />
+													
+													<ice:outputText value="Post Code" />
+													<ice:inputText id="input_OrganizationPostCode" tabindex="10"
+														value="#{internalOrganizationModel.org.contact.postCode}"
+														maxlength="#{msgs['contact.postCode.size']}" />	
+														<ice:outputText value="E - mail" />
+													<ice:inputText id="inputOrganizationEmail" tabindex="4"
+														value="#{internalOrganizationModel.org.contact.email}"
+														maxlength="#{msgs['contact.email.size']}" />
+												
+												
+													<ice:outputText value="Country" />
+													<ice:inputText id="inputOrganizationCountry" tabindex="11"
+														value="#{internalOrganizationModel.org.contact.country}"
+														maxlength="#{msgs['contact.email.size']}" readonly="true" />
+													<ice:panelGroup style="width:80px">
+														<ice:outputText value="Fortnight Start Date" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:200px">
+														<ice:selectInputDate renderMonthAsDropdown="true"
+															id="inputDateCreateRoster" renderYearAsDropdown="true"
+															renderAsPopup="true" tabindex="12"
+															value="#{internalOrganizationModel.org.fortnightStartDate}"
+															converter="dateConverter"
+															converterMessage="Fortnight start date must be valide date">
+														</ice:selectInputDate>
+													</ice:panelGroup>
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+										<ice:panelGroup style="width: 450px;">
+											<fieldset style="height: 275px">
+												<legend>
+													<ice:outputLabel
+														value="Staff default hours per fortnight by employment type" />
+												</legend>
+												<ice:panelGroup style="margin-top:10px"
+													rendered="#{internalOrganizationModel.org == null}">
+													<ice:outputText
+														value="Please select a internal organization to view details.." />
+												</ice:panelGroup>
+												<ice:panelSeries id="staffHours"
+													value="#{internalOrganizationModel.org.ndisStaffTimes}"
+													var="time">
+													<ice:panelGrid columns="3" cellspacing="1" width="100%"
+														cellpadding="5">
+														<ice:panelGroup style="width:100px;">
+															<ice:outputText value="#{time.employmentType.id}" />
+														</ice:panelGroup>
+														<ice:inputText tabindex="16" value="#{time.hours}"
+															id="inputHours"
+															converterMessage="Staff hours must be a number">
+															<f:attribute name="staffType"
+																value="#{time.employmentType.id}"></f:attribute>
+														</ice:inputText>
+														<ice:outputLabel value="hours per fortnight" />
+													</ice:panelGrid>
+												</ice:panelSeries>
+											</fieldset>
+
+										</ice:panelGroup>
+									</ice:panelGrid>
+								</fieldset>
+								<ice:panelGroup style="float:right;margin-top:10px">
+									<ice:commandButton id="commandOrganizationDelete"
+										value="Delete" style="width:80px;margin-right:5px"
+										tabindex="24" panelConfirmation="deleteConfirmation"
+										rendered="#{internalOrganizationModel.org.id != null}"
+										styleClass="CommandButton"
+										action="#{internalOrganizationModel.deleteOrganization}" />
+									<ice:commandButton id="commandLocationSave" value="Save"
+										style="width:80px" tabindex="23"
+										panelConfirmation="saveConfirmation"
+										rendered="#{internalOrganizationModel.org != null}"
+										styleClass="CommandButton" onclick="alert('HI')"
+										action="#{internalOrganizationModel.saveOrganization}">
+									</ice:commandButton>
+								</ice:panelGroup>
+								<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+									cancelLabel="No" draggable="true" title="Confirm"
+									message="Are you sure you want to perform this action?" />
+
+							</ice:panelGroup>
+
+
+						</ice:panelTab>
+						<ice:panelTab label="NDIS Authorising Staff" disabled="#{internalOrganizationModel.org == null}">
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<!--  <ice:commandButton value="Add NDIS Authorising Staff"/> -->
+								<ice:panelGroup>
+									<fieldset style="height: 250px; width: 1150px">
+										<ice:panelGrid columns="3" width="100%"
+											rowClasses="topAlignedTableCell">
+											<ice:commandButton value="Add NDIS Authorising Staff"
+												rendered="#{internalOrganizationModel.org != null}"
+												action="#{internalOrganizationModel.addNewAStaff}"
+												styleClass="CommandButton" style="float:left;margin-top:3px" />
+										</ice:panelGrid>
+										<ice:dataTable scrollable="true" scrollHeight="150px"
+											id="tableOrganizations"
+											columnWidths="100px,200px,150px,150px,150px,150px"
+											value="#{internalOrganizationModel.authorisedstaffList}"
+											var="Astaff" style="margin-bottom:10px">
+											<ice:column id="columnID">
+												<f:facet name="header">
+													<ice:outputText value="ID" />
+												</f:facet>
+												<ice:outputText value="#{Astaff.id}" />
+											</ice:column>
+											<ice:column id="columnName">
+												<f:facet name="header">
+													<ice:outputText value="Name" />
+												</f:facet>
+												<ice:outputText value="#{Astaff.staffMember.contact.name}" />
+											</ice:column>
+											<ice:column id="columnAuthorising">
+												<f:facet name="header">
+													<ice:outputText value="Authorising code" />
+												</f:facet>
+												<ice:outputText value="#{Astaff.authorisingCode}" />
+											</ice:column>
+											<ice:column id="columnIntOrg">
+												<f:facet name="header">
+													<ice:outputText value="Internal Org" />
+												</f:facet>
+												<ice:outputText value="#{Astaff.internalOrganization.name}" />
+											</ice:column>
+											<ice:column id="columnEdit">
+												<f:facet name="header">
+													<ice:outputText value="Edit" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													actionListener="#{internalOrganizationModel.editStaff}"
+													title="Edit StaffMember" id="commandlinkEditStaff">
+													<ice:graphicImage style="border:none"
+														url="images/icons/edit.png" />
+													<f:attribute name="staff" value="#{Astaff}" />
+												</ice:commandLink>
+												<ice:outputText />
+											</ice:column>
+											<ice:column id="columnDelete">
+												<f:facet name="header">
+													<ice:outputText value="Delete" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													actionListener="#{internalOrganizationModel.removeStaff}"
+													panelConfirmation="deleteStaffConfirmation"
+													title="Remove AuthorisedStaffMember"
+													id="commandlinkDeleteStaff">
+													<ice:graphicImage style="border:none"
+														url="images/icons/delete-icon.png" />
+													<f:attribute name="staff" value="#{Astaff}" />
+												</ice:commandLink>
+												<ice:panelConfirmation id="deleteStaffConfirmation"
+													acceptLabel="Yes" cancelLabel="No" draggable="true"
+													title="Confirm"
+													message="Are you sure you want to perform this action?" />
+											</ice:column>
+
+
+										</ice:dataTable>
+									</fieldset>
+								</ice:panelGroup>
+
+							</ice:panelGrid>
+						</ice:panelTab>
+					</ice:panelTabSet>
+				</div>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{internalOrganizationModel.visibleStaff}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Assign Authorising Staff"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeStaffButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{internalOrganizationModel.showStaffPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:865px;margin-top:10px">
+							<ice:panelGroup style="margin-left:-20px">
+								<ice:messages />
+							</ice:panelGroup>
+
+							<ice:panelGrid styleClass="borderBox" style="width:100%"  rendered="#{internalOrganizationModel.authorisedStaff.id == null}">
+								<ice:panelGrid columns="8">
+									<ice:outputText value="Search staff by :" />
+									<ice:selectOneRadio
+										value="#{internalOrganizationModel.searchValue}"
+										partialSubmit="true"
+										style="border:none;margin-top:-13px;margin-bottom:-20px;margin-left:-20px;">
+										<f:selectItem itemValue="name" itemLabel="Name" />
+										<f:selectItem itemValue="id" itemLabel="StaffId" />
+									</ice:selectOneRadio>
+									<ice:inputText id="inputTextStaffSearch"
+										action="#{internalOrganizationModel.searchStaff}"
+										value="#{internalOrganizationModel.searchTxt}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonStaffSearch"
+										action="#{internalOrganizationModel.searchStaff}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStaffs" scrollable="true"  rendered="#{internalOrganizationModel.authorisedStaff.id == null}"
+									columnWidths="40px,200px,150px,80px,80px,85px,100px"
+									scrollHeight="140px"
+									value="#{internalOrganizationModel.staffList}" var="staff"
+									style="margin-bottom:10px">
+
+									<ice:column style="text-align:right;width:40px">
+										<ice:rowSelector id="rowselectStaff"
+											value="#{staff.ui_selected}"
+											clickListener="#{internalOrganizationModel.selectStaff}">
+											<f:attribute name="staff" value="#{staff}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Id" style="width:40px" />
+										</f:facet>
+										<ice:outputText value="#{staff.staffId}" style="width:40px" />
+									</ice:column>
+									<ice:column style="width:200px">
+										<f:facet name="header">
+											<ice:outputText value="Staff Name" style="width:200px" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.name}"
+											style="width:200px" />
+									</ice:column>
+									<ice:column style="width:150px">
+										<f:facet name="header">
+											<ice:outputText value="Staff Skills" style="width:150px" />
+										</f:facet>
+										<ice:outputText style="width:150px">
+											<ice:repeat value="#{staff.skills}" var="skills"
+												varStatus="status">
+												#{skills.skill.itemValue} &nbsp;
+											</ice:repeat>
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center;width:80px">
+										<f:facet name="header">
+											<ice:outputText value="Contact Number" style="width:80px" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.contactNumber}"
+											style="width:80px" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" style="width:80px" />
+										</f:facet>
+										<ice:outputText value="#{staff.gender}" style="width:80px" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Staff Type" style="width:85px" />
+										</f:facet>
+										<ice:outputText value="#{staff.type.name}" style="width:85px" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Employment Type" style="width:100px" />
+										</f:facet>
+										<ice:outputText value="#{staff.employmentType}"
+											style="width:100px" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:panelGrid columns="2"
+								style="margin-left:10px;margin-top:20px">
+								<ice:outputText value=" Staff Name" />
+								<ice:inputText id="inputNameOfStaff" tabindex="2" disabled="#{internalOrganizationModel.authorisedStaff.id != null}"
+									value="#{internalOrganizationModel.staffName}" />
+								<ice:outputText value=" Authorising code" />
+								<ice:inputText id="inputAuthorising" tabindex="3"
+									value="#{internalOrganizationModel.authorisedStaff.authorisingCode}" />
+							</ice:panelGrid>
+							<ice:panelGrid columns="2" width="445px" style="margin:10px">
+								<ice:commandButton id="commandSaveAthorisedStaff" value="Save"
+									action="#{internalOrganizationModel.saveAuthorisingStaff}"
+									styleClass="CommandButton" style="float:right" />
+								<ice:commandButton id="commandSaveAndExitAthorisedStaff"
+									value="Save and Exit"
+									action="#{internalOrganizationModel.saveAndExit}"
+									styleClass="CommandButton" style="float:left" />
+							</ice:panelGrid>
+
+
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{(internalOrganizationModel.hoursChanged || internalOrganizationModel.gstChanged)}"
+					style="height:110px">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Warning " styleClass="popupHeaderText" />
+
+							<ice:commandButton id="closeCommittedEventPopup"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{internalOrganizationModel.showPopUp}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:550px;margin-top:10px">
+							<ice:outputText value="#{internalOrganizationModel.msg}"></ice:outputText>
+							<ice:panelGroup style="margin-top:25px">
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px" value="No"
+									action="#{internalOrganizationModel.closeConfirmation}"></ice:commandButton>
+								<ice:outputText value=" "></ice:outputText>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:20px"
+									value="Yes"
+									action="#{internalOrganizationModel.updateOrganization}"></ice:commandButton>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="listener"></composite:attribute>
+
+</composite:interface>
+<composite:implementation>
+<h:outputScript library="js" name="jquery.min.js" target="this" />
+	<h:commandLink id="in" value="test 2">
+		<f:ajax event="click" render="test message"
+			listener="#{sampleModel.ajaxListener}" onevent="test"></f:ajax>
+	</h:commandLink>
+	<h:outputText id="test" value="test"></h:outputText>
+	<h:outputText id="message" value="message"></h:outputText>
+	<ice:outputProgress id="progress" indeterminate="true" value="50" style="font-size:20px;display:none"></ice:outputProgress>
+	<script>
+	function test(e) {
+		if(e.status == 'begin'){
+			
+			jQuery.noConflict()
+			var id = '##{cc.clientId}:progress';
+			
+			id=id.replace(/:/g,"\\:");
+			jQuery(id).show();
+		}else if(e.status == 'success'){
+			alert(e.status);
+			jQuery.noConflict()
+			var id = '##{cc.clientId}:progress';		
+			id=id.replace(/:/g,"\\:");
+			jQuery(id).hide();
+		}
+			
+	}
+</script>
+</composite:implementation>
+
+</html>

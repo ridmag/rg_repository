@@ -1,0 +1,162 @@
+<ice:form xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets" id="formMenu">
+	<ice:menuBar id="menuBarTop" noIcons="false">
+		<!-- set renderedOnUserRole="USER_ROLE" for security enabling -->
+		<ice:menuItem id="programsMenuItem" value="Programs"
+			icon="images/icons/program.png" action="ProgramManager"
+			actionListener="#{programManagerModel.initStudentPrograms}"
+			styleClass="menu#{selectedMenu == 'PROG'}">
+			<ice:menuItem id="transportProgramsMenuItem" icon=""
+				value="Transport Programs" action="TransportManager"
+				actionListener="#{transportManagerModel.init}" />
+			<ice:menuItem id="studentProgramsMenuItem"
+				value="#{msgs['student_label']} Programs" action="ProgramManager"
+				icon="" actionListener="#{programManagerModel.initStudentPrograms}" />
+			<ice:menuItem id="staffProgramsMenuItem" value="Staff Programs"
+				action="ProgramManager" icon=""
+				actionListener="#{programManagerModel.initStaffPrograms}" />
+			<ice:menuItem id="EventMenuItem" value="Event Manager" icon=""
+				action="EventManager" actionListener="#{eventManagerModel.init}" />
+		</ice:menuItem>
+		<ice:menuItem id="studentsMenuItem" value="#{msgs['students_label']}"
+			icon="images/icons/users.png" action="StudentManager"
+			actionListener="#{studentManagerModel.init}"
+			styleClass="menu#{selectedMenu == 'STUD'}">
+			<ice:menuItem id="std360MenuItem"
+				value="#{msgs['student_label']}'s 360° View"
+				action="Student360Manager" icon=""
+				actionListener="#{studentManagerModel.init}" />
+		</ice:menuItem>
+		<ice:menuItem id="staffMenuItem" value="Staff"
+			icon="images/icons/students.png" action="StaffManager"
+			actionListener="#{staffManagerModel.init}"
+			styleClass="menu#{selectedMenu == 'STAFF'}" />
+		<ice:menuItem id="invoiceMenuItem" value="Act. Stmts"
+			alt="Activity Statements" icon="images/icons/invoice.png"
+			action="InvoiceManager" actionListener="#{invoiceManagerModel.init}"
+			style="width:100px" styleClass="menu#{selectedMenu == 'INVOICE'}">
+			<ice:menuItem id="paymentsMenuItem" value="Payments"
+				action="PaymentManager" style="width:180px" icon=""
+				actionListener="#{invoiceManagerModel.initPayments}" />
+			<ice:menuItem id="generateInvoiceMenuItem" style="width:180px"
+				icon="" value="Generate Act. Statements" action="InvoiceManager"
+				actionListener="#{invoiceManagerModel.generateInvoices}" />
+		</ice:menuItem>
+		<ice:menuItem id="ndisMenuItem" value="Ndis"
+			icon="images/icons/students.png" action="NdisInvoiceManager"
+			actionListener="#{ndisInvoiceManagerModel.init}"
+			styleClass="menu#{selectedMenu == 'NDIS'}" />
+		<ice:menuItem id="usersMenuItem" value="Users" rendered="false"
+			icon="images/icons/user_s.png" action="UserManager"
+			actionListener="#{userManagerModel.init}"
+			styleClass="menu#{selectedMenu == 'USER'}" />
+		<ice:menuItem value="Reports" icon="images/icons/report.png"
+			id="reportMenuItem" styleClass="menu#{selectedMenu == 'REPORT'}">
+			<ice:menuItem id="fundingReportMenuItem" value="Fundings"
+				style="width:180px" icon="">
+				<ice:menuItem id="dailyFundingReport" value="Daily Receipts"
+					action="Report_Daily_Receipt" icon=""
+					actionListener="#{reportManagerModel.initDailyReceiptReport}" />
+				<ice:menuItem id="programFundingReport" value="Program Receipts"
+					action="Report_Funding_Program" icon="" />
+			</ice:menuItem>
+			<ice:menuItem id="absenteeReportMenuItem" value="Absentees" icon=""
+				style="width:180px">
+				<ice:menuItem id="individualAbsenteeReport" value="Individual"
+					action="Report_Absentee_Individual" icon=""
+					actionListener="#{reportManagerModel.initIndividualAbsenteeReport}" />
+				<ice:menuItem id="allAbsenteeReport"
+					value="All #{msgs['students_label']}" action="Report_Absentee_All"
+					icon=""
+					actionListener="#{reportManagerModel.initAllAbsenteeReport}" />
+			</ice:menuItem>
+			<ice:menuItem id="anniversaryReportMenuItem" style="width:180px"
+				value="Anniversary" action="Report_Anniversary" icon=""
+				actionListener="#{reportManagerModel.initAnniversaryReport}" />
+			<ice:menuItem id="utilReportMenuItem" value="Hours Utilized"
+				style="width:180px" action="Report_Hours_Utilized" icon=""
+				actionListener="#{reportManagerModel.initHoursUtilizedReport}" />
+			<ice:menuItem id="studentsEventsMenuItem"
+				value="#{msgs['student_label']} Events" style="width:180px"
+				action="Report_Student_Events" icon=""
+				actionListener="#{reportManagerModel.initStudentEventsReport}" />
+			<ice:menuItem id="eventsReportMenuItem" value="Events Completion"
+				style="width:180px" action="Report_Event_Completion" icon=""
+				actionListener="#{reportManagerModel.initEventCompletionReport}" />
+			<ice:menuItem id="individualCollectionReport"
+				value="#{msgs['student_label']} Collections" style="width:180px"
+				action="Report_Collections_Individual" icon=""
+				actionListener="#{reportManagerModel.initCollectionsIndvReport}" />
+			<ice:menuItem id="nonConsentMenuItem"
+				value="#{msgs['students_label']}' Consents" style="width:180px"
+				action="Report_Student_Consents" icon=""
+				actionListener="#{reportManagerModel.initConsentReport}" />
+			<ice:menuItem id="criminalReportMenuItem" icon=""
+				value="Criminal Check Status" style="width:180px"
+				action="Report_Criminal_Check" />
+			<ice:menuItem id="OutstandingInvoiceMenuItem"
+				value="Outstanding Act. Stmts." style="width:180px"
+				action="Report_Outstanding_Invoices" icon=""
+				actionListener="#{reportManagerModel.initOutstandingInvoiceReport}" />
+		</ice:menuItem>
+		<ice:menuItem id="communicationManagerMenuItem" value="Comm'n"
+			icon="images/icons/communication.png" action="CommunicationManager"
+			actionListener="#{communicationManagerModel.init}"
+			style="width:105px" styleClass="menu#{selectedMenu == 'COMM'}" />
+		<ice:menuItem id="staffRosterMenuItem" value="Roster"
+			icon="images/icons/roster.png" action="RosterManager"
+			actionListener="#{rosterManagerModel.init}" style="width:80px"
+			styleClass="menu#{selectedMenu == 'ROSTER'}">
+			<ice:menuItem id="staffTimeTrackerMenuItem" icon=""
+				value="Staff Time Tracker" action="StaffTimeTracker"
+				actionListener="#{timeTrackerModel.initStaffTracker}" />
+		</ice:menuItem>
+		<ice:menuItem id="configMenuItem" value="Config"
+			icon="images/icons/configure.png"
+			styleClass="menu#{selectedMenu == 'CONFIG'}">
+			<ice:menuItem id="vehicleMenuItem" value="Vehicles" icon=""
+				action="VehicleManager" actionListener="#{vehicleManagerModel.init}" />
+			<ice:menuItem id="LocationMenuItem" value="Locations"
+				action="LocationManager" icon=""
+				actionListener="#{locationManagerModel.init}" />
+			<ice:menuItem id="CollectionMenuItem" value="Collections"
+				action="CollectionsManager" icon=""
+				actionListener="#{collectionManagerModel.init}" />
+			<ice:menuItem id="leavePolicyMenuItem" value="Leave Policies"
+				action="LeavePolicyManager" rendered="false" icon=""
+				actionListener="#{leavePolicyManager.init}" />
+			<ice:menuItem id="SpecialNeedMenuItem" value="Special Needs"
+				action="SpecialNeedManager" icon=""
+				actionListener="#{sNeedManagerModel.init}" />
+			<ice:menuItem id="referenceItemMenuItem" value="Reference Items"
+				action="ReferenceItems" icon=""
+				actionListener="#{referenceItemManagerModel.init}" />
+			<ice:menuItem id="fundingSourceMenuItem" value="Funding Sources"
+				icon="" action="FundingManager"
+				actionListener="#{fundingManagerModel.init}" />
+			<ice:menuItem id="HolidayMenuItem" value="Holiday Manager" icon=""
+				actionListener="#{holidayManagerModel.init}" action="HolidayManager" />
+			<ice:menuItem id="ConsentMenuItem"
+				value="#{msgs['student_label']} Consents" icon=""
+				actionListener="#{consentManagerModel.init}" action="ConsentManager" />
+			<ice:menuItem id="ExternalSourceMenuItem" value="Ext. Organizations"
+				actionListener="#{externalOrganizationManagerModel.init}" icon=""
+				action="ExternalOrganizationManager" />
+		</ice:menuItem>
+		<ice:menuItem id="OHSMenuitems" value="OHS" rendered="false"
+			icon="images/icons/configure.png">
+			<ice:menuItem id="menuIncidentForm" value="IncidentForm"
+				action="OHS_IncidentForm" />
+			<ice:menuItem id="menuBehaviourForm" value="BehaviourForm"
+				action="OHS_BehaviourForm" />
+			<ice:menuItem id="menuHazardReport" value="HazardReport"
+				action="OHS_HazardReport" />
+		</ice:menuItem>
+		<!-- <ice:menuItem id="sampleMenuItem" value="Sample" rendered="true"
+			icon="images/icons/user_s.png" action="Sample2" style="height:40px" /> -->
+	</ice:menuBar>
+
+</ice:form>

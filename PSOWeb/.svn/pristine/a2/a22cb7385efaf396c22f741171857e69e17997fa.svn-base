@@ -1,0 +1,16 @@
+package com.itelasoft.util;
+
+import java.util.Comparator;
+
+import com.itelasoft.pso.beans.ProgramType;
+
+public class SortObjectByName implements Comparator<Object> {
+
+	@Override
+	public int compare(Object obj1, Object obj2) {
+		if (obj1 instanceof ProgramType && obj2 instanceof ProgramType)
+			return ((ProgramType) obj1).getName().compareTo(((ProgramType) obj2).getName());
+		return 0;
+	}
+
+}

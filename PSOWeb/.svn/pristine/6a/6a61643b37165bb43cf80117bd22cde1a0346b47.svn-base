@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<f:loadBundle basename="com.itelasoft.pso.web.resources.messages_en"
+	var="msgs" />
+
+<h:head>
+	<title><ui:insert name="pageTitle">PSOWeb</ui:insert></title>
+	<ice:outputStyle href="#{sessionContext.iceFacesCSS}" />
+	<ice:outputStyle href="css/page_styles.css" />
+	<h:outputStylesheet library="org.icefaces.component.skins"
+		name="sam.css" />
+	<h:outputStylesheet library="org.icefaces.component.skins"
+		name="rime.css" />
+	
+	<h:outputScript name="jsf.js" library="javax.faces" />
+	<ui:insert name="extraHeader"></ui:insert>
+</h:head>
+
+<h:body>
+	<ice:panelGroup id="mainWrapper" style="width:1200px">
+		
+
+		<ice:panelGroup id="bodyWrapper" style="min-height:700px"
+			styleClass="borderBox">
+			
+			<ice:panelGrid border="0" columns="1" cellpadding="5" cellspacing=""
+				width="100%">
+				<ice:panelGroup styleClass="PageTitleWrapper">
+					<ice:panelGroup styleClass="PageTitleIcon">
+						<ui:insert name="PageTitleIcon">
+							<img src="images/icons/irc_protocol.png" />
+						</ui:insert>
+					</ice:panelGroup>
+					<ice:panelGroup styleClass="PageTitleRight">
+						<ice:panelGroup styleClass="PageTitle">
+							<ui:insert name="pageHeading">PAGE HEADING</ui:insert>
+						</ice:panelGroup>
+						<ice:panelGroup styleClass="PageTdescription">
+							<ui:insert name="pageDescription">Page Description</ui:insert>
+						</ice:panelGroup>
+					</ice:panelGroup>
+					<ice:panelGroup id="MessageContainer"
+						style="margin-left: 25px; float: left">
+						<ui:insert name="systemMessage">
+							<ice:messages tooltip="true" showDetail="true" 
+								showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true"/>
+							</ice:messages>
+						</ui:insert>
+					</ice:panelGroup>
+					<ice:outputConnectionStatus style="float:right"
+						showPopupOnDisconnect="true" displayHourglassWhenActive="true" />
+				</ice:panelGroup>
+				<div id="LeftContentArea">
+					<ui:insert name="pageContent">Page Contents</ui:insert>
+					<ice:form id="formReminder">
+						<comp:reminderPopup />
+					</ice:form>
+				</div>
+			</ice:panelGrid>
+		</ice:panelGroup>
+
+		
+
+	</ice:panelGroup>
+</h:body>
+</html>

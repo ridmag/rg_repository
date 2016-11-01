@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<ice:panelGroup style="margin:0px -10px 0px -10px">
+	<ui:repeat var="program" value="#{dashboardModel.programs}">
+		<ice:panelGrid id="program" rowClasses="topAlignedTableCell"
+			cellpadding="0" cellspacing="0"
+			style="width:245px;margin:2px;border:1px solid yellow;background-color:#F5F6CE;float:left;"
+			rendered="#{!empty(dashboardModel.programs)}">
+			<ice:panelGrid style="background:yellow" width="100%">
+				<ice:outputText value="#{program.name}" />
+			</ice:panelGrid>
+			<ui:repeat var="pe" value="#{program.programEvents}">
+				<ice:panelGrid cellpadding="0" cellspacing="0"
+					style="margin:5px;width: 245px;border:1px solid #01DF01;background-color:#D8F6CE;"
+					rowClasses="topAlignedTableCell">
+					<ice:panelGrid style="background:#01DF01" width="100%">
+						<ice:outputText rendered="#{program.type.name !='Transport'}"
+							value="#{pe.group.name} :#{pe.group.location.name}" />
+						<ice:outputText rendered="#{program.type.name =='Transport'}"
+							value="#{pe.group.name}" />
+					</ice:panelGrid>
+					<ice:panelGrid style="background:#F6E3CE" width="100%"
+						rendered="#{program.type.name =='Transport'}">
+						<ice:outputText rendered="#{program.type.name =='Transport'}"
+							value="#{pe.group.vehicle.name} #{(pe.group.vehicle.passengers)+1}|#{pe.group.vehicle.passengers}+1|WC-#{pe.group.vehicle.wheelChairs}" />
+					</ice:panelGrid>
+					<ice:panelGrid cellpadding="0" cellspacing="0" width="235px"
+						style="margin:5px;border:1px solid #5882FA;background-color:#CEE3F6;"
+						rowClasses="topAlignedTableCell"
+						rendered="#{dashboardModel.selectedTabIndex != 0}">
+						<ice:panelGrid width="100%" style="background:#5882FA">
+							<ice:outputText value="#{msgs['students_label']}" />
+						</ice:panelGrid>
+						<ui:repeat var="stdEvent" value="#{pe.studentEvents}"
+							id="uiRepeatEventsstudent">
+							<ice:panelGrid columns="3" width="100%"
+								rendered="#{!empty(pe.studentEvents)}">
+								<ice:panelGroup style="width:20px;float:left;">
+									<ice:outputText
+										value="#{(!empty(stdEvent.groupedStudent.student.specialNeeds))?'SR':''}" />
+								</ice:panelGroup>
+								<ice:panelGroup style="width:180px;float:left;">
+									<ice:outputText style="float:left"
+										value="#{stdEvent.groupedStudent.student.contact.name}" />
+								</ice:panelGroup>
+								<ice:panelGroup style="width:20px;float:right;">
+									<ice:graphicImage title="Attended" value="/images/icons/ok.png"
+										rendered="#{stdEvent.attended}" />
+									<ice:graphicImage title="Not Attended"
+										value="/images/icons/warning_s.png"
+										rendered="#{!stdEvent.attended}" />
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ui:repeat>
+						<ice:panelGrid rendered="#{empty(pe.studentEvents)}">
+							<ice:outputText value="No Participant(s) available" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+					<ice:panelGrid cellpadding="0" cellspacing="0" width="235px"
+						style="margin:5px;border:1px solid #DA81F5;background-color:#ECCEF5;"
+						rowClasses="topAlignedTableCell">
+						<ice:panelGrid style="background:#DA81F5" width="100%">
+							<ice:outputText value="Staff Members" />
+						</ice:panelGrid>
+						<ui:repeat var="stfEvent" value="#{pe.staffEvents}"
+							id="uiRepeatEventsstaff">
+							<ice:panelGrid columns="2" width="100%"
+								rendered="#{!empty(pe.staffEvents)}">
+								<ice:outputText style="float:left"
+									value="#{stfEvent.staffMember.contact.name}" />
+								<ice:graphicImage style="float:right" title="Attended"
+									value="/images/icons/ok.png" rendered="#{stfEvent.attended}" />
+								<ice:graphicImage style="float:right" title="Not Attended"
+									value="/images/icons/warning_s.png"
+									rendered="#{!stfEvent.attended}" />
+							</ice:panelGrid>
+						</ui:repeat>
+						<ice:panelGrid rendered="#{empty(pe.staffEvents)}">
+							<ice:outputText value="No Staff Member(s) available" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+				</ice:panelGrid>
+			</ui:repeat>
+		</ice:panelGrid>
+	</ui:repeat>
+</ice:panelGroup>
+<ice:panelGroup style="height:1000px;padding-top:100px"
+	rendered="#{empty(dashboardModel.programs)}">
+	<ice:outputText style="margin-top:100px" value="No programs available"></ice:outputText>
+</ice:panelGroup>
+</html>
+<!--  -->

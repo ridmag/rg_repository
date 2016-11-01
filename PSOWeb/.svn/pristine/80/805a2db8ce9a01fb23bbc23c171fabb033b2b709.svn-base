@@ -1,0 +1,216 @@
+package com.itelasoft.pso.services;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.itelasoft.pso.beans.NdisCommittedEvent;
+import com.itelasoft.pso.beans.NdisPrice;
+import com.itelasoft.pso.beans.NdisSupportItem;
+import com.itelasoft.pso.dao.IHolidayDao;
+import com.itelasoft.pso.dao.INdisCommittedEventDao;
+import com.itelasoft.pso.dao.INdisSupportItemDao;
+
+public class NdisCommittedEventService extends
+		GenericService<NdisCommittedEvent, Long> implements
+		INdisCommittedEventService {
+
+	private IHolidayDao holidayDao;
+	private INdisSupportItemDao ndisSupportItemDao;
+
+	public void setHolidayDao(IHolidayDao holidayDao) {
+		this.holidayDao = holidayDao;
+	}
+	public void setNdisSupportItemDao(INdisSupportItemDao ndisSupportItemDao) {
+		this.ndisSupportItemDao = ndisSupportItemDao;
+	}
+
+	private Long timeLong12;
+	private Long timeLong1;
+	private Long timeLong6 ;
+	private Long timeLong8;
+	private Long timeLong1159;
+
+	@Override
+	public int deleteCommittedEvents(long studentId, Date startDate,
+			Date endDate) {
+		return ((INdisCommittedEventDao) dao).deleteCommittedEvents(studentId,
+				startDate, endDate);
+	}
+
+	public List<NdisCommittedEvent> getCommittedEvents(Long studentID,
+			Long groupId, Date eventDate, Date endDate) {
+		return ((INdisCommittedEventDao) dao).getCommittedEvents(studentID,
+				groupId, eventDate, endDate);
+	}
+
+	public void saveAllEvents(List<NdisCommittedEvent> value) {
+		for (NdisCommittedEvent eve : value) {
+			create(eve);
+		}
+	}
+
+	public int deleteSelectedEvents(Long studentId, Long groupId,
+			Date fromDate, Date toDate) {
+		return ((INdisCommittedEventDao) dao).deleteSelectedEvents(studentId,
+				groupId, fromDate, toDate);
+	}
+
+	@Override
+	public List<NdisCommittedEvent> ndisCommittedEventsListByGroup(Long groupId) {
+		return ((INdisCommittedEventDao) dao).ndisCommittedEventsListByGroup(groupId);
+	}
+	
+	public List<NdisCommittedEvent> retrieveClaimedCommittedEvents(Long studentID,
+			Long groupId, Date eventDate, Date endDate) {
+		return ((INdisCommittedEventDao) dao).retrieveClaimedCommittedEvents(studentID,
+				groupId, eventDate, endDate);
+	}
+
+	@Override
+	public int deleteSelectedStudentEvents(Long studentId, Date fromDate,Long studentGroupid) {
+		return ((INdisCommittedEventDao) dao).deleteSelectedStudentEvents(studentId, fromDate,studentGroupid);
+	}
+
+	@Override
+	public List<NdisCommittedEvent> SelectedStudentEvents(Long studentId,
+			Date fromDate,Long studentGroupid) {
+		return ((INdisCommittedEventDao) dao).SelectedStudentEvents(studentId, fromDate,studentGroupid);
+	}
+	
+	public List<NdisCommittedEvent> allCommittedAmountForStudent(Long studentID){
+		return ((INdisCommittedEventDao) dao).allCommittedAmountForStudent(studentID);
+	}
+	
+	public void processFinalList(List<NdisCommittedEvent> finalList){
+		for(NdisCommittedEvent committedEvent : finalList){
+			calculateCommittedEventPrice(committedEvent);
+			create(committedEvent);
+		}
+	}
+	
+	public NdisCommittedEvent calculateCommittedEventPrice(NdisCommittedEvent committedEvent){	
+			margineTimeConversion();
+			String ndisTime = null;
+			Long ndisSupportNumber = new Long(0);
+			Double price = 0.0;
+			ndisSupportNumber = new Long(0);
+			List<NdisPrice> ndisprices = new ArrayList<NdisPrice>();
+			if (committedEvent.getClusterOverride() == null) {
+				ndisSupportNumber = committedEvent.getNdisSupportCluster().getId();
+
+			} else {
+				ndisSupportNumber = committedEvent.getClusterOverride().getId();
+			}
+			NdisSupportItem supportCluster = ndisSupportItemDao.retrive(ndisSupportNumber);
+		if (!committedEvent.getStudentGroup().getProgram().getType().getName().equals("Transport")) {
+			Date endTime = committedEvent.getEndTime();
+			DateFormat time = new SimpleDateFormat("hh:mm:ss a");
+			String endTimeString = time.format(endTime);
+			DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
+			Date endTime2 = null;
+			try {
+				endTime2 = formatter.parse(endTimeString);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			Long currentEndTimeLong = endTime2.getTime();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(committedEvent.getEventDate());
+			int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+			if (holidayDao.isHoliday(new Long(1), committedEvent.getEventDate())) {
+				ndisTime = "Public Holiday";
+			} else if (dayOfWeek == 1) {
+				ndisTime = "Sunday";
+			} else if (dayOfWeek == 7) {
+				ndisTime = "Saturday";
+			} else if (timeLong12 <= currentEndTimeLong && currentEndTimeLong <= timeLong1) {
+				ndisTime = "Weekday Overnight Active";
+				Calendar c = Calendar.getInstance();
+				c.setTime(committedEvent.getEventDate());
+				c.add(Calendar.DATE, 1);
+			} else if (timeLong1 < currentEndTimeLong && currentEndTimeLong < timeLong6) {
+				ndisTime = "Weekday Overnight Active";
+				Calendar c = Calendar.getInstance();
+				c.setTime(committedEvent.getEventDate());
+				c.add(Calendar.DATE, 1);
+			} else if (timeLong6 <= currentEndTimeLong && currentEndTimeLong <= timeLong8) {
+				ndisTime = "Weekday Daytime";
+			} else if (timeLong8 < currentEndTimeLong && currentEndTimeLong <= timeLong1159
+					&& committedEvent.getStudentGroup().isInactiveovernight()) {
+				ndisTime = "Overnight Inactive";
+			} else if (timeLong8 < currentEndTimeLong && currentEndTimeLong <= timeLong1159
+					&& !committedEvent.getStudentGroup().isInactiveovernight()) {
+				ndisTime = "Weekday Evening";
+			}
+			for (NdisPrice supportItem : supportCluster.getNdisPrice()) {
+				if (supportItem.getNdisTime().equals(ndisTime)) {
+					ndisprices.add(supportItem);
+				}
+			}
+			if (ndisprices.size() != 0) {
+				long minDiff = -1, eventDate = committedEvent.getEventDate().getTime();
+				NdisPrice selectedNdisPrice = null;
+				for (NdisPrice ndisprice : ndisprices) {
+					long diff = Math.abs(eventDate - ndisprice.getStartDate().getTime());
+					if ((minDiff == -1) || (diff < minDiff)) {
+						minDiff = diff;
+						selectedNdisPrice = ndisprice;
+					}
+				}
+				price = selectedNdisPrice.getPrice();
+			}
+		} else if (committedEvent.getStudentGroup().getProgram().getType().getName().equals("Transport")) {
+			ndisTime = "Ancillary";
+			for (NdisPrice supportItem : supportCluster.getNdisPrice()) {
+				if (supportItem.getNdisTime().equals(ndisTime)) {
+					ndisprices.add(supportItem);
+				}
+			}
+			long minDiff = -1, eventDate = committedEvent.getEventDate().getTime();
+			NdisPrice selectedNdisPrice = null;
+			for (NdisPrice ndisprice : ndisprices) {
+				long diff = Math.abs(eventDate - ndisprice.getStartDate().getTime());
+				if ((minDiff == -1) || (diff < minDiff)) {
+					minDiff = diff;
+					selectedNdisPrice = ndisprice;
+				}
+			}
+			price = selectedNdisPrice.getPrice();
+		}
+		committedEvent.setEventPrice(price);
+		return committedEvent;
+	}
+	
+	private void margineTimeConversion(){
+		DateFormat formattertime = new SimpleDateFormat("hh:mm:ss a");
+		try {
+		String timeString12 = "12:00:00 AM";
+		Date timeDate12 = formattertime.parse(timeString12);
+		timeLong12 = timeDate12.getTime();
+		
+		String timeString1 = "01:00:00 AM";
+		Date timeDate1 = formattertime.parse(timeString1);
+		timeLong1 = timeDate1.getTime();
+		
+		String timeString6 = "06:00:00 AM";
+		Date timeDate6 = formattertime.parse(timeString6);
+		timeLong6 = timeDate6.getTime();
+		
+		String timeString8 = "08:00:00 PM";
+		Date timeDate8 = formattertime.parse(timeString8);
+		timeLong8 = timeDate8.getTime();
+		
+		String timeString1159 = "11:59:00 PM";
+		Date timeDate1159 = formattertime.parse(timeString1159);
+		timeLong1159 = timeDate1159.getTime();
+		
+		}catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+}

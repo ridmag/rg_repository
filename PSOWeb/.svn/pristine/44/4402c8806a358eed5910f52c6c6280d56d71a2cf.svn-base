@@ -1,0 +1,72 @@
+package com.itelasoft.pso.services;
+
+import java.util.Date;
+import java.util.List;
+
+import com.itelasoft.pso.beans.NdisCommittedEvent;
+import com.itelasoft.pso.dao.INdisCommittedEventDao;
+
+public class NdisCommittedEventService extends
+		GenericService<NdisCommittedEvent, Long> implements
+		INdisCommittedEventService {
+
+	private INdisCommittedEventDao ndisCommittedEventDao;
+
+	public void setNdisCommittedEventDao(
+			INdisCommittedEventDao ndisCommittedEventDao) {
+		this.ndisCommittedEventDao = ndisCommittedEventDao;
+	}
+
+	@Override
+	public int deleteCommittedEvents(long studentId, Date startDate,
+			Date endDate) {
+		return this.ndisCommittedEventDao.deleteCommittedEvents(studentId,
+				startDate, endDate);
+
+	}
+
+	public List<NdisCommittedEvent> getCommittedEvents(Long studentID,
+			Long groupId, Date eventDate, Date endDate) {
+		return ((INdisCommittedEventDao) dao).getCommittedEvents(studentID,
+				groupId, eventDate, endDate);
+	}
+
+	public void saveAllEvents(List<NdisCommittedEvent> value) {
+		for (NdisCommittedEvent eve : value) {
+			System.out.println(eve.getId());
+			create(eve);
+		}
+	}
+
+	public int deleteSelectedEvents(Long studentId, Long groupId,
+			Date fromDate, Date toDate) {
+		return this.ndisCommittedEventDao.deleteSelectedEvents(studentId,
+				groupId, fromDate, toDate);
+	}
+
+	@Override
+	public List<NdisCommittedEvent> ndisCommittedEventsListByGroup(Long groupId) {
+		return this.ndisCommittedEventDao.ndisCommittedEventsListByGroup(groupId);
+	}
+	
+	public List<NdisCommittedEvent> retrieveClaimedCommittedEvents(Long studentID,
+			Long groupId, Date eventDate, Date endDate) {
+		return ((INdisCommittedEventDao) dao).retrieveClaimedCommittedEvents(studentID,
+				groupId, eventDate, endDate);
+	}
+
+	@Override
+	public int deleteSelectedStudentEvents(Long studentId, Date fromDate,Long studentGroupid) {
+		return ((INdisCommittedEventDao) dao).deleteSelectedStudentEvents(studentId, fromDate,studentGroupid);
+	}
+
+	@Override
+	public List<NdisCommittedEvent> SelectedStudentEvents(Long studentId,
+			Date fromDate,Long studentGroupid) {
+		return ((INdisCommittedEventDao) dao).SelectedStudentEvents(studentId, fromDate,studentGroupid);
+	}
+	
+	public List<NdisCommittedEvent> allCommittedAmountForStudent(Long studentID){
+		return ((INdisCommittedEventDao) dao).allCommittedAmountForStudent(studentID);
+	}
+}

@@ -1,0 +1,1263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="STAFF"></ui:param>
+		<ui:define name="pageTitle">Staff Manager</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Staff Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each staff member.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formStaffManager" style="width:1277px">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="6">
+					<ice:outputText value="Search staff members by name or id" />
+					<!--	<ice:selectOneRadio value="#{staffManagerModel.searchValue}"
+							style="border:none;margin-top:-13px;margin-bottom:-20px;margin-left:-15px;margin-right:-15px">
+							<f:selectItem itemValue="name" itemLabel="Name" />
+							<f:selectItem itemValue="id" itemLabel="Staff ID" />
+						</ice:selectOneRadio>  -->
+						<ice:inputText id="inputTextStaSearch"
+							action="#{staffManagerModel.searchStaff}"
+							value="#{staffManagerModel.searchStaffText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:selectOneMenu id="selectStatus"
+							value="#{staffManagerModel.srchStatus}">
+							<f:selectItem itemValue="all" itemLabel="All" />
+							<f:selectItems value="#{lookupListProvider.staffStatus}" />
+						</ice:selectOneMenu>
+						<ice:commandButton id="commanButtonStaMainSearch"
+							action="#{staffManagerModel.searchStaff}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandStaffNew"
+							value="Add new Staff Member" styleClass="CommandButton"
+							renderedOnUserRole="ROLE_SUPERUSER,ROLE_FINANCE"
+							action="#{staffManagerModel.newStaff}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer" style="max-width:1279px;">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{staffManagerModel.staffMembers}" var="sta"
+						id="tableStaffMembers"
+						columnWidths="75px,300px,80px,60px,100px,300px,90px,80px,70px">
+						<ice:column id="columnStaffId" >
+							<f:facet name="header">
+								<ice:outputText value="Staff ID" style="width:75pxpx"/>
+							</f:facet>
+							<ice:outputText value="#{sta.staffId}" style="width:75pxpx"/>
+						</ice:column>
+						<ice:column id="columnStaffName"  style="width:300px">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectStaff"
+									clickListener="#{staffManagerModel.selectStaff}"
+									value="#{sta.ui_selected}">
+									<f:attribute name="staff" value="#{sta}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Staff Name"  style="width:250px"/>
+							</f:facet>
+							<ice:panelGroup style="width:245px;height:1.4em;overflow:hidden">
+								<ice:outputText value="#{sta.contact.name}"
+									title="#{sta.contact.name}" style="width:250pxpx"/>
+							</ice:panelGroup>
+							<!-- <ice:graphicImage
+								style="border:none; float:right;margin-right:5px"
+								title="This person is entitled with an inactive Leave Policy."
+								rendered="#{sta.status != 'Exited' and sta.leavePolicy.status == 'Inactive'}"
+								url="images/icons/warning_s.png" />
+							<ice:panelGroup style="width:20px"
+								rendered="#{!(sta.status != 'Exited' and sta.leavePolicy.status == 'Inactive')}" /> -->
+						</ice:column>
+						<ice:column id="columnStaffDob" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Date of Birth"  style="width:80px"/>
+							</f:facet>
+							<ice:outputText value="#{sta.dob}" converter="dateConverter" style="width:80px"/>
+						</ice:column>
+						<ice:column id="columnStaffGender" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Gender" />
+							</f:facet>
+							<ice:outputText value="#{sta.gender}" />
+						</ice:column>
+						<ice:column id="columnStaffContactNo" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Contact Number" />
+							</f:facet>
+							<ice:outputText value="#{sta.contact.contactNumber}" />
+						</ice:column>
+						<ice:column id="columnStaffAddress">
+							<f:facet name="header">
+								<ice:outputText value="Address" />
+							</f:facet>
+							<ice:outputText value="#{sta.contact.address}"  style="width:300px" />
+						</ice:column>
+						<ice:column id="columnStaffType" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Staff Type" />
+							</f:facet>
+							<ice:outputText value="#{sta.type.name}" />
+						</ice:column>
+						<ice:column id="columnEmpType" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Emp Type" />
+							</f:facet>
+							<ice:outputText value="#{sta.employmentType.id}"
+								rendered="#{sta.employmentType != null}" />
+							<ice:outputText rendered="#{sta.employmentType == null}"
+								value="Not Available" />
+						</ice:column>
+						<ice:column id="columnStaffStatus" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Status" />
+							</f:facet>
+							<ice:outputText value="#{sta.status}" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelGroup styleClass="tabSideBox" style="width:1277px"
+						rendered="#{staffManagerModel.staffMember != null}">
+						<ice:panelGrid columns="2" style="margin-left:600px">
+							<ice:outputText value="Selected Staff Member :" />
+							<ice:outputText value="#{sessionContext.activeStringDetails}"
+								effect="#{sessionContext.effectDetails}"
+								styleClass="ReportSectionHeader" />
+						</ice:panelGrid>
+					</ice:panelGroup>
+					<!-- <ice:panelGroup
+						style="width:100%;height:50px;margin-bottom:-40px;border:1px solid white">
+						<ice:panelGrid columns="2" styleClass="borderBox"
+							rendered="#{staffManagerModel.staffMember != null}"
+							style="height:25px;margin-top:15px;margin-left:598px">
+							<ice:outputText value="Selected Staff Member :"
+								style="margin-left:20px" />
+							<ice:panelGroup style="width:413px">
+								<ice:outputText value="#{sessionContext.activeStringDetails}"
+									effect="#{sessionContext.effectDetails}"
+									styleClass="ReportSectionHeader" />
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</ice:panelGroup> -->
+
+					<ice:panelTabSet id="tabSetStaffDetails"
+						tabChangeListener="#{staffManagerModel.tabChangeListner}"
+						selectedIndex="#{staffManagerModel.selectedTabIndex}">
+						<ice:panelTab id="tabStaffProfile" label="Staff Profile">
+							<fieldset style="height: 500px">
+								<legend>
+									<ice:outputLabel value="Staff Member Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{staffManagerModel.staffMember == null}">
+									<ice:outputText
+										value="Please select a staff member to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									width="100%">
+									<ice:panelGroup
+										rendered="#{staffManagerModel.staffMember != null}">
+										<fieldset style="width: 900px">
+											<ice:panelGrid columns="2" width="100%">
+												<ice:panelGroup style="text-align:center">
+													<ice:panelGrid
+														style="border:thick double grey;width:250px;height:200px;text-align:center">
+														<ice:graphicImage url="images/no_logo.jpg" id="imgStaff"
+															rendered="#{staffManagerModel.staffMember.photo == null}"
+															style="height:180px;width:230px">
+														</ice:graphicImage>
+														<ice:graphicImage
+															value="#{staffManagerModel.staffMember.photo.blobFileData.thumbnail}"
+															id="imgStaff1"
+															rendered="#{staffManagerModel.staffMember.photo != null}"
+															width="#{staffManagerModel.photoW}"
+															height="#{staffManagerModel.photoH}">
+														</ice:graphicImage>
+													</ice:panelGrid>
+													<div style="height: 10px" />
+													<comp:ImageUpload type="link"
+														fileEntryListener="#{imageUploadModel.uploadStaffImage}" />
+												</ice:panelGroup>
+												<ice:panelGrid columns="4" width="100%">
+													<ice:outputText value="Title" />
+													<ice:selectOneMenu id="selectStaffTitle"
+														styleClass="SelectOneMenu" tabindex="1"
+														value="#{staffManagerModel.staffMember.contact.title}">
+														<f:selectItems value="#{lookupListProvider.title}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Staff ID" />
+													<ice:inputText id="input_staffId" tabindex="7"
+														maxlength="#{msgs['staff.staffId.size']}"
+														value="#{staffManagerModel.staffMember.staffId}" />
+													<ice:outputText value="First Name" />
+													<ice:inputText id="input_StaffFirstName" tabindex="2"
+														maxlength="#{msgs['contact.firstName.size']}"
+														value="#{staffManagerModel.staffMember.contact.firstName}" />
+													<ice:outputText value="Joined Date" />
+													<ice:panelGroup id="input_StaffCreatedOn" >
+													<ice:selectInputDate tabindex="8"
+														value="#{staffManagerModel.staffMember.joinedDate}"
+														renderAsPopup="true" renderYearAsDropdown="true"
+														renderMonthAsDropdown="true" converter="dateConverter"
+														label="Joined Date">
+													</ice:selectInputDate>
+													</ice:panelGroup>
+													<ice:outputText value="Middle Name" />
+													<ice:inputText id="inputStaffMiddleName" tabindex="3"
+														maxlength="#{msgs['contact.middleNames.size']}"
+														value="#{staffManagerModel.staffMember.contact.middleNames}" />
+													<ice:outputText value="Staff Type" />
+													<ice:selectOneMenu id="select_OneStaffType"
+														styleClass="SelectOneMenu" tabindex="9"
+														value="#{staffManagerModel.staffTypeId}">
+														<f:selectItem itemValue="0" itemLabel="Please Select"
+															itemDisabled="true" />
+														<f:selectItems var="staffType"
+															itemLabel="#{staffType.name}" itemValue="#{staffType.id}"
+															value="#{lookupListProvider.staffTypes}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Last Name" />
+													<ice:inputText id="input_StafftLastName" tabindex="4"
+														maxlength="#{msgs['contact.lastName.size']}"
+														value="#{staffManagerModel.staffMember.contact.lastName}" />
+													<ice:panelGroup style="width:80px">
+														<ice:outputText value="Employment Type" />
+													</ice:panelGroup>
+													<ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+													<ice:selectOneMenu id="select_OneEmpType"
+														styleClass="SelectOneMenu" tabindex="9"
+														value="#{staffManagerModel.staffMember.employmentType}"
+														valueChangeListener="#{staffManagerModel.setDefaultTime}"
+														partialSubmit="true">
+														<f:selectItem itemValue="" itemLabel="Please Select"
+															itemDisabled="true" />
+														<f:selectItems var="empType" itemLabel="#{empType.id}"
+															itemValue="#{empType}"
+															value="#{lookupListProvider.empTypes}" />
+													</ice:selectOneMenu>
+													</ice:setEventPhase>
+													<ice:outputText value="Date of Birth" />
+													<ice:panelGroup id="input_StaffDob">
+													<ice:selectInputDate  tabindex="5"
+														value="#{staffManagerModel.staffMember.dob}"
+														renderAsPopup="true" renderYearAsDropdown="true"
+														renderMonthAsDropdown="true" converter="dateConverter">
+													</ice:selectInputDate>
+													</ice:panelGroup>
+													<!-- <ice:outputText value="Leave Policy" />
+												<ice:selectOneMenu id="selectOneLeavePolicy"
+													styleClass="SelectOneMenu" tabindex="10"
+													value="#{staffManagerModel.leavePolicyId}">
+													<f:selectItem itemValue="0" itemLabel="Please Select"
+														itemDisabled="true" />
+													<f:selectItems
+														value="#{staffManagerModel.leavePolicySelectItems}" />
+												</ice:selectOneMenu> -->
+													<ice:outputText value="Status" />
+													<ice:selectOneMenu id="select_OneStaffStatus"
+														partialSubmit="true" styleClass="SelectOneMenu"
+														tabindex="10"
+														value="#{staffManagerModel.staffMember.status}">
+														<f:selectItems value="#{lookupListProvider.staffStatus}" />
+													</ice:selectOneMenu>
+													<ice:panelGrid style="height:30px;margin-left:-3px">
+														<ice:outputText value="Gender" />
+													</ice:panelGrid>
+													<ice:selectOneRadio id="selectRadioStaff" tabindex="6"
+														style="margin-left:-20px;height:10px;margin-top:-22px;border:none"
+														value="#{staffManagerModel.staffMember.gender}">
+														<f:selectItems value="#{lookupListProvider.gender}" />
+													</ice:selectOneRadio>
+												<ice:outputText value="Hours per fortnight " />
+													<ice:inputText id="input_HoursperFortnight" tabindex="4"
+														value="#{staffManagerModel.staffMember.hoursperFortnight}" 
+														converterMessage="Hours per fortnight must be a numeric value"/>
+													<ice:panelGroup
+														rendered="#{staffManagerModel.staffMember.status == 'Exited' || staffManagerModel.staffMember.status == 'Returning'}">
+														<ice:outputText value="Service End" />
+														<ice:commandLink id="actRecsLink"
+															action="#{staffManagerModel.openActiveRecords}"
+															rendered="#{!staffManagerModel.wizPages.isEmpty()}">
+															<ice:graphicImage
+																style="border:none;margin-bottom:-2px;margin-left:5px"
+																id="graphicActRecs" url="images/icons/information.png"
+																width="15" height="15" title="Active records found." />
+														</ice:commandLink>
+													</ice:panelGroup>
+													<ice:selectInputDate id="inputStaffEndedOn" tabindex="11"
+														rendered="#{staffManagerModel.staffMember.status == 'Exited' || staffManagerModel.staffMember.status == 'Returning'}"
+														value="#{staffManagerModel.staffMember.serviceEndDate}"
+														partialSubmit="true" label="Service End Date"
+														valueChangeListener="#{staffManagerModel.serviceEndDateChanged}"
+														renderAsPopup="true" renderYearAsDropdown="true"
+														renderMonthAsDropdown="true" converter="dateConverter">
+													</ice:selectInputDate>
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</fieldset>
+									</ice:panelGroup>
+									<ice:panelGroup style="margin-top:-7px"
+										rendered="#{staffManagerModel.staffMember != null}">
+										<fieldset style="width: 250px; height: 238px">
+											<legend>
+												<ice:outputLabel value="Staff Skills" />
+											</legend>
+											<!-- <ice:panelGroup style="margin-top:10px"
+											rendered="#{staffManagerModel.staffMember.id == null}">
+											<ice:outputText style="font-size:99%"
+												value="Please save StaffMember to add Staff Skills.." />
+										</ice:panelGroup> -->
+											<ice:commandButton id="commandAddSkills"
+												value="Add Staff Skill" styleClass="CommandButton"
+												renderedOnUserRole="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+												action="#{staffManagerModel.listAvailableStaffSkills}" />
+											<ice:dataTable scrollable="true" scrollHeight="158px"
+												value="#{staffManagerModel.staffMember.skills}" var="skill"
+												id="tableStaffSkills" columnWidths="120px,40px,50px">
+												<ice:column id="columnSkillName">
+													<f:facet name="header">
+														<ice:outputText value="Name" />
+													</f:facet>
+													<ice:outputText value="#{skill.skill.itemValue}" />
+												</ice:column>
+												<ice:column id="columnSkillLevel">
+													<f:facet name="header">
+														<ice:outputText value="Level" />
+													</f:facet>
+													<ice:outputText value="#{skill.level.code}"
+														title="#{skill.level.name}" />
+												</ice:column>
+												<ice:column id="columnStaffSkillDelete"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Remove" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														actionListener="#{staffManagerModel.deleteSkill}"
+														renderedOnUserRole="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE"
+														title="Remove" id="commandDeleteSkill">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon.png" />
+														<f:attribute name="skill" value="#{skill}" />
+													</ice:commandLink>
+													<ice:commandLink style="border:none"
+													    disabled="true"
+														rendered="#{(request.isUserInRole('ROLE_SUPERVISOR')) and ((!request.isUserInRole('ROLE_SUPERUSER')) and (!request.isUserInRole('ROLE_FINANCE')) and (!request.isUserInRole('ROLE_ADMIN')))}"
+														title="Not Authorised" id="commandDeleteSkills">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon-disabled.png" />
+														<f:attribute name="skill" value="#{skill}" />
+													</ice:commandLink>
+												</ice:column>
+											</ice:dataTable>
+										</fieldset>
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									rendered="#{staffManagerModel.staffMember != null}">
+									<ice:panelGroup>
+										<fieldset style="width: 550px">
+											<legend>
+												<ice:outputLabel value="Contact Details" />
+											</legend>
+											<ice:panelGrid columns="4" width="100%">
+												<ice:outputText value="Street Address" />
+												<ice:inputText id="input_StreetAddress" tabindex="11"
+													maxlength="#{msgs['contact.streetAddress.size']}"
+													value="#{staffManagerModel.staffMember.contact.streetAddress}" />
+												<ice:outputText value="Mobile Number" />
+												<ice:inputText id="input_StaffMobileNumber"
+													maxlength="#{msgs['contact.phone.size']}" tabindex="16"
+													value="#{staffManagerModel.staffMember.contact.mobilePhone}" />
+												<ice:outputText value="City" />
+												<ice:inputText id="input_StaffCity" tabindex="12"
+													maxlength="#{msgs['contact.city.size']}"
+													value="#{staffManagerModel.staffMember.contact.city}" />
+												<ice:outputText value="Home Number" />
+												<ice:inputText id="input_StaffHomeNumber" tabindex="17"
+													maxlength="#{msgs['contact.phone.size']}"
+													value="#{staffManagerModel.staffMember.contact.homePhone}" />
+												<ice:outputText value="State / Province" />
+												<ice:selectOneMenu id="input_StaffState" tabindex="13"
+													value="#{staffManagerModel.staffMember.contact.state}">
+													<f:selectItems value="#{lookupListProvider.states}" />
+												</ice:selectOneMenu>
+												<ice:outputText value="Office Number" />
+												<ice:inputText id="input_StaffOfficeNumber"
+													maxlength="#{msgs['contact.phone.size']}" tabindex="18"
+													value="#{staffManagerModel.staffMember.contact.officePhone}" />
+												<ice:outputText value="Postal Code" />
+												<ice:inputText id="input_StaffPostalCode" tabindex="14"
+													maxlength="#{msgs['contact.postCode.size']}"
+													value="#{staffManagerModel.staffMember.contact.postCode}" />
+												<ice:outputText value="E - mail" />
+												<ice:inputText id="input_StaffEmail" tabindex="19"
+													maxlength="#{msgs['contact.email.size']}"
+													value="#{staffManagerModel.staffMember.contact.email}" />
+												<ice:outputText value="Country" />
+												<ice:inputText id="inputStaffCountry" readonly="true"
+													maxlength="#{msgs['contact.country.size']}" tabindex="15"
+													value="#{staffManagerModel.staffMember.contact.country}" />
+												<ice:outputText value="Fax" />
+												<ice:inputText id="input_StaffFax" tabindex="20"
+													maxlength="#{msgs['contact.fax.size']}"
+													value="#{staffManagerModel.staffMember.contact.fax}" />
+											</ice:panelGrid>
+										</fieldset>
+									</ice:panelGroup>
+									<ice:panelGroup>
+										<fieldset style="width: 610px; float: right">
+											<legend>
+												<ice:outputLabel value="Special Records" />
+											</legend>
+											<ice:panelGroup scrollWidth="500px" scrollHeight="163px"
+												style="margin-top:10px">
+												<ice:panelSeries id="specialRecords" var="record"
+													value="#{staffManagerModel.checkRecords}">
+													<ice:panelGroup id="specialRecords" style="margin-top:10px">
+														<ice:setEventPhase events="ValueChangeEvent"
+															phase="UPDATE_MODEL_VALUES">
+															<ice:selectBooleanCheckbox id="checkIsCompleted"
+																value="#{record.ui_selected}" style="margin-right:10px"
+																partialSubmit="true"
+																valueChangeListener="#{staffManagerModel.recordChecked}">
+																<f:attribute name="record" value="#{record}" />
+															</ice:selectBooleanCheckbox>
+														</ice:setEventPhase>
+														<ice:outputLabel value="#{record.name}" />
+													</ice:panelGroup>
+													<ice:panelGrid columns="2" rendered="#{record.ui_selected}"
+														style="margin-left:30px">
+														<ice:outputText value="Remarks"
+															rendered="#{record.needRemarks}" />
+														<ice:inputTextarea value="#{record.remarks}"
+															id="textAreaRemark" rendered="#{record.needRemarks}"
+															style="width:145px" />
+														<ice:outputText value="Completed Date"
+															rendered="#{record.needCompleted}" />
+														<ice:selectInputDate id="inputRecordCompleted"
+															value="#{record.dateCompleted}" renderAsPopup="true"
+															renderYearAsDropdown="true" renderMonthAsDropdown="true"
+															rendered="#{record.needCompleted}"
+															label="Completed Date"
+															converter="dateConverter">
+														</ice:selectInputDate>
+														<ice:outputText value="Expiry Date"
+															rendered="#{record.needExpiry}" />
+														<ice:selectInputDate id="inputRecordRenew"
+															value="#{record.expiryDate}" renderAsPopup="true"
+															renderYearAsDropdown="true" label="Expiry Date"
+															rendered="#{record.needExpiry}"
+															renderMonthAsDropdown="true" converter="dateConverter">
+														</ice:selectInputDate>
+													</ice:panelGrid>
+												</ice:panelSeries>
+											</ice:panelGroup>
+										</fieldset>
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:commandButton id="commandStaffSave" 
+									value="Save Staff Member" tabindex="27"
+									renderedOnUserRole="ROLE_SUPERUSER,ROLE_FINANCE"
+									style="float:right; margin-right:5px;margin-top:2px"
+									rendered="#{staffManagerModel.staffMember.id == null}"
+									styleClass="CommandButton"
+									actionListener="#{staffManagerModel.saveStaff}" />
+								<ice:commandButton id="commandStaffUpdate" 
+									value="Update Staff Member" tabindex="27"
+									renderedOnUserRole="ROLE_SUPERUSER,ROLE_FINANCE"
+									style="float:right; margin-right:5px;margin-top:2px"
+									rendered="#{staffManagerModel.staffMember.id != null}"
+									styleClass="CommandButton"
+									actionListener="#{staffManagerModel.saveStaff}" />	
+								<ice:commandButton id="commandStaffDelete"
+								    renderedOnUserRole="ROLE_SUPERUSER,ROLE_FINANCE"
+									value="Delete Staff Member"
+									style="float:right; margin-right:5px;margin-top:2px"
+									rendered="#{staffManagerModel.staffMember != null and staffManagerModel.staffMember.id != null}"
+									styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									action="#{staffManagerModel.deleteStaff}" />
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab id="tabStaffLeave" label="Leave Details"
+							disabled="#{staffManagerModel.staffMember.id == null}"
+							rendered="#{staffManagerModel.staffMember != null}">
+							<!-- <ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+							<ice:panelGroup style="width:430px">
+								<fieldset style="height: 255px">
+									<legend>
+										<ice:outputLabel value="Leave Policy" />
+									</legend>
+									<ice:panelGrid columns="2" cellspacing="0"
+										rowClasses="topAlignedTableCell" width="100%"
+										style="margin-top:5px;margin-bottom:10px;">
+										<ice:outputText
+											value="Policy Name : #{staffManagerModel.staffMember.leavePolicy.name}" />
+										<ice:outputText
+											value="Status : #{staffManagerModel.staffMember.leavePolicy.status}" />
+									</ice:panelGrid>
+									<ice:panelGroup style="margin-top:20px"
+										rendered="#{empty(staffManagerModel.staffMember.leavePolicy.details)}">
+										<ice:outputText
+											value="There is no leave types available. Please add them via Leave Policies in config." />
+									</ice:panelGroup>
+									<ice:dataTable scrollable="true" scrollHeight="160px"
+										value="#{staffManagerModel.staffMember.leavePolicy.details}"
+										rendered="#{not empty(staffManagerModel.staffMember.leavePolicy.details)}"
+										var="detail" id="tableDetails" style="margin-top:2px"
+										columnWidths="70px,70px,60px,160px">
+										<ice:column id="columnLeaveType" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Leave Type" />
+											</f:facet>
+											<ice:outputText value="#{detail.leaveType.id}"
+												title="#{detail.leaveType.toString()}" />
+										</ice:column>
+										<ice:column id="columnDaysEntitled" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Entitled Days" />
+											</f:facet>
+											<ice:outputText value="#{detail.daysEntitled}" />
+										</ice:column>
+										<ice:column id="columnStudentCity" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Days Left" />
+											</f:facet>
+											<ice:outputText style="color:red"
+												rendered="#{detail.daysEntitled - staffManagerModel.getLeaveCount(detail.leaveType.id) le 0}"
+												value="#{detail.daysEntitled - staffManagerModel.getLeaveCount(detail.leaveType.id)}" />
+											<ice:outputText
+												rendered="#{detail.daysEntitled - staffManagerModel.getLeaveCount(detail.leaveType.id) gt 0}"
+												value="#{detail.daysEntitled - staffManagerModel.getLeaveCount(detail.leaveType.id)}" />
+										</ice:column>
+										<ice:column id="columnLeaveRemarks">
+											<f:facet name="header">
+												<ice:outputText value="Remarks" />
+											</f:facet>
+											<ice:outputText rendered="#{not empty(detail.remarks)}"
+												value="#{detail.remarks}" />
+											<ice:outputText rendered="#{empty(detail.remarks)}"
+												value="No Remarks" />
+										</ice:column>
+									</ice:dataTable>
+								</fieldset>
+							</ice:panelGroup> -->
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="width:430px">
+									<fieldset style="height: 255px">
+										<legend>
+											<ice:outputLabel value="Leave Types" />
+										</legend>
+										<ice:commandButton value="Add Leave Type" id="commandAddLeave"
+											action="#{staffManagerModel.addLeaveType}"
+											styleClass="CommandButton"
+											rendered="#{staffManagerModel.staffMember.employmentType.id != 'Casual'}" />
+										<ice:outputText value="No Leave Types found.."
+											style="margin-left:10px"
+											rendered="#{empty(staffManagerModel.staffMember.leaveCategories) and staffManagerModel.staffMember.employmentType.id != 'Casual'}" />
+										<ice:outputText />
+										<ice:outputText
+											value="No Leave types applicable for this Staff Member"
+											rendered="#{staffManagerModel.staffMember.employmentType.id == 'Casual'}" />
+
+										<!-- <ice:panelGroup style="margin-top:20px"
+										rendered="#{empty(staffManagerModel.staffMember.leavePolicy.details)}">
+										<ice:outputText
+											value="There is no leave types available. Please add them via Leave Policies in config." />
+									</ice:panelGroup> -->
+										<ice:dataTable scrollable="true" scrollHeight="160px"
+											value="#{staffManagerModel.staffMember.leaveCategories}"
+											var="detail" id="tableDetails"
+											columnWidths="85px,90px,90px,40px,40px">
+											<ice:column id="columnLeaveType" style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Leave Type" />
+												</f:facet>
+												<ice:outputText value="#{detail.leaveType.id}" />
+											</ice:column>
+											<ice:column id="columnEarnedHours" style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Earned Hours" />
+												</f:facet>
+												<ice:outputText value="#{detail.earnedHours}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnRemainingHours"
+												style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Remaining Hours" />
+												</f:facet>
+												<ice:outputText
+													value="#{detail.earnedHours - detail.usedHours}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnEdit" style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Edit" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													actionListener="#{staffManagerModel.editLeaveCategory}"
+													title="Edit Leave Category">
+													<ice:graphicImage style="border:none" id="graphicEditSE"
+														url="images/icons/edit.png" />
+													<f:attribute name="leave" value="#{detail}" />
+												</ice:commandLink>
+											</ice:column>
+											<ice:column id="columnDelete" style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Delete" />
+												</f:facet>
+												<ice:commandLink id="commandlinkDelete"
+													actionListener="#{staffManagerModel.removeLeaveCategory}"
+													title="Remove Leave Category"
+													panelConfirmation="deleteLeaveTypeConfirmation">
+													<ice:graphicImage style="border:none"
+														url="images/icons/delete-icon.png" />
+													<f:attribute name="leave" value="#{detail}" />
+												</ice:commandLink>
+												<ice:panelConfirmation id="deleteLeaveTypeConfirmation"
+													acceptLabel="Yes" cancelLabel="No" draggable="true"
+													title="Confirm"
+													message="Are you sure you want to perform this action?" />
+											</ice:column>
+										</ice:dataTable>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup>
+									<fieldset style="height: 255px; margin-right: -10px">
+										<legend>
+											<ice:outputLabel value="Leave List" />
+										</legend>
+										<ice:commandButton value="Add Leave" id="commandCreateLeave"
+											action="#{staffManagerModel.createLeave}"
+											styleClass="CommandButton" style="width:80px" />
+										<ice:outputText value="No Leaves found.."
+											style="margin-left:10px"
+											rendered="#{empty(staffManagerModel.staffMember.leaves)}" />
+										<ice:setEventPhase events="FacesEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:dataTable scrollable="true" scrollHeight="158px"
+												value="#{staffManagerModel.staffMember.leaves}" var="leave"
+												id="tableStaffLeaves"
+												columnWidths="140px,70px,70px,65px,30px,50px,30px,45px">
+												<ice:column id="columnReason">
+													<f:facet name="header">
+														<ice:outputText value="Reason" />
+													</f:facet>
+													<ice:outputText value="#{leave.reason}"
+														title="#{leave.reason}"
+														style="overflow:hidden;height:1em;width:100px" />
+												</ice:column>
+												<ice:column id="columnStartDate" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Start Date" />
+													</f:facet>
+													<ice:outputText value="#{leave.startDate}"
+														converter="dateConverter">
+													</ice:outputText>
+												</ice:column>
+												<ice:column id="columnEndDate" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="End Date" />
+													</f:facet>
+													<ice:outputText value="#{leave.endDate}"
+														converter="dateConverter">
+													</ice:outputText>
+												</ice:column>
+												<ice:column id="columnLeaveType" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Leave Type" />
+													</f:facet>
+													<ice:outputText value="#{leave.leaveType.id}"
+														title="#{leave.leaveType.toString()}" />
+												</ice:column>
+												<ice:column id="columnNOD" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Days" />
+													</f:facet>
+													<ice:outputText value="#{leave.days}" />
+												</ice:column>
+												<ice:column style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Nopay Hours" />
+													</f:facet>
+													<ice:outputText value="#{leave.nopayHours}" />
+												</ice:column>
+												<ice:column id="columnLeaveEdit" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Edit" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														actionListener="#{staffManagerModel.editLeave}"
+														title="Edit">
+														<ice:graphicImage style="border:none"
+															url="images/icons/edit.png" />
+														<f:attribute name="leave" value="#{leave}" />
+													</ice:commandLink>
+												</ice:column>
+												<ice:column id="columnLeaveRemove" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Remove" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														id="commandDeleteLeave"
+														rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE'))}"
+														actionListener="#{staffManagerModel.deleteLeave}"
+														title="Remove" panelConfirmation="deleteLeaveConfirmation">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon.png" />
+														<f:attribute name="leave" value="#{leave}" />
+													</ice:commandLink>
+													<ice:commandLink style="border:none"
+														id="commandDeleteLeaves"
+														disabled="true"
+														rendered="#{((request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN'))) and ((!request.isUserInRole('ROLE_SUPERUSER')) and (!request.isUserInRole('ROLE_FINANCE')))}"
+														title="Not Authorised" panelConfirmation="deleteLeaveConfirmation">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon-disabled.png" />
+														<f:attribute name="leave" value="#{leave}" />
+													</ice:commandLink>
+													<ice:panelConfirmation id="deleteLeaveConfirmation"
+														acceptLabel="Yes" cancelLabel="No" draggable="true"
+														title="Confirm"
+														message="Are you sure you want to perform this action?" />
+												</ice:column>
+											</ice:dataTable>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+						<ice:panelTab id="tabSystemConfig" label="User Configurations"
+						renderedOnUserRole="ROLE_SUPERUSER,ROLE_FINANCE"
+							disabled="#{staffManagerModel.staffMember.id == null}"
+							rendered="#{staffManagerModel.staffMember != null}">
+							<ice:panelGroup
+								rendered="#{staffManagerModel.staffMember != null}">
+								<fieldset style="width: 430px; height: 325px">
+									<legend>
+										<ice:outputLabel value="System User Configurations" />
+									</legend>
+									<ice:panelGroup style="min-height:275px">
+										<ice:panelGrid columns="2" width="500px" cellspacing="5"
+											style="margin-bottom:10px">
+											<ice:panelGroup style="width:170px">
+												<ice:outputText value="Set as system user" />
+											</ice:panelGroup>
+											<ice:panelGroup style="width:170px">
+												<ice:selectBooleanCheckbox id="checkStaffSystemUser"
+													partialSubmit="true"
+													value="#{staffManagerModel.staffMember.systemUser}" />
+											</ice:panelGroup>
+											<ice:outputText value="User Name"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:inputText id="input_StaffUserName" style="width:150px"
+												maxlength="#{msgs['user.username.size']}"
+												value="#{staffManagerModel.staffMember.userName}"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:outputText value="Password"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:inputSecret id="input_StaffPassword" redisplay="true"
+												value="#{staffManagerModel.staffMember.password}"
+												maxlength="#{msgs['user.password.size']}"
+												rendered="#{staffManagerModel.staffMember.systemUser}"
+												style="width:150px" />
+											<ice:outputText value="Confirm Password"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:inputSecret id="input_StaffConfirmPassword"
+												maxlength="#{msgs['user.password.size']}"
+												value="#{staffManagerModel.confirmPass}" redisplay="true"
+												rendered="#{staffManagerModel.staffMember.systemUser}"
+												style="width:150px" />
+											<ice:outputText value="Enabled"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:selectBooleanCheckbox id="inputStaffEnabled"
+												value="#{staffManagerModel.staffMember.enabled}"
+												rendered="#{staffManagerModel.staffMember.systemUser}" />
+											<ice:panelGroup style="margin-top:5px"
+												rendered="#{staffManagerModel.staffMember.systemUser}">
+												<ice:outputText value="Available Roles" />
+												<br />
+												<ice:selectOneListbox
+													id="selectOneListboxStaffAuthorityList" size="4"
+													partialSubmit="true"
+													value="#{staffManagerModel.selectedAuthority1}"
+													style="width: 160px">
+													<f:selectItems value="#{lookupListProvider.authorities}" />
+												</ice:selectOneListbox>
+												<br />
+												<ice:commandLink value="Add Role ►"
+													actionListener="#{staffManagerModel.addAuthority}" />
+											</ice:panelGroup>
+											<ice:panelGroup
+												rendered="#{staffManagerModel.staffMember.systemUser}">
+												<ice:outputText value="User Assigned Roles"></ice:outputText>
+												<br />
+												<ice:selectOneListbox id="selectOneListboxAuthoritys"
+													size="4" partialSubmit="true"
+													value="#{staffManagerModel.selectedAuthority2}"
+													style="width: 160px">
+													<f:selectItems
+														value="#{staffManagerModel.staffAuthorities}" />
+												</ice:selectOneListbox>
+												<br />
+												<ice:commandLink value="Remove Role ▼"
+													actionListener="#{staffManagerModel.removeAuthority}" />
+											</ice:panelGroup>
+											<ice:outputText value="Enable User" rendered="false" />
+											<ice:selectBooleanCheckbox id="checkStaffEnabled"
+												value="#{staffManagerModel.staffMember.enabled}"
+												rendered="false" />
+										</ice:panelGrid>
+									</ice:panelGroup>
+									<ice:commandButton id="commandStaffConfigSave"
+										value="Save Settings"
+										style="width:130px;float:right;margin-right:15px"
+										styleClass="CommandButton"
+										actionListener="#{staffManagerModel.saveStaff}" />
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelTab>
+						<ice:panelTab id="staffAvailability" label="Staff Availability"
+							disabled="#{staffManagerModel.staffMember.id == null}"
+							rendered="#{staffManagerModel.staffMember != null}">
+							<ice:panelGroup style="height:340px">
+								<fieldset style="height: 110px; width: 680px">
+									<legend>
+										<ice:outputLabel value="Available days of the week" />
+									</legend>
+									<ice:panelGrid columns="2" style="margin-top:10px"
+										rendered="#{staffManagerModel.staffMember != null and staffManagerModel.staffMember.id != null and staffManagerModel.staffMember.employmentType != null and staffManagerModel.staffMember.employmentType != 'FULLTIME'}">
+										<ice:panelGroup style="width:150px">
+											<ice:outputText value="Available Day(s)" />
+										</ice:panelGroup>
+										<ice:selectManyCheckbox id="selectGroupDays"
+											value="#{staffManagerModel.selectedWeekDayIds}"
+											partialSubmit="true" style="width:32px">
+											<f:selectItems value="#{lookupListProvider.weekDays}"
+												var="day" itemLabel="#{day.name}" itemValue="#{day.id}" />
+										</ice:selectManyCheckbox>
+										<ice:outputText />
+										<ice:commandButton id="commandStaffAvailablity" value="Save"
+											styleClass="CommandButton"
+											actionListener="#{staffManagerModel.saveStaff}"
+											style="float:right;width:70px;margin-top:10px;margin-right:2px" />
+									</ice:panelGrid>
+									<ice:panelGrid style="margin-top:10px"
+										rendered="#{staffManagerModel.staffMember != null and staffManagerModel.staffMember.id != null and staffManagerModel.staffMember.employmentType != null and staffManagerModel.staffMember.employmentType == 'FULLTIME'}">
+										<ice:outputText
+											value="This staff member is available on all days.." />
+									</ice:panelGrid>
+									<ice:panelGrid style="margin-top:10px"
+										rendered="#{staffManagerModel.staffMember != null and staffManagerModel.staffMember.id != null and staffManagerModel.staffMember.employmentType == null}">
+										<ice:outputText
+											value="Please select an employment type first in the staff profile.." />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelTab>
+
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+
+					</ice:panelTabSet>
+				</div>
+
+				<!-- <comp:confirmationPopup
+					rendered="#{staffManagerModel.visibleConfirmation}"
+					actionListener="#{staffManagerModel.confirmationAction}"
+					message="This person is entitled with an 'Inactive' Leave Policy. Are you sure you want to continue?" /> -->
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{staffManagerModel.visibleAddLeave}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add/Edit Leave Types"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeleaveCategoryButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{staffManagerModel.addLeavePopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGrid columns="2" style="margin-top:10px" cellpadding="5">
+							<ice:outputText value="Leave Type " />
+							<ice:selectOneMenu id="selectOneLeaveCategoryType"
+								value="#{staffManagerModel.leaveCat.leaveType}"
+								rendered="#{staffManagerModel.leaveCat.id == null}">
+								<f:selectItems value="#{staffManagerModel.availableLeaveTypes}"
+									var="#{leaveType}" itemLabel="#{leaveType.toString()}"
+									itemValue="#{leaveType}" />
+							</ice:selectOneMenu>
+							<ice:outputText style="margin-left:3px;"
+								value="#{staffManagerModel.leaveCat.leaveType.id}"
+								rendered="#{staffManagerModel.leaveCat.id != null}" />
+							<ice:outputText value="Earned Hours " />
+							<ice:inputText value="#{staffManagerModel.leaveCat.earnedHours}" label="Earned hours"/>
+							<ice:outputText />
+							<ice:commandButton value="Save" id="commandSaveLeaveCategory"
+								styleClass="CommandButton"
+								style="float:right;margin-right:2px;width:60px"
+								action="#{staffManagerModel.addLeaveCategory}" />
+						</ice:panelGrid>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{staffManagerModel.visibleSkills}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Add new Skills to #{staffManagerModel.staffMember.contact.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeSkillButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{staffManagerModel.addSkillPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:410px">
+							<fieldset style="margin-top: 10px">
+								<legend>
+									<ice:outputLabel value="List of available Skills" />
+								</legend>
+								<ice:dataTable id="tableSkillPopup" scrollable="true"
+									columnWidths="80px,320px" scrollHeight="150px"
+									value="#{staffManagerModel.availableSkills}" var="skill">
+									<ice:column id="columnSkillId">
+										<ice:rowSelector id="rowselectSkill"
+											clickListener="#{staffManagerModel.selectSkill}"
+											value="#{skill.ui_selected}">
+											<f:attribute name="skill" value="#{skill}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Id" />
+										</f:facet>
+										<ice:outputText value="#{skill.id}" />
+									</ice:column>
+									<ice:column id="columnSkillName">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{skill.itemValue}" />
+									</ice:column>
+								</ice:dataTable>
+							</fieldset>
+							<fieldset style="margin-top: 10px; height: 80px">
+								<legend>
+									<ice:outputLabel value="Staff Skill Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{staffManagerModel.selectedSkill == null}">
+									<ice:outputText value="Please select a skill to continue.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" width="100%"
+									rendered="#{staffManagerModel.selectedSkill != null}">
+									<ice:outputText value="Selected Skill " />
+									<ice:inputText
+										value="#{staffManagerModel.selectedSkill.itemValue}"
+										readonly="true" />
+									<ice:outputText value="Skill Level " />
+									<ice:selectOneMenu id="selectOneSkillLevel"
+										styleClass="SelectOneMenu"
+										value="#{staffManagerModel.skillLevel}">
+										<f:selectItems var="level" itemLabel="#{level.toString()}"
+											itemValue="#{level}"
+											value="#{lookupListProvider.staffSkillLevels}" />
+									</ice:selectOneMenu>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:commandButton id="commandAddSkill"
+								value="Add to Staff Member" styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-roght:5px"
+								disabled="#{staffManagerModel.selectedSkill == null}"
+								action="#{staffManagerModel.saveSelectedSkills}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{staffManagerModel.visibleLeave}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Add Leave to #{staffManagerModel.staffMember.contact.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeLeaveButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{staffManagerModel.leavePopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:355px">
+							<ice:panelGroup style="margin-left:-20px;width:330px">
+								<ice:messages />
+							</ice:panelGroup>
+							<ice:panelGrid columns="2" cellpadding="5"
+								style="margin-top:10px">
+								<ice:outputText value="Leave Type*" />
+								<ice:selectOneMenu id="select_OneLeaveType" partialSubmit="true"
+									value="#{staffManagerModel.leave.leaveType}"
+									title="#{staffManagerModel.leave.leaveType.toString()}">
+									<f:selectItem itemLabel="Please Select" itemValue=""
+										itemDisabled="true" />
+									<f:selectItems value="#{staffManagerModel.leaveTypes}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Start Date*" />
+								<ice:panelGroup id="input_LeaveStartDate">
+								<ice:selectInputDate 
+									value="#{staffManagerModel.leave.startDate}"
+									renderAsPopup="true" renderYearAsDropdown="true"
+									renderMonthAsDropdown="true" converter="dateConverter"
+									label="Start Date">
+								</ice:selectInputDate>
+								</ice:panelGroup>
+								<ice:panelGrid cellpadding="0" cellspacing="0">
+									<ice:outputText value="End Date*" />
+									<ice:outputText value="(Except for one day leave)"
+										style="font-size:10px" />
+								</ice:panelGrid>
+								<ice:selectInputDate id="inputLeaveEndDate"
+									value="#{staffManagerModel.leave.endDate}" renderAsPopup="true"
+									renderYearAsDropdown="true" renderMonthAsDropdown="true"
+									converter="dateConverter"
+									label="End Date">
+								</ice:selectInputDate>
+								<ice:outputText value="Reason*" />
+								<ice:inputTextarea id="input_LeaveReason"
+									style="width:170px;height:50px" maxlength="255"
+									value="#{staffManagerModel.leave.reason}" />
+							</ice:panelGrid>
+							<ice:commandButton value="Save" styleClass="CommandButton"
+								style="float:right;width:80px;margin-right:10px"
+								id="commandLeaveAdd" action="#{staffManagerModel.saveLeave}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{staffManagerModel.visibleActRecs}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Active Records Wizard [  Staff Member: #{staffManagerModel.staffMember.contact.name}, Service-End date: "
+								styleClass="popupHeaderText" />
+							<ice:outputText
+								value="#{staffManagerModel.staffMember.serviceEndDate}"
+								converter="dateConverter" styleClass="popupHeaderText" />
+							<ice:outputText value="]" styleClass="popupHeaderText" />
+							<ice:commandButton id="closeActRecs"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{staffManagerModel.activeRecordsPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:messages />
+							<ice:panelGroup style="width: 700px;height: 450px;"
+								rendered="#{staffManagerModel.wizardPage == 0}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Staff Member Status is not 'Current'." />
+									<ice:outputText
+										value="There may be programs and events coordinated by and events assiged from the service-end date onwards to this staff member. You can remove the staff member from these records before changing the staff status." />
+									<ice:outputText
+										value="Please select next to continue, back to come to the previous page or cancel to exit wizard at any page." />
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 700px;height: 450px;"
+								rendered="#{staffManagerModel.wizardPage == 1}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Coordinating Programs" />
+									<ice:dataTable id="tblActivePros" scrollable="true"
+										style="margin-top:-5px" scrollHeight="320px"
+										value="#{staffManagerModel.actPrograms}" var="pro"
+										columnWidths="50px, 70px, 320px, 80px, 80px">
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:selectBooleanCheckbox value="#{pro.ui_selected}" />
+										</ice:column>
+										<ice:column style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="Program ID" />
+											</f:facet>
+											<ice:outputText value="#{pro.id}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Program Name" />
+											</f:facet>
+											<ice:outputText value="#{pro.name}" />
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Type" />
+											</f:facet>
+											<ice:outputText value="#{pro.type.name}" />
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Status" />
+											</f:facet>
+											<ice:outputText value="#{pro.status}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 700px;height: 450px;"
+								rendered="#{staffManagerModel.wizardPage == 2}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Assigned #{msgs['student_label']} Groups" />
+									<ice:dataTable id="tblActiveGroups" scrollable="true"
+										style="margin-top:-5px" scrollHeight="320px"
+										columnWidths="50px,210px,260px,80px"
+										value="#{staffManagerModel.actGroupedStaff}" var="gs">
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:selectBooleanCheckbox value="#{gs.ui_selected}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Group Name" />
+											</f:facet>
+											<ice:outputText value="#{gs.group.name}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Program Name" />
+											</f:facet>
+											<ice:outputText value="#{gs.group.program.name}" />
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Program Status" />
+											</f:facet>
+											<ice:outputText value="#{gs.group.program.status}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 700px;height: 450px;"
+								rendered="#{staffManagerModel.wizardPage == 3}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Coordinating Events" />
+									<ice:dataTable id="tblActProEvents" scrollable="true"
+										style="margin-top:-5px" scrollHeight="320px"
+										value="#{staffManagerModel.actProEvents}" var="event"
+										columnWidths="50px,80px,240px,230px">
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:selectBooleanCheckbox value="#{event.ui_selected}" />
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Event Date" converter="dateConverter" />
+											</f:facet>
+											<ice:outputText value="#{event.eventDate}"
+												converter="dateConverter" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Group Name" />
+											</f:facet>
+											<ice:outputText value="#{event.group.name}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Program Name" />
+											</f:facet>
+											<ice:outputText value="#{event.program.name}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="width: 700px;height: 450px;"
+								rendered="#{staffManagerModel.wizardPage == 4}">
+								<ice:panelGrid cellspacing="20">
+									<ice:outputLabel value="Assigned Events" />
+									<ice:dataTable id="tblActAssgndEvents" scrollable="true"
+										style="margin-top:-5px" scrollHeight="320px"
+										value="#{staffManagerModel.actStaffEvents}" var="se"
+										columnWidths="50px,80px,240px,230px">
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:selectBooleanCheckbox value="#{se.ui_selected}" />
+										</ice:column>
+										<ice:column style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Event Date" converter="dateConverter" />
+											</f:facet>
+											<ice:outputText value="#{se.programEvent.eventDate}"
+												converter="dateConverter" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Group Name" />
+											</f:facet>
+											<ice:outputText value="#{se.programEvent.group.name}" />
+										</ice:column>
+										<ice:column>
+											<f:facet name="header">
+												<ice:outputText value="Program Name" />
+											</f:facet>
+											<ice:outputText value="#{se.programEvent.program.name}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGrid
+								style="float:right;margin-bottom:5px;margin-right:15px"
+								columns="3" cellpadding="2">
+								<ice:commandButton id="btnBack" value="&lt; Back"
+									styleClass="CommandButton"
+									rendered="#{staffManagerModel.wizardPage gt 0}"
+									action="#{staffManagerModel.wizardBack}" style="width:90px" />
+								<ice:commandButton id="btnNxt" styleClass="CommandButton"
+									value="#{staffManagerModel.nxtBtnTxt}"
+									action="#{staffManagerModel.wizardNext}" style="width:90px" />
+								<ice:commandButton id="confirmActRecs" value="Cancel"
+									action="#{staffManagerModel.activeRecordsPopup}"
+									style="width:90px" styleClass="CommandButton" />
+							</ice:panelGrid>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

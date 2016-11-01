@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{programManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="CONFIGSN"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Special Need Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each special need.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formSpecialNeeds">
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+					<ice:panelGroup>
+						<fieldset style="width: 680px; height: 240px">
+							<legend>
+								<ice:outputLabel value="Special Needs" />
+							</legend>
+							<ice:commandButton id="commandSNeedAdd"
+								value="Add New Special Need"
+								style="margin-left:2px; margin-top:5px"
+								styleClass="CommandButton"
+								action="#{sNeedManagerModel.addNewSneed}" />
+							<ice:outputText value="No special needs found.."
+								rendered="#{empty(sNeedManagerModel.allSNeeds)}"
+								style="margin-left:10px" />
+							<ice:dataTable scrollable="true" scrollHeight="150px"
+								value="#{sNeedManagerModel.allSNeeds}" var="sn" id="tableSneeds"
+								columnWidths="100px,345px,200px">
+								<ice:column id="columnSNeedId" style="text-align:center">
+									<ice:rowSelector id="rowselectSneeds" multiple="false"
+										immediate="false" value="#{sn.ui_selected}"
+										clickListener="#{sNeedManagerModel.selectSneed}">
+										<f:attribute name="sNeed" value="#{sn}" />
+									</ice:rowSelector>
+									<f:facet name="header">
+										<ice:outputText value="ID" />
+									</f:facet>
+									<ice:outputText value="#{sn.id}" />
+								</ice:column>
+								<ice:column id="columnSNeedName" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Special Need Name" />
+									</f:facet>
+									<ice:outputText value="#{sn.name}" />
+								</ice:column>
+								<ice:column id="columnSNeedIcon" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Icon" />
+									</f:facet>
+									
+									<ice:graphicImage value="/imageDownload?p=#{sn.icon.id}"
+										rendered="#{sn.icon != null}" height="40" width="40" />
+									<ice:outputText value="Not Available"
+										rendered="#{sn.icon == null}" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 430px; height: 240px">
+							<legend>
+								<ice:outputLabel value="Special Need Details" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{sNeedManagerModel.sNeed == null}">
+								<ice:outputText
+									value="Please select a special need to view details.." />
+							</ice:panelGroup>
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+								style="margin-top:10px"
+								rendered="#{sNeedManagerModel.sNeed != null}">
+								<ice:outputText value="Special Need Name" />
+								<ice:inputText id="inputSNeedName"
+									style="margin-left:100px;width:162px"
+									value="#{sNeedManagerModel.sNeed.name}" />
+								<ice:outputText value="Image/Icon" />
+								<ice:panelGroup style="margin-left:100px;text-align:center">
+									<ice:panelGrid
+										style="border:thick double grey;width:170px;height:120px;text-align:center">
+										<ice:graphicImage url="images/no_logo.jpg" id="imgsNeed"
+											rendered="#{sNeedManagerModel.sNeed.icon == null}"
+											style="height:100px;width:150px">
+										</ice:graphicImage>
+										<ice:graphicImage
+											value="/imageDownload?p=#{sNeedManagerModel.sNeed.icon.id}"
+											id="imgVehicle1"
+											rendered="#{sNeedManagerModel.sNeed.icon != null}"
+											width="#{sNeedManagerModel.photoW}"
+											height="#{sNeedManagerModel.photoH}">
+										</ice:graphicImage>
+									</ice:panelGrid>
+									<comp:ImageUpload type="link"
+										fileEntryListener="#{imageUploadModel.uploadSNeedIcon}" />
+								</ice:panelGroup>
+							</ice:panelGrid>
+							<ice:panelGroup rendered="#{sNeedManagerModel.sNeed != null}"
+								style="float:right;margin-top:10px">
+								<ice:commandButton id="commandSNDelete" value="Delete"
+									style="margin-right:5px;width:80px"
+									rendered="#{sNeedManagerModel.sNeed.id != null}"
+									styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									action="#{sNeedManagerModel.deleteSNeed}" />
+								<ice:commandButton id="commandSneedSave" value="Save"
+									style="margin-right:35px;width:80px" styleClass="CommandButton"
+									action="#{sNeedManagerModel.saveSNeed}" />
+							</ice:panelGroup>
+
+							<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+								cancelLabel="No" draggable="true" title="Confirm"
+								message="Are you sure you want to perform this action?" />
+
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

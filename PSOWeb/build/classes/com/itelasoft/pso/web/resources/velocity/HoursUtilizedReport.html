@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<body>
+	<table width="100%">
+		<tr>
+			<th>
+				<h3>
+					<u>HOURS UTILIZED REPORT</u>
+				</h3> [$dateFormat.format($report.fromDate) To
+				$dateFormat.format($report.toDate)]</th>
+		</tr>
+		<tr>
+			<td width="30%" align="right">
+				<h5>Generated Date : $dateFormat.format($report.generatedDate)</h5>
+			</td>
+		</tr>
+		<tr style="height: 10px">
+			<td />
+		</tr>
+		<tr>
+			<td>
+				<table width="100%" border="1"
+					style="border-collapse: collapse; font-size: 8">
+					<tr style="background-color: #CCCCFF">
+						<th style="width: 30px">Student Id</th>
+						<th style="width: 40px">CISID</th>
+						<th style="width: 100px">Student Name</th>
+						<th style="width: 70px">Funding Type</th>
+						<th style="width: 45px">Contracted Hours</th>
+						<th style="width: 48px">Program Hours Used</th>
+						<th style="width: 48px">Transport Hours Used</th>
+						<th style="width: 45px">Remaining Hours</th>
+						<th>Remarks</th>
+					</tr>
+					#foreach($item in $report.reportItems)
+					<tr>
+						<td align="center">$item.student.id</td>
+						<td align="center">$item.student.cisid</td>
+						<td>$item.student.contact.name</td>
+						<td>$item.fundingType</td>
+						<td align="center">$item.totalHours</td>
+						<td align="center">$item.programHrsUsed </td>
+						<td align="center">$item.transportHrsUsed</td>
+						<td align="center">$item.balanceHrs </td>
+						<td>#if($item.remarks) $item.remarks#end</td>
+					</tr>
+					#end
+				</table></td>
+		</tr>
+	</table>
+</body>
+</html>

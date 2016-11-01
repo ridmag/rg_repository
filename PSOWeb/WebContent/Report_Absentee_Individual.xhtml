@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="REPORT"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Individual #{msgs['student_label']} Absentee Report	
+		</ui:define>
+		<ui:define name="pageDescription">Select a #{msgs['student_label'].toLowerCase()} and a date to generate absentee report for a week.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formReport">
+				<ice:panelGrid columns="1" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="4">
+						<ice:outputText value="Search #{msgs['student_label'].toLowerCase()}(s) by name or id :" />
+						<ice:inputText id="inputTextProSearch"
+							action="#{reportManagerModel.searchStudents}"
+							value="#{reportManagerModel.studentSearchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonStuSearch"
+							action="#{reportManagerModel.searchStudents}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:panelGroup style="margin-top:10px;text-align:center">
+						<ice:dataPaginator for="tableStudents" paginator="true"
+							rowsCountVar="rowsCount"
+							displayedRowsCountVar="displayedRowsCount"
+							firstRowIndexVar="firstRowIndex" lastRowIndexVar="lastRowIndex"
+							pageCountVar="pageCount" pageIndexVar="pageIndex">
+							<ice:outputFormat value="{0} records found. Page {4} / {5}.">
+								<f:param value="#{rowsCount}" />
+								<f:param value="#{displayedRowsCount}" />
+								<f:param value="#{firstRowIndex}" />
+								<f:param value="#{lastRowIndex}" />
+								<f:param value="#{pageIndex}" />
+								<f:param value="#{pageCount}" />
+							</ice:outputFormat>
+						</ice:dataPaginator>
+						<ice:dataTable rows="10" value="#{reportManagerModel.students}"
+							var="stu" id="tableStudents"
+							columnWidths="60px,120px,110px,320px,400px,110px">
+							<ice:column id="columnStudentId" style="text-align:right">
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} ID" />
+								</f:facet>
+								<ice:outputText value="#{stu.id}" />
+							</ice:column>
+							<ice:column id="columnStudentCISID">
+								<f:facet name="header">
+									<ice:outputText value="CISID" />
+								</f:facet>
+								<ice:outputText value="#{stu.cisid}" title="#{stu.cisid}"
+									style="overflow:hidden;width:85px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentMDSID">
+								<f:facet name="header">
+									<ice:outputText value="MDSID" />
+								</f:facet>
+								<ice:outputText value="#{stu.mdsid}" title="#{stu.mdsid}"
+									style="overflow:hidden;width:85px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentName">
+								<ice:setEventPhase events="FacesEvent"
+									phase="UPDATE_MODEL_VALUES">
+									<ice:rowSelector id="rowselectStudent"
+										clickListener="#{reportManagerModel.selectStudent}"
+										value="#{stu.ui_selected}">
+										<f:attribute name="student" value="#{stu}" />
+									</ice:rowSelector>
+								</ice:setEventPhase>
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} Name" />
+								</f:facet>
+								<ice:outputText value="#{stu.contact.name}" />
+							</ice:column>
+							<ice:column id="columnStudentSneedIcon">
+								<f:facet name="header">
+									<ice:outputText value="Special Needs" />
+								</f:facet>
+								<ui:repeat value="#{stu.specialNeeds}" var="sneed"
+									varStatus="status">
+									<ice:graphicImage value="#{sneed.icon.blobFileData.thumbnail}" height="25"
+										rendered="#{sneed.icon != null}" width="25"
+										title="#{sneed.name}" style="margin-left:5px" />
+									<ice:outputText value="#{sneed.name}" style="float:left"
+										rendered="#{sneed.icon == null}" title="#{sneed.name}">
+										<f:converter converterId="truncateConverter" />
+									</ice:outputText>
+									<ice:outputText value=",&nbsp;" style="float:left"
+										rendered="#{sneed.icon == null and stu.specialNeeds.size() > 1 and status.index != stu.specialNeeds.size() - 1}" />
+								</ui:repeat>
+							</ice:column>
+							<ice:column id="columnStudentGender" style="text-align:center">
+								<f:facet name="header">
+									<ice:outputText value="Gender" />
+								</f:facet>
+								<ice:outputText value="#{stu.gender}" />
+							</ice:column>
+						</ice:dataTable>
+						<center>
+							<ice:dataPaginator for="tableStudents" paginator="true"
+								rendered="#{reportManagerModel.students.size() > 10}"
+								paginatorMaxPages="20" rowsCountVar="rowsCount"
+								displayedRowsCountVar="displayedRowsCount"
+								firstRowIndexVar="firstRowIndex" lastRowIndexVar="lastRowIndex"
+								pageCountVar="pageCount" pageIndexVar="pageIndex">
+								<f:facet name="first">
+									<ice:graphicImage url="images/paginator/arrow-first.gif"
+										style="border:none;" title="First Page" />
+								</f:facet>
+								<f:facet name="previous">
+									<ice:graphicImage url="images/paginator/arrow-previous.gif"
+										style="border:none;" title="Previous Page" />
+								</f:facet>
+								<f:facet name="next">
+									<ice:graphicImage url="images/paginator/arrow-next.gif"
+										style="border:none;" title="Next Page" />
+								</f:facet>
+								<f:facet name="last">
+									<ice:graphicImage url="images/paginator/arrow-last.gif"
+										style="border:none;" title="Last Page" />
+								</f:facet>
+							</ice:dataPaginator>
+						</center>
+					</ice:panelGroup>
+					<ice:panelGrid styleClass="borderBox" width="100%"
+						style="margin-top:10px">
+						<ice:panelGrid columns="5">
+							<ice:outputText value="Period" />
+							<ice:selectOneMenu id="selectOneTimePeriod"
+								value="#{reportManagerModel.timePeriod}" partialSubmit="true"
+								style="width:90px">
+								<f:selectItems value="#{lookupListProvider.timePeriods}" />
+							</ice:selectOneMenu>
+							<ice:outputText value="Upto" />
+							<ice:selectInputDate id="inputEventToDate"
+								value="#{reportManagerModel.toDate}" renderAsPopup="true"
+								renderMonthAsDropdown="true" renderYearAsDropdown="true"
+								converter="dateConverter" style="margin-right:30px" />
+							<comp:ajaxReportPopup params="#{reportManagerModel.jsonString}"
+								submitDisabled="#{reportManagerModel.toDate==null or reportManagerModel.student == null}"
+								reportName="absenteeReportIndividual"
+								status="#{reportManagerModel.status}" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,1803 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{programManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu"
+			value="#{programManagerModel.programType.name}PROG"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">#{programManagerModel.programType.name == 'Student' ? msgs['student_label'] : programManagerModel.programType.name} Cost Center</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each cost center.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formProgram">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="8">
+						<ice:outputText
+							rendered="#{programManagerModel.programType.name == 'Student'}"
+							value="Search cost center by name or ID :" />
+						<ice:outputText
+							rendered="#{programManagerModel.programType.name == 'Staff'}"
+							value="Search cost center name or ID :" />
+						<ice:outputText
+							rendered="#{programManagerModel.programType == null}"
+							value="Search cost center by name or ID :" />
+						<ice:inputText id="inputTextProSearch" style="width:14em"
+							action="#{programManagerModel.searchPrograms}"
+							value="#{programManagerModel.searchProgramText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:outputText value="Type" style="width :50px"
+							rendered="#{programManagerModel.programType.name != 'Staff'}" />
+						<ice:selectOneMenu id="select_ProgramTypes"
+							rendered="#{programManagerModel.programType.name != 'Staff'}"
+							value="#{programManagerModel.selectedProType}"
+							partialSubmit="true">
+							<f:selectItem itemLabel="All" itemValue="0" />
+							<f:selectItems var="proType" itemValue="#{proType.id}"
+								itemLabel="#{proType.name == 'Student' ? msgs['student_label'] : proType.name}"
+								value="#{programManagerModel.proTypes}" />
+						</ice:selectOneMenu>
+						<ice:commandButton id="commanButtonProSearch"
+							action="#{programManagerModel.searchPrograms}"
+							disabled="#{programManagerModel.programType == null}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandProgramAdd"
+							value="Add New #{msgs['student_label']} Cost Center"
+							styleClass="CommandButton"
+							rendered="#{programManagerModel.programType.name == 'Student'}"
+							disabled="#{programManagerModel.programType == null}"
+							actionListener="#{programManagerModel.newProgram}" />
+						<ice:commandButton id="commandIndividualAdd"
+							value="Add New Individual Cost Center" styleClass="CommandButton"
+							rendered="#{programManagerModel.programType.name == 'Student'}"
+							disabled="#{programManagerModel.programType == null}"
+							actionListener="#{programManagerModel.newProgram}">
+							<f:attribute name="programType" value="individual" />
+						</ice:commandButton>
+						<ice:commandButton id="commandStaffAdd"
+							value="Add New Staff Cost Center" styleClass="CommandButton"
+							rendered="#{programManagerModel.programType.name == 'Staff'}"
+							renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+							disabled="#{programManagerModel.programType == null}"
+							actionListener="#{programManagerModel.newProgram}">
+							<f:attribute name="programType" value="Staff" />
+						</ice:commandButton>
+					</ice:panelGrid>
+				</ice:panelGrid>
+
+				<div style="width: 1200px">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{programManagerModel.programList}" var="pro"
+						id="tablePrograms"
+						columnWidths="40px,350px,130px,130px,270px,100px,100px">
+						<ice:column id="columnProgramId" style="text-align:right">
+							<f:facet name="header">
+								<ice:outputText value="Id" />
+							</f:facet>
+							<ice:outputText value="#{pro.id}" />
+						</ice:column>
+						<ice:column id="columnProgramName">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectorProgram" immediate="true"
+									value="#{pro.ui_selected}" multiple="false"
+									clickListener="#{programManagerModel.selectProgram}"
+									singleRowAutoSelect="true">
+									<f:attribute name="program" value="#{pro}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Cost Center" />
+							</f:facet>
+							<ice:outputText value="#{pro.name}" />
+						</ice:column>
+						<ice:column id="columnProgramStart" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Start Date" />
+							</f:facet>
+							<ice:outputText value="#{pro.startDate}"
+								converter="dateConverter">
+							</ice:outputText>
+						</ice:column>
+						<ice:column id="columnProgramEnd" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="End Date" />
+							</f:facet>
+							<ice:outputText value="#{pro.endDate}" converter="dateConverter">
+							</ice:outputText>
+						</ice:column>
+						<ice:column id="columnProgramCoordinator">
+							<f:facet name="header">
+								<ice:outputText value="Coordinator" />
+							</f:facet>
+							<ice:outputText value="#{pro.coordinator.contact.name}" />
+						</ice:column>
+						<ice:column id="columnProgramType"
+							rendered="#{programManagerModel.programType.name != 'Staff'}">
+							<f:facet name="header">
+								<ice:outputText value="Type" />
+							</f:facet>
+							<ice:outputText style="text-align:center"
+								value="#{pro.type.name=='Student'? msgs['student_label']:'Individual'}" />
+						</ice:column>
+						<ice:column id="columnProgramStatus" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Status" />
+							</f:facet>
+							<ice:outputText value="#{pro.status}" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelGroup styleClass="tabSideBox"
+						rendered="#{programManagerModel.program != null}">
+						<ice:panelGrid columns="2" style="margin-left:500px">
+							<ice:outputText value="Selected Cost Center :" />
+							<ice:outputText value="#{sessionContext.activeStringDetails}"
+								effect="#{sessionContext.effectDetails}"
+								styleClass="ReportSectionHeader" />
+						</ice:panelGrid>
+					</ice:panelGroup>
+					<ice:panelTabSet id="tabSetProgram"
+						selectedIndex="#{programManagerModel.selectedTabIndex}"
+						tabChangeListener="#{programManagerModel.tabChangeListner}"
+						partialSubmit="true">
+						<ice:panelTab id="tabProfile" label="Cost Center Profile"
+							style="width: 650px; height: 400px">
+							<fieldset style="width: 600px; height: 200px">
+								<legend>
+									<ice:outputLabel value="Cost Center Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{programManagerModel.program == null}">
+									<ice:outputText
+										value="Please select a Cost Center to view details." />
+								</ice:panelGroup>
+								<ice:panelGroup style="width:600px"
+									rendered="#{programManagerModel.program != null}">
+									<ice:panelGrid columns="4" width="100%" style="margin-top:10px"
+										cellpadding="2">
+										<ice:outputText value="Cost Center Name" />
+										<ice:inputText id="input_ProgramName"
+											maxlength="#{msgs['program.name.size']}"
+											disabled="#{programManagerModel.program == null}"
+											value="#{programManagerModel.program.name}" tabindex="1" />
+										<ice:outputText value="Charge Amount" />
+										<ice:inputText id="input_ProgramAmount" label="Charge Amount"
+											value="#{programManagerModel.program.chargeAmount}"
+											tabindex="5"
+											disabled="#{programManagerModel.programType.name == 'Staff'}">
+											<f:convertNumber type="number" maxFractionDigits="2"
+												minFractionDigits="2" />
+										</ice:inputText>
+										<ice:outputText value="Start Date" />
+										<ice:panelGroup id="input_ProgramStartDate">
+											<ice:selectInputDate
+												value="#{programManagerModel.program.startDate}"
+												renderAsPopup="true" renderMonthAsDropdown="true"
+												renderYearAsDropdown="true" tabindex="2"
+												converter="dateConverter">
+											</ice:selectInputDate>
+										</ice:panelGroup>
+										<ice:outputText value="Status" />
+										<ice:selectOneMenu id="selectOneProgramStatus"
+											styleClass="SelectOneMenu"
+											disabled="#{programManagerModel.program == null}"
+											value="#{programManagerModel.program.status}" tabindex="6">
+											<f:selectItems
+												value="#{lookupListProvider.proStatusSelectItems}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="End Date" />
+										<ice:panelGroup id="input_ProgramEndDate">
+											<ice:selectInputDate
+												value="#{programManagerModel.program.endDate}"
+												renderAsPopup="true" renderMonthAsDropdown="true"
+												renderYearAsDropdown="true" tabindex="3"
+												converter="dateConverter">
+											</ice:selectInputDate>
+										</ice:panelGroup>
+										<ice:panelGroup />
+										<ice:panelGroup />
+										<ice:outputText value="Coordinator" />
+										<ice:selectOneMenu id="select_OneCoordinator"
+											styleClass="SelectOneMenu"
+											disabled="#{programManagerModel.program == null}"
+											value="#{programManagerModel.selectedCoordinatorId}"
+											tabindex="4">
+											<f:selectItems
+												value="#{programManagerModel.coordinatorSelectItems}" />
+										</ice:selectOneMenu>
+									</ice:panelGrid>
+									<ice:panelGrid style="float:right" cellpadding="2" columns="3"
+										rendered="#{programManagerModel.programType.name != 'Staff'}">
+										<ice:commandButton id="commandPurgeProgram"
+											value="Purge Cost Center" styleClass="CommandButton"
+											style="width:130px" panelConfirmation="deleteConfirmation"
+											renderedOnUserRole="ROLE_SUPERUSER"
+											rendered="#{programManagerModel.program.id != null}"
+											action="#{programManagerModel.purgeProgram}" />
+										<ice:commandButton id="commandDeleteProgram"
+											value="Delete Cost Center" styleClass="CommandButton"
+											style="width:130px" panelConfirmation="deleteConfirmation"
+											rendered="#{programManagerModel.program.id != null}"
+											action="#{programManagerModel.deleteProgram}" />
+										<ice:commandButton id="commandSaveProgram"
+											value="Save Cost Center" styleClass="CommandButton"
+											rendered="#{programManagerModel.program != null}"
+											style="width:130px" tabindex="7"
+											actionListener="#{programManagerModel.saveProgram}" />
+									</ice:panelGrid>
+									<ice:panelGrid style="float:right" cellpadding="2" columns="3"
+										rendered="#{programManagerModel.programType.name == 'Staff'}"
+										renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE">
+										<ice:commandButton id="commandPurgeStaffProgram"
+											value="Purge Cost Center" styleClass="CommandButton"
+											style="width:130px" panelConfirmation="deleteConfirmation"
+											rendered="#{programManagerModel.program.id != null}"
+											action="#{programManagerModel.purgeProgram}" />
+										<ice:commandButton id="commandDeleteStaffProgram"
+											value="Delete Cost Center" styleClass="CommandButton"
+											style="width:130px" panelConfirmation="deleteConfirmation"
+											rendered="#{programManagerModel.program.id != null}"
+											action="#{programManagerModel.deleteProgram}" />
+										<ice:commandButton id="commandSaveStaffProgram"
+											value="Save Cost Center" styleClass="CommandButton"
+											rendered="#{programManagerModel.program != null}"
+											style="width:130px" tabindex="7"
+											actionListener="#{programManagerModel.saveProgram}" />
+									</ice:panelGrid>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelTab>
+
+						<ice:panelTab id="tabStudentGrps"
+							label="#{programManagerModel.programType.name == 'Student' ? msgs['student_label'] : programManagerModel.programType.name} Programs"
+							disabled="#{programManagerModel.program.id == null}"
+							rendered="#{programManagerModel.program != null}">
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="width:220px">
+									<fieldset style="height: 500px">
+										<legend>
+											<ice:outputLabel
+												value="#{programManagerModel.programType.name == 'Student' ? msgs['student_label'] : programManagerModel.programType.name} Programs" />
+										</legend>
+										<ice:commandButton id="commandAddGroup" value="Add Program"
+											rendered="#{programManagerModel.programType.name == 'Student'}"
+											action="#{programManagerModel.addNewGroup}"
+											style="width:100px;margin-left:2px"
+											styleClass="CommandButton" />
+										<ice:commandButton id="commandAddStaffGroup"
+											value="Add Program"
+											rendered="#{programManagerModel.programType.name == 'Staff'}"
+											renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+											action="#{programManagerModel.addNewGroup}"
+											style="width:100px;margin-left:2px"
+											styleClass="CommandButton" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListStudents" size="15"
+												value="#{programManagerModel.selectedGroupId}"
+												partialSubmit="true"
+												style="width:190px;height:450px;margin-top:10px"
+												valueChangeListener="#{programManagerModel.selectStudentGroup}">
+												<f:selectItems
+													value="#{programManagerModel.groupSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+
+								<ice:panelGroup style="width:930px;margin-right:-30px">
+									<ice:panelTabSet id="tabSetStudentGroup"
+										style="height: 373px; margin-top:7px"
+										selectedIndex="#{programManagerModel.groupTabIndex}">
+										<ice:panelTab id="tabGroupProfile" label="Program Profile">
+											<ice:panelGroup
+												rendered="#{programManagerModel.programType.name == 'Student'}">
+												<fieldset style="height: 420px">
+													<legend>
+														<ice:outputLabel value="Program Details" />
+													</legend>
+													<ice:panelGroup style="margin-top:10px"
+														rendered="#{programManagerModel.studentGroup == null}">
+														<ice:outputText
+															value="Please select a #{msgs['student_label'].toLowerCase()} group to view details." />
+													</ice:panelGroup>
+													<ice:panelGroup style="height:190px">
+														<ice:panelGrid columns="2" width="100%" cellpadding="10"
+															rowClasses="topAlignedTableCell"
+															style="margin-right:-30px;margin-left:-10px"
+															rendered="#{programManagerModel.studentGroup != null}">
+															<ice:panelGroup style="text-align:center">
+																<ice:panelGrid
+																	style="border:thick double grey;width:160px;height:110px;text-align:center">
+																	<ice:graphicImage url="images/no_logo.jpg"
+																		id="imgGroup"
+																		rendered="#{programManagerModel.studentGroup.photo == null}"
+																		style="height:100px;width:150px">
+																	</ice:graphicImage>
+																	<ice:graphicImage
+																		value="#{programManagerModel.studentGroup.photo.blobFileData.thumbnail}"
+																		id="imgVehicle1"
+																		rendered="#{programManagerModel.studentGroup.photo != null}"
+																		width="#{programManagerModel.photoW}"
+																		height="#{programManagerModel.photoH}">
+																	</ice:graphicImage>
+																</ice:panelGrid>
+																<div style="height: 10px" />
+																<comp:ImageUpload type="link"
+																	fileEntryListener="#{imageUploadModel.uploadGroupImage}" />
+															</ice:panelGroup>
+															<ice:panelGrid columns="4" width="100%">
+																<ice:outputText value="Program Name" />
+																<ice:inputText
+																	value="#{programManagerModel.studentGroup.name}"
+																	id="input_textStudentGroupName" style="width:180px"
+																	maxlength="#{msgs['group.name.size']}"
+																	action="#{programManagerModel.saveStudentGroup}"
+																	tabindex="1" />
+																<ice:outputText value="Charge Amount" />
+																<ice:inputText id="inputGroupAmount"
+																	label="Charge Amount"
+																	value="#{programManagerModel.studentGroup.chargeAmount}"
+																	tabindex="2" style="width:180px">
+																	<f:convertNumber type="number" maxFractionDigits="2"
+																		minFractionDigits="2" />
+																</ice:inputText>
+																<ice:outputText value="Start Date" />
+																<ice:panelGroup id="input_groupStartDate">
+																	<ice:selectInputDate renderAsPopup="true"
+																		renderMonthAsDropdown="true"
+																		renderYearAsDropdown="true" tabindex="3"
+																		converter="dateConverter"
+																		value="#{programManagerModel.studentGroup.startDate}" />
+																</ice:panelGroup>
+																<ice:outputText value="End Date" />
+																<ice:panelGroup id="input_groupEndDate">
+																	<ice:selectInputDate renderAsPopup="true"
+																		renderMonthAsDropdown="true"
+																		renderYearAsDropdown="true" tabindex="4"
+																		converter="dateConverter"
+																		value="#{programManagerModel.studentGroup.endDate}" />
+																</ice:panelGroup>
+																<ice:outputText value="Location" />
+																<ice:selectOneMenu id="select_GroupLocation"
+																	style="width:188px"
+																	value="#{programManagerModel.selectedLocationId}">
+																	<f:selectItems
+																		value="#{programManagerModel.locationSelectItems}"
+																		tabindex="7" />
+																</ice:selectOneMenu>
+																<ice:outputText value="NDIS Support Cluster" />
+																<ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+																	<ice:selectOneMenu id="select_NDISitem"
+																		style="width:188px"
+																		value="#{programManagerModel.selectedNDISItemId}"
+																		valueChangeListener="#{programManagerModel.selectSupportCluster}"
+																		partialSubmit="true">
+																		<f:selectItems
+																			value="#{programManagerModel.NDISSelectItems}" />
+																	</ice:selectOneMenu>
+																</ice:setEventPhase>
+																<ice:outputText value="Start Time" />
+																<comp:timeControl id="grpStartTime"
+																	value="#{programManagerModel.startTime}" tabindex="5" />
+																<ice:outputText value="End Time" />
+																<comp:timeControl id="grpEndTime"
+																	value="#{programManagerModel.endTime}" tabindex="6" />
+																<!-- <ice:outputText value="Include Lunch" />
+															    <ice:selectBooleanCheckbox id="selectIncludeLunch"
+																value="#{programManagerModel.studentGroup.lunchIncluded}" /> -->
+
+																<ice:outputText value="Holiday Run" />
+																<ice:selectBooleanCheckbox
+																	id="selectallowProgramtorunonaholidaystd"
+																	value="#{programManagerModel.studentGroup.allowProgramtorunonaholiday}" />
+																<ice:outputText
+																	rendered="#{programManagerModel.studentGroup.program.type.name != 'Student'}"
+																	value="Inactive Sleepover" />
+																<ice:selectBooleanCheckbox id="inactiveovernight1"
+																	rendered="#{programManagerModel.studentGroup.program.type.name != 'Student'}"
+																	value="#{programManagerModel.studentGroup.inactiveovernight}"
+																	partialSubmit="true" />
+																<!--<ice:outputText value="GST Code" />
+																 <ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+																	<ice:selectOneMenu id="selectGST"
+																		value="#{programManagerModel.studentGroup.gstCode}">
+																		<f:selectItems value="#{lookupListProvider.GSTCodes}" />
+																	</ice:selectOneMenu>
+																</ice:setEventPhase> -->
+																<ice:panelGroup style="margin-top:5px">
+																	<ice:outputText value="Recurrence Type" />
+																</ice:panelGroup>
+																<ice:selectOneRadio id="groupRecursiveType"
+																	style="height:20px;border:none;margin-top:-10px;margin-left:-20px"
+																	value="#{programManagerModel.recurrenceType}"
+																	partialSubmit="true" tabindex="9">
+																	<f:selectItems
+																		value="#{lookupListProvider.recurrenceType}" />
+																</ice:selectOneRadio>
+															</ice:panelGrid>
+															<div />
+															<ice:panelGrid style="margin-top:-25px"
+																rendered="#{programManagerModel.recurrenceType == 'Weekly'}">
+																<ice:outputText value="Scheduled Day(s) :" />
+																<div />
+																<ice:selectManyCheckbox id="selectGroupDays"
+																	value="#{programManagerModel.selectedWeekDayIds}"
+																	style="width:30px" tabindex="11" partialSubmit="true">
+																	<f:selectItems value="#{lookupListProvider.weekDays}"
+																		var="day" itemLabel="#{day.name}"
+																		itemValue="#{day.id}" itemDisabled="#{day.id== 6}" />
+																</ice:selectManyCheckbox>
+															</ice:panelGrid>
+
+														</ice:panelGrid>
+													</ice:panelGroup>
+													<ice:panelGroup style="margin-top:60px"
+														rendered="#{programManagerModel.studentGroup != null}">
+														<ice:commandButton value="Add Program"
+															id="commandAddGroup"
+															rendered="#{programManagerModel.studentGroup.id == null}"
+															action="#{programManagerModel.saveStudentGroup}"
+															style="float:right;margin-right:5px;margin-top:35px"
+															styleClass="CommandButton" />
+														<ice:commandButton value="Save Program"
+															id="commandSaveGroup"
+															rendered="#{programManagerModel.studentGroup.id != null}"
+															action="#{programManagerModel.saveStudentGroup}"
+															style="float:right;margin-right:25px;margin-top:50px"
+															styleClass="CommandButton" />
+														<ice:commandButton id="commandDeleteGroup"
+															value="Delete Program"
+															action="#{programManagerModel.deleteStudentGroup}"
+															style="float:right;margin-right:25px;margin-top:50px"
+															panelConfirmation="deleteGrpConfirmation"
+															rendered="#{(programManagerModel.studentGroup != null) and (programManagerModel.studentGroup.id != null)}"
+															styleClass="CommandButton" />
+													</ice:panelGroup>
+												</fieldset>
+											</ice:panelGroup>
+											<ice:panelGroup
+												rendered="#{programManagerModel.programType.name == 'Staff'}">
+												<fieldset style="width: 800px; height: 300px">
+													<legend>
+														<ice:outputLabel value="Program Details" />
+													</legend>
+													<ice:panelGroup style="margin-top:10px"
+														rendered="#{programManagerModel.studentGroup == null}">
+														<ice:outputText
+															value="Please select a staff group to view details." />
+													</ice:panelGroup>
+													<ice:panelGroup style="height:240px"
+														rendered="#{programManagerModel.studentGroup != null}">
+														<ice:panelGrid columns="4" width="100%">
+															<ice:outputText value="Program Name " />
+															<ice:inputText id="input_StaffGroupName"
+																value="#{programManagerModel.studentGroup.name}"
+																style="width:180px"
+																maxlength="#{msgs['group.name.size']}"
+																action="#{programManagerModel.saveStudentGroup}"
+																tabindex="1" />
+															<ice:outputText value="Location" />
+															<ice:selectOneMenu id="select_StaffGroupLocation"
+																style="width:188px"
+																value="#{programManagerModel.selectedLocationId}">
+																<f:selectItems
+																	value="#{programManagerModel.locationSelectItems}" />
+															</ice:selectOneMenu>
+															<ice:outputText value="Start Date" />
+															<ice:selectInputDate id="input_staffGroupStartDate"
+																renderAsPopup="true" renderMonthAsDropdown="true"
+																renderYearAsDropdown="true" tabindex="3"
+																converter="dateConverter"
+																value="#{programManagerModel.studentGroup.startDate}" />
+															<ice:outputText value="End Date" />
+															<ice:selectInputDate id="input_staffGroupEndDate"
+																renderAsPopup="true" renderMonthAsDropdown="true"
+																renderYearAsDropdown="true" tabindex="4"
+																converter="dateConverter"
+																value="#{programManagerModel.studentGroup.endDate}" />
+															<ice:outputText value="Start Time" />
+															<ice:panelGroup id="input_StaffStartTime">
+																<comp:timeControl
+																	value="#{programManagerModel.startTime}" />
+															</ice:panelGroup>
+															<ice:outputText value="End Time" />
+															<ice:panelGroup id="input_StaffEndTime">
+																<comp:timeControl value="#{programManagerModel.endTime}" />
+															</ice:panelGroup>
+															<ice:outputText value="Include Lunch" />
+															<ice:setEventPhase events="ValueChangeEvent"
+																phase="INVOKE_APPLICATION">
+																<ice:selectBooleanCheckbox id="selectStaffIncludeLunch"
+																	partialSubmit="true"
+																	value="#{programManagerModel.studentGroup.lunchIncluded}" />
+															</ice:setEventPhase>
+															<ice:outputText value="Lunch Break (Mins)"
+																rendered="#{(programManagerModel.studentGroup.lunchIncluded)}" />
+															<ice:inputText
+																value="#{programManagerModel.studentGroup.lunchTime}"
+																rendered="#{(programManagerModel.studentGroup.lunchIncluded)}"
+																id="input_StaffGrouplunch" />
+															<ice:outputText value="Holiday Run" />
+															<ice:selectBooleanCheckbox
+																id="selectallowProgramtorunonaholiday"
+																value="#{programManagerModel.studentGroup.allowProgramtorunonaholiday}" />
+															<ice:outputText value="Inactive Sleepoversss" rendered="false"/>
+															<ice:selectBooleanCheckbox id="inactiveovernight" rendered="false"
+																value="#{programManagerModel.studentGroup.inactiveovernight}" />
+															<ice:panelGroup style="margin-top:5px">
+																<ice:outputText value="Recurrence Type" />
+															</ice:panelGroup>
+															<ice:selectOneRadio id="staffGroupRecursiveType"
+																style="height:20px;border:none;margin-top:-10px;margin-left:-20px"
+																value="#{programManagerModel.recurrenceType}"
+																partialSubmit="true">
+																<f:selectItems
+																	value="#{lookupListProvider.recurrenceType}" />
+															</ice:selectOneRadio>
+														</ice:panelGrid>
+														<ice:panelGrid columns="2" style="margin-top:5px"
+															rendered="#{programManagerModel.recurrenceType == 'Weekly'}">
+															<ice:panelGroup style="width:130px">
+																<ice:outputText value="Scheduled Day(s)" />
+															</ice:panelGroup>
+															<ice:selectManyCheckbox id="selectStaffGroupDays"
+																value="#{programManagerModel.selectedWeekDayIds}"
+																partialSubmit="true" style="width:25px">
+																<f:selectItems value="#{lookupListProvider.weekDays}"
+																	var="day" itemLabel="#{day.name}" itemValue="#{day.id}" />
+															</ice:selectManyCheckbox>
+														</ice:panelGrid>
+													</ice:panelGroup>
+													<ice:panelGroup style="margin-right:25px"
+														rendered="#{programManagerModel.studentGroup != null}">
+														<ice:commandButton value="Add Program"
+															id="commandAddStaffGroup"
+															rendered="#{programManagerModel.studentGroup.id == null}"
+															renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+															action="#{programManagerModel.saveStudentGroup}"
+															style="float:right;margin-right:5px"
+															styleClass="CommandButton" />
+														<ice:commandButton value="Save Program"
+															id="commandSaveStaffGroup"
+															rendered="#{programManagerModel.studentGroup.id != null}"
+															renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+															action="#{programManagerModel.saveStudentGroup}"
+															style="float:right;margin-right:5px;margin-top:15px"
+															styleClass="CommandButton" />
+														<ice:commandButton id="commandDeleteStaaffGroup"
+															value="Delete Program"
+															renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+															action="#{programManagerModel.deleteStudentGroup}"
+															style="float:right;margin-right:5px;margin-top:15px"
+															panelConfirmation="deleteConfirmation"
+															rendered="#{(programManagerModel.studentGroup != null) and (programManagerModel.studentGroup.id != null)}"
+															styleClass="CommandButton" />
+													</ice:panelGroup>
+												</fieldset>
+											</ice:panelGroup>
+										</ice:panelTab>
+
+										<ice:panelTab id="tabGroupStudents" label="Enrolled Students"
+											disabled="#{programManagerModel.studentGroup.id == null}"
+											rendered="#{programManagerModel.programType.name == 'Student'}">
+											<ice:panelGroup
+												style="width:900px;min-height:305px;margin-right:-5px;margin-bottom:-10px">
+												<ice:commandButton id="commandAddStd"
+													value="Enroll New #{msgs['student_label']}(s)"
+													action="#{programManagerModel.enrollNewStudents}"
+													rendered="#{programManagerModel.studentGroup != null}"
+													styleClass="CommandButton" />
+												<ice:commandButton id="commandViewExcludedStudents"
+													rendered="#{not empty(programManagerModel.studentGroup.students)}"
+													value="#{programManagerModel.showAllStudents || programManagerModel.showAllStudentsBtn ? 'Hide' : 'Show'}#{programManagerModel.showAllStudentsBtn and !programManagerModel.showAllStudents ? ' current' : ''} excluded #{msgs['student_label']}(s)"
+													action="#{programManagerModel.showHideExcluded}"
+													styleClass="CommandButton" style="margin-left:5px" />
+												<ice:outputText
+													value="No #{msgs['student_label']}(s) Found.."
+													style="margin-left:10px"
+													rendered="#{programManagerModel.studentGroup != null and empty(programManagerModel.studentGroup.students)}" />
+												<ice:dataTable
+													value="#{programManagerModel.showAllStudents ? programManagerModel.studentGroup.students : programManagerModel.studentGroup.availableStudents}"
+													var="stu" id="tableStudents" style="margin-bottom:-15px"
+													columnWidths="40px,210px,160px,90px,90px,50px,60px,50px,50px"
+													scrollable="true" scrollHeight="215px"
+													rendered="#{not empty(programManagerModel.studentGroup.students)}">
+													<ice:column id="columnStudentId" style="text-align:right">
+														<f:facet name="header">
+															<ice:outputText value="Id" />
+														</f:facet>
+														<ice:outputText value="#{stu.student.id}"
+															rendered="#{!stu.ui_selected}" />
+														<ice:outputText value="#{stu.student.id}"
+															style="color:grey" rendered="#{stu.ui_selected}" />
+													</ice:column>
+													<ice:column id="columnStudentName">
+														<f:facet name="header">
+															<ice:outputText value="#{msgs['student_label']} Name" />
+														</f:facet>
+														<ice:outputText value="#{stu.student.contact.name}"
+															title="#{stu.student.contact.name}"
+															style="height:15px;overflow:hidden"
+															rendered="#{!stu.ui_selected}" />
+														<ice:outputText value="#{stu.student.contact.name}"
+															title="#{stu.student.contact.name}"
+															style="color:grey;height:15px;overflow:hidden"
+															rendered="#{stu.ui_selected}" />
+													</ice:column>
+													<ice:column id="columnStudentSneedIcon">
+														<f:facet name="header">
+															<ice:outputText value="Special Needs" />
+														</f:facet>
+														<ui:repeat value="#{stu.student.specialNeeds}" var="sneed"
+															varStatus="status">
+															<ice:graphicImage
+																value="/imageDownload?p=#{sneed.icon.id}" height="25"
+																rendered="#{sneed.icon != null}" width="25"
+																title="#{sneed.name}" style="margin-left:5px" />
+
+															<ice:outputText value="#{sneed.name}" style="float:left"
+																rendered="#{sneed.icon == null and !stu.ui_selected}"
+																title="#{sneed.name}">
+																<f:converter converterId="truncateConverter" />
+															</ice:outputText>
+															<ice:outputText value=",&nbsp;" style="float:left"
+																rendered="#{sneed.icon == null and stu.student.specialNeeds.size() > 1 and status.index != stu.student.specialNeeds.size() - 1 and !stu.ui_selected}" />
+															<ice:outputText value="#{sneed.name}"
+																style="float:left;color:grey"
+																rendered="#{sneed.icon == null and stu.ui_selected}"
+																title="#{sneed.name}">
+																<f:converter converterId="truncateConverter" />
+															</ice:outputText>
+															<ice:outputText value=",&nbsp;"
+																style="float:left;color:grey"
+																rendered="#{sneed.icon == null and stu.student.specialNeeds.size() > 1 and status.index != stu.student.specialNeeds.size() - 1 and stu.ui_selected}" />
+														</ui:repeat>
+													</ice:column>
+													<ice:column id="columnStudentDob" style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Date of Birth" />
+														</f:facet>
+														<ice:outputText value="#{stu.student.dob}"
+															converter="dateConverter" rendered="#{!stu.ui_selected}" />
+														<ice:outputText value="#{stu.student.dob}"
+															converter="dateConverter" style="color:grey"
+															rendered="#{stu.ui_selected}" />
+													</ice:column>
+													<ice:column id="columnStudentMobile"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Contact Number" />
+														</f:facet>
+														<ice:outputText
+															value="#{stu.student.contact.contactNumber}"
+															rendered="#{!stu.ui_selected}" />
+														<ice:outputText
+															value="#{stu.student.contact.contactNumber}"
+															style="color:grey" rendered="#{stu.ui_selected}" />
+													</ice:column>
+													<ice:column id="columnStdChargeAmount"
+														style="text-align: right;">
+														<f:facet name="header">
+															<ice:outputText value="Charge Amount" />
+														</f:facet>
+														<ice:outputText value="#{stu.chargeAmount}"
+															rendered="#{!stu.ui_selected}">
+															<f:convertNumber minFractionDigits="2" />
+														</ice:outputText>
+														<ice:outputText value="#{stu.chargeAmount}"
+															style="color:grey" rendered="#{stu.ui_selected}">
+															<f:convertNumber minFractionDigits="2" />
+														</ice:outputText>
+													</ice:column>
+													<ice:column id="columnManageEvents"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Manage Events" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															actionListener="#{programManagerModel.addRemoveFromEvents}"
+															id="commandManageEvents">
+															<ice:graphicImage style="border:none"
+																id="graphicAddEvents" title="Add to existing events"
+																rendered="#{!stu.ui_selected}"
+																url="images/icons/configure_s.png" width="15"
+																height="15" />
+															<ice:graphicImage style="border:none"
+																id="graphicRemoveEvents"
+																title="Remove from existing events"
+																rendered="#{stu.ui_selected}"
+																url="images/icons/configure_s.png" width="15"
+																height="15" />
+															<f:attribute name="student" value="#{stu}" />
+														</ice:commandLink>
+													</ice:column>
+													<ice:column id="columnStudentExclude"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Excluded" />
+														</f:facet>
+														<ice:selectBooleanCheckbox id="booleanExcluded"
+															valueChangeListener="#{programManagerModel.excludeStudent}"
+															value="#{stu.ui_selected}" immediate="true"
+															partialSubmit="true">
+															<f:attribute name="student" value="#{stu}" />
+														</ice:selectBooleanCheckbox>
+													</ice:column>
+													<ice:column id="columnStudentDelete"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Remove" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															actionListener="#{programManagerModel.removeStudent}"
+															title="deleteStudent" id="commandlinkDeleteStd">
+															<ice:graphicImage style="border:none"
+																id="graphicDeleteStudent"
+																url="images/icons/delete-icon.png" />
+															<f:attribute name="student" value="#{stu}" />
+														</ice:commandLink>
+														<!-- <ice:panelConfirmation id="deleteStudentConfirmation"
+															acceptLabel="Yes" cancelLabel="No" draggable="true"
+															title="Confirm"
+															message="Are you sure you want to perform this action?" /> -->
+													</ice:column>
+												</ice:dataTable>
+											</ice:panelGroup>
+										</ice:panelTab>
+
+										<!-- Bug #528 Staff skills -->
+										<ice:panelTab id="tabGroupSkills"
+											label="Required Staff Skills"
+											disabled="#{programManagerModel.studentGroup.id == null}">
+											<ice:panelGroup
+												style="width:900px;min-height:305px;margin-right:-5px;margin-bottom:-10px">
+												<ice:commandButton id="commandAddSkills"
+													value="Add Required Staff Skill" styleClass="CommandButton"
+													action="#{programManagerModel.assignSkill}" />
+
+												<ice:dataTable scrollable="true" scrollHeight="200px"
+													value="#{programManagerModel.studentGroup.staffSkills}"
+													var="skill" id="tableStaffSkills" columnWidths="370px,60px">
+													<ice:column id="columnSkillName">
+														<f:facet name="header">
+															<ice:outputText value="Name" />
+														</f:facet>
+														<ice:outputText value="#{skill.itemValue}" />
+													</ice:column>
+													<ice:column id="columnStaffSkillDelete"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Remove" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															actionListener="#{programManagerModel.deleteSkill}"
+															panelConfirmation="deleteStaffSkillConfirmation"
+															title="Remove" id="commandDeleteSkill">
+															<ice:graphicImage style="border:none"
+																url="images/icons/delete-icon.png" />
+															<f:attribute name="skill" value="#{skill}" />
+														</ice:commandLink>
+														<ice:panelConfirmation id="deleteStaffSkillConfirmation"
+															acceptLabel="Yes" cancelLabel="No" draggable="true"
+															title="Confirm"
+															message="Are you sure you want to delete selected skill ?" />
+													</ice:column>
+												</ice:dataTable>
+											</ice:panelGroup>
+										</ice:panelTab>
+										<!-- assign pop up -->
+										<ice:panelPopup autoCentre="true" modal="true"
+											styleClass="icePnlPop" draggable="true"
+											rendered="#{programManagerModel.visibleSkills}">
+											<f:facet name="header">
+												<ice:panelGroup styleClass="popupHeaderWrapper1"
+													style="background:url(images/dialogbg1.png);">
+													<ice:outputText value="Assign new Skills "
+														styleClass="popupHeaderText" />
+													<ice:commandButton id="closeSkillButton"
+														image="#{msgs['panelPopup.closeImage']}"
+														action="#{programManagerModel.addSkillPopup}"
+														styleClass="popupHeaderImage" title="Close" alt="Close" />
+												</ice:panelGroup>
+											</f:facet>
+											<f:facet name="body">
+												<ice:panelGroup style="width:475px">
+													<fieldset style="margin-top: 10px">
+														<legend>
+															<ice:outputLabel value="Select Skills to Assign" />
+														</legend>
+														<ice:dataTable
+															value="#{programManagerModel.availableSkills}"
+															var="skill" columnWidths="30px,220px">
+
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="" />
+																</f:facet>
+																<h:selectBooleanCheckbox
+																	value="#{programManagerModel.skillsChecked[skill.id]}" />
+															</ice:column>
+															<ice:column>
+																<f:facet name="header">
+																	<ice:outputText value="Skill Name" />
+																</f:facet>
+																<ice:outputText value="#{skill.itemValue}" />
+															</ice:column>
+														</ice:dataTable>
+														<ice:commandButton value="Assign Skills"
+															action="#{programManagerModel.addSkills}"
+															style="float:left;margin-top:15px;"
+															styleClass="CommandButton" />
+
+													</fieldset>
+
+												</ice:panelGroup>
+
+											</f:facet>
+										</ice:panelPopup>
+
+
+										<!--  Bug #528 Staff skills  -->
+
+										<ice:panelTab id="tabGroupStaff"
+											renderedOnUserRole="ROLE_SUPERUSER, ROLE_SUPERVISOR,ROLE_FINANCE"
+											label="Assigned Staff Members"
+											disabled="#{programManagerModel.studentGroup.id == null}">
+											<ice:panelGroup
+												style="width:900px;min-height:305px;margin-right:-5px;margin-bottom:-10px">
+												<ice:commandButton id="commandAddStaff"
+													value="Assign New Staff Member(s)"
+													action="#{programManagerModel.enrollNewStaff}"
+													rendered="#{programManagerModel.studentGroup != null}"
+													styleClass="CommandButton" />
+												<ice:outputText value="No Staff Members Found.."
+													style="margin-left:10px"
+													rendered="#{empty(programManagerModel.studentGroup.staffMembers)}" />
+												<ice:dataTable
+													value="#{programManagerModel.studentGroup.staffMembers}"
+													var="staff" id="tableStaffMembers"
+													columnWidths="40px,200px,60px,90px,105px,100px,100px,40px,55px"
+													scrollable="true" scrollHeight="230px"
+													rendered="#{not empty(programManagerModel.studentGroup.staffMembers)}">
+													<ice:column id="columnStaffId" style="text-align:right">
+														<f:facet name="header">
+															<ice:outputText value="Id" />
+														</f:facet>
+														<ice:outputText value="#{staff.staffMember.staffId}" />
+													</ice:column>
+
+													<ice:column id="columnStaffName">
+														<f:facet name="header">
+															<ice:outputText value="Staff Name" />
+														</f:facet>
+														<ice:outputText title="#{staff.staffMember.contact.name}"
+															style="height:15px;overflow:hidden">
+															<ice:panelGrid
+																rendered="#{!programManagerModel.staffFlag[staff.staffMember.staffId]}">
+																<ice:panelGroup panelTooltip="icefaces">
+																	#{staff.staffMember.contact.name}
+																	<ice:graphicImage style="border:none;cursor: pointer;"
+																		url="images/icons/warning_s.png"
+																		rendered="#{!empty(programManagerModel.staffMissingSkills[staff.staffMember.staffId])}" />
+																</ice:panelGroup>
+																<ice:panelTooltip id="icefaces" displayOn="hover"
+																	hoverDelay="100" style="margin-top:20px">
+																	<f:facet name="body">
+																		<ice:outputText
+																			value="Missing required staff skill(s)" />
+																		<ice:outputText
+																			value="#{programManagerModel.staffMissingSkills[staff.staffMember.staffId]}" />
+																	</f:facet>
+																</ice:panelTooltip>
+															</ice:panelGrid>
+															<ice:panelGrid
+																rendered="#{programManagerModel.staffFlag[staff.staffMember.staffId]}">
+																<ice:panelGroup>
+																	#{staff.staffMember.contact.name}
+																</ice:panelGroup>
+															</ice:panelGrid>
+														</ice:outputText>
+
+													</ice:column>
+													<ice:column id="columnStaffStaffGender"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Gender" />
+														</f:facet>
+														<ice:outputText value="#{staff.staffMember.gender}" />
+													</ice:column>
+													<ice:column id="columnStaffDob" style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Date of Birth" />
+														</f:facet>
+														<ice:outputText value="#{staff.staffMember.dob}"
+															converter="dateConverter" />
+													</ice:column>
+													<ice:column id="columnStaffMobile"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Contact Number" />
+														</f:facet>
+														<ice:outputText
+															value="#{staff.staffMember.contact.contactNumber}" />
+													</ice:column>
+													<ice:column id="columnStaffStaffEmploymentType"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Staff Type" />
+														</f:facet>
+														<ice:outputText value="#{staff.staffMember.type.name}" />
+													</ice:column>
+													<ice:column id="columnStaffStaffType"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Employment Type" />
+														</f:facet>
+														<ice:outputText
+															value="#{staff.staffMember.employmentType}" />
+													</ice:column>
+													<ice:column id="columnStaffEdit" style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Edit" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															actionListener="#{programManagerModel.editStaff}"
+															title="Edit StaffMember" id="commandlinkEditStaff">
+															<ice:graphicImage style="border:none"
+																url="images/icons/edit.png" />
+															<f:attribute name="staff" value="#{staff}" />
+														</ice:commandLink>
+													</ice:column>
+													<ice:column id="columnStaffDelete"
+														style="text-align:center">
+														<f:facet name="header">
+															<ice:outputText value="Remove" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															panelConfirmation="deleteStaffConfirmation"
+															actionListener="#{programManagerModel.removeStaff}"
+															title="deleteStaffMember" id="commandlinkDeleteStaff">
+															<ice:graphicImage style="border:none"
+																id="graphicDeleteStaff"
+																url="images/icons/delete-icon.png" />
+															<f:attribute name="staff" value="#{staff}" />
+														</ice:commandLink>
+														<ice:panelConfirmation id="deleteStaffConfirmation"
+															acceptLabel="Yes" cancelLabel="No" draggable="true"
+															title="Confirm"
+															message="Are you sure you want to perform this action?" />
+													</ice:column>
+												</ice:dataTable>
+											</ice:panelGroup>
+										</ice:panelTab>
+
+										<ice:panelConfirmation id="deleteGrpConfirmation"
+											acceptLabel="Yes" cancelLabel="No" draggable="true"
+											message="Are you sure you want to perform this action?"
+											title="Confirm" />
+									</ice:panelTabSet>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+
+						<ice:panelTab label="Event Schedule" id="tabEventSchedules"
+							disabled="#{programManagerModel.program.id == null}"
+							rendered="#{programManagerModel.program != null}">
+							<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="width:220px">
+									<fieldset style="height: 365px">
+										<legend>
+											<ice:outputLabel
+												value="#{programManagerModel.programType.name == 'Student' ? msgs['student_label'] : programManagerModel.programType.name} Programs" />
+										</legend>
+										<ice:commandButton id="addEditGrps"
+											value="Add/Edit #{programManagerModel.programType.name == 'Student' ? msgs['student_label'] : programManagerModel.programType.name} Programs"
+											styleClass="CommandButton"
+											action="#{programManagerModel.addEditGroups}" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListStdGrp"
+												value="#{programManagerModel.selectedGroupId}" size="15"
+												partialSubmit="true"
+												style="width:190px;margin-top:10px;height:310px"
+												valueChangeListener="#{programManagerModel.selectEventGroup}">
+												<f:selectItems
+													value="#{programManagerModel.groupSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="width:400px">
+									<fieldset style="height: 365px">
+										<legend>
+											<ice:outputLabel value="Program Events" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{programManagerModel.selectedGroupId == null || programManagerModel.selectedGroupId == 0}">
+											<ice:outputText
+												value="Please select a #{programManagerModel.programType.name == 'Student' ? msgs['student_label'].toLowerCase() : programManagerModel.programType.name.toLowerCase()} group to view details." />
+										</ice:panelGroup>
+										<ice:commandButton value="Generate Events"
+											id="commandCreateProEvents"
+											rendered="#{programManagerModel.selectedGroupId != null and programManagerModel.selectedGroupId != 0}"
+											action="#{programManagerModel.createProEvents}"
+											styleClass="CommandButton"
+											style="margin-left:2px;width:110px" />
+										<ice:commandButton value="Add Event"
+											id="commandCreateProEvent"
+											rendered="#{programManagerModel.selectedGroupId != null and programManagerModel.selectedGroupId != 0}"
+											action="#{programManagerModel.createProgramEvent}"
+											styleClass="CommandButton" style="margin-left:5px;width:70px" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											rendered="#{programManagerModel.selectedGroupId != null and programManagerModel.selectedGroupId != 0}"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListEvent"
+												value="#{programManagerModel.selectedProEventId}" size="15"
+												partialSubmit="true"
+												style="width:370px;margin-top:10px;height:310px"
+												valueChangeListener="#{programManagerModel.selectProgramEvent}">
+												<f:selectItems
+													value="#{programManagerModel.proEventSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="width:505px">
+									<fieldset style="margin-bottom: 10px; height: 365px">
+										<legend>
+											<ice:outputLabel value="Event Details" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{programManagerModel.proEvent == null}">
+											<ice:outputText
+												value="Please select a program event to view details." />
+										</ice:panelGroup>
+										<ice:panelGroup style="margin-top:10px; margin-left:20px"
+											rendered="#{programManagerModel.proEvent != null}">
+											<ice:panelGrid columns="2" width="100%" cellpadding="2">
+												<ice:panelGroup style="width:170px">
+													<ice:outputText value="Event Date" />
+												</ice:panelGroup>
+												<ice:setEventPhase events="FacesEvent"
+													phase="UPDATE_MODEL_VALUES">
+													<ice:selectInputDate id="inputProgramEventDate"
+														value="#{programManagerModel.proEvent.eventDate}"
+														renderAsPopup="true" renderYearAsDropdown="true"
+														partialSubmit="true" renderMonthAsDropdown="true"
+														converter="dateConverter"
+														disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}"
+														valueChangeListener="#{programManagerModel.eventDateChanged}">
+													</ice:selectInputDate>
+												</ice:setEventPhase>
+												<ice:outputText value="Roster Start Time" />
+												<comp:timeControl id="startTime"
+													disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}"
+													value="#{programManagerModel.startTime}" />
+												<ice:outputText value="Roster End Time" />
+												<comp:timeControl id="endTime"
+													disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}"
+													value="#{programManagerModel.endTime}" />
+												<ice:outputText value="Set Actual Event Times" />
+												<ice:setEventPhase events="FacesEvent"
+													phase="UPDATE_MODEL_VALUES">
+													<ice:selectBooleanCheckbox id="setActualTimes"
+														rendered="#{programManagerModel.isExpired(programManagerModel.proEvent.eventDate)}"
+														value="#{programManagerModel.setActualEventTimes}"
+														partialSubmit="true"
+														disabled="#{programManagerModel.eventStatus == 'finished'}"
+														valueChangeListener="#{programManagerModel.setActualEventTimes}" />
+													<ice:selectBooleanCheckbox id="setActualTimesDisabled"
+														rendered="#{!programManagerModel.isExpired(programManagerModel.proEvent.eventDate)}"
+														value="#{programManagerModel.setActualEventTimes}"
+														partialSubmit="true" disabled="true"
+														title="Not allowed for future events.."
+														valueChangeListener="#{programManagerModel.setActualEventTimes}" />
+												</ice:setEventPhase>
+												<ice:outputText value="Actual Start Time"
+													rendered="#{programManagerModel.setActualEventTimes}" />
+												<comp:timeControl id="startTime2"
+													value="#{programManagerModel.actualStartTime}"
+													disabled="#{programManagerModel.eventStatus == 'finished'}"
+													rendered="#{programManagerModel.setActualEventTimes}" />
+												<ice:outputText value="Actual End Time"
+													rendered="#{programManagerModel.setActualEventTimes}" />
+												<comp:timeControl
+													value="#{programManagerModel.actualEndTime}" id="endTime2"
+													disabled="#{programManagerModel.eventStatus == 'finished'}"
+													rendered="#{programManagerModel.setActualEventTimes}" />
+												<ice:outputText value="Location" />
+												<ice:selectOneMenu id="selectProEventLocation"
+													style="width:188px"
+													disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}"
+													value="#{programManagerModel.selectedLocationId}">
+													<f:selectItems
+														value="#{programManagerModel.locationSelectItems}" />
+												</ice:selectOneMenu>
+												<ice:outputText value="Coordinator" />
+												<ice:selectOneMenu id="selectCoordinator"
+													style="width:188px"
+													disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}"
+													value="#{programManagerModel.selectedCoordinatorId}">
+													<f:selectItems
+														value="#{programManagerModel.coordinatorSelectItems}" />
+												</ice:selectOneMenu>
+												<ice:outputText value="Charge Amount"
+													rendered="#{programManagerModel.programType.name != 'Staff'}" />
+												<ice:inputText id="inputTextSingleChargeAmount"
+													style="width:180px"
+													rendered="#{programManagerModel.programType.name != 'Staff'}"
+													value="#{programManagerModel.proEvent.chargeAmount}"
+													disabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:inputText>
+												<ice:outputText value="Include lunch break"
+													rendered="#{programManagerModel.program.type.name == 'Staff'}" />
+												<ice:selectBooleanCheckbox id="selectBooleanIncludeBreak"
+													value="#{programManagerModel.proEvent.lunchIncluded}"
+													rendered="#{programManagerModel.program.type.name == 'Staff'}"
+													partialSubmit="true"
+													disabled="#{programManagerModel.eventStatus == 'finished'}" />
+												<ice:outputText value="Status"
+													rendered="#{programManagerModel.proEvent.id != null and programManagerModel.programType.name != 'Staff'}" />
+												<ice:selectOneRadio id="selectProEventStatus"
+													styleClass="radio"
+													value="#{programManagerModel.proEvent.status}"
+													rendered="#{programManagerModel.proEvent.id != null and programManagerModel.programType.name != 'Staff'}">
+													<f:selectItem itemLabel="Generated" itemValue="pending"
+														itemDisabled="#{programManagerModel.eventStatus == 'finished' || programManagerModel.eventStatus == 'banked'}" />
+													<f:selectItem itemLabel="Completed" itemValue="finished"
+														itemDisabled="#{programManagerModel.eventStatus == 'banked'}" />
+													<f:selectItem itemLabel="Banked" itemValue="banked" />
+												</ice:selectOneRadio>
+											</ice:panelGrid>
+										</ice:panelGroup>
+									</fieldset>
+									<ice:panelGroup style="margin-top:5px">
+										<ice:commandButton value="Save Event"
+											styleClass="CommandButton"
+											style="width:95px;float:right;margin-right:2px"
+											rendered="#{programManagerModel.proEvent != null}"
+											actionListener="#{programManagerModel.saveProgramEvent}"
+											id="commandSingleSaveProgramEvent" />
+										<ice:commandButton value="Delete Event"
+											styleClass="CommandButton"
+											id="commandSingleDeleteProgramEvent"
+											style="float:right;width:95px;margin-right:5px"
+											action="#{programManagerModel.deleteProgramEvent}"
+											panelConfirmation="deleteConfirmation"
+											rendered="#{programManagerModel.proEvent.id != null}" />
+									</ice:panelGroup>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+
+					</ice:panelTabSet>
+				</div>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.visibleEnrollStd}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Enroll new #{msgs['students_label'].toLowerCase()} into program: #{programManagerModel.studentGroup.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{programManagerModel.enrollStudentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:710px;margin-top:10px">
+							<ice:panelGrid styleClass="borderBox" width="100%">
+								<ice:panelGrid columns="4">
+									<ice:outputText
+										value="Search #{msgs['students_label'].toLowerCase()} by name or ID" />
+									<ice:inputText id="inputTextSearch"
+										action="#{programManagerModel.searchStudents}"
+										value="#{programManagerModel.searchText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonSearch"
+										action="#{programManagerModel.searchStudents}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+									<ice:panelGroup style="width:290px;margin-left:-20px">
+										<ice:messages />
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStuds" scrollable="true"
+									columnWidths="30px,40px,300px,150px,80px,50px"
+									scrollHeight="200px"
+									value="#{programManagerModel.availableStudents}" var="std"
+									style="margin-bottom:10px">
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectBooleanAll"
+												partialSubmit="true"
+												disabled="#{programManagerModel.program.type.name == 'Individual'}"
+												value="#{programManagerModel.selectAllStd}"
+												valueChangeListener="#{programManagerModel.selectAllStudents}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{std.ui_selected}"
+											id="selectBooleanStd" partialSubmit="true"
+											valueChangeListener="#{programManagerModel.selectStudent}">
+											<f:attribute name="student" value="#{std}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+
+									<ice:column style="text-align:right">
+										<f:facet name="header">
+											<ice:outputText value="Id" />
+										</f:facet>
+										<ice:outputText value="#{std.id}" />
+									</ice:column>
+									<ice:column>
+										<f:facet name="header">
+											<ice:outputText value="#{msgs['student_label']} Name" />
+										</f:facet>
+										<ice:outputText value="#{std.contact.name}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Date of Birth" />
+										</f:facet>
+										<ice:outputText value="#{std.dob}" converter="dateConverter">
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" />
+										</f:facet>
+										<ice:outputText value="#{std.gender}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Charged Amount" />
+										</f:facet>
+										<ice:inputText id="inputchrgamount" style="width : 45px"
+											value="#{std.chargeAmount}"
+											disabled="#{std.ui_selected == false}">
+										</ice:inputText>
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:outputText
+								value="Number of #{msgs['student_label']}(s) selected : #{programManagerModel.enrolledStudents.size()}" />
+							<ice:commandButton id="commandAddStd"
+								value="Enroll to #{programManagerModel.studentGroup.name}"
+								styleClass="CommandButton" style="float:right;margin-top:-3px"
+								disabled="#{empty(programManagerModel.enrolledStudents)}"
+								action="#{programManagerModel.saveEnrolledStudents}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.visibleEnrollStaff}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Enroll new staff members into program: #{programManagerModel.studentGroup.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeStaffButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{programManagerModel.enrollStaffPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:865px;margin-top:10px">
+							<ice:panelGroup style="margin-left:-20px">
+								<ice:messages />
+							</ice:panelGroup>
+
+							<ice:panelGrid styleClass="borderBox" style="width:100%"
+								rendered="#{programManagerModel.flag == 'new'}">
+								<ice:panelGrid columns="4">
+									<ice:outputText value="Search staff by :" />
+									<ice:selectOneRadio value="#{programManagerModel.searchValue}"
+										partialSubmit="true"
+										style="border:none;margin-top:-13px;margin-bottom:-20px;margin-left:-20px;">
+										<f:selectItem itemValue="name" itemLabel="Name" />
+										<f:selectItem itemValue="id" itemLabel="StaffId" />
+									</ice:selectOneRadio>
+									<ice:inputText id="inputTextStaffSearch"
+										action="#{programManagerModel.searchStaff}"
+										value="#{programManagerModel.searchText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonStaffSearch"
+										action="#{programManagerModel.searchStaff}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStaffs" scrollable="true"
+									rendered="#{programManagerModel.flag == 'new'}"
+									columnWidths="40px,250px,150px,80px,80px,85px,100px"
+									scrollHeight="130px" value="#{programManagerModel.staffList}"
+									var="staff" style="margin-bottom:10px">
+									<ice:column style="text-align:center;width:30px">
+										<ice:rowSelector id="rowselectStaff"
+											value="#{staff.ui_selected}"
+											clickListener="#{programManagerModel.selectStaff}">
+											<f:attribute name="staff" value="#{staff}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Id" style="width:30px" />
+										</f:facet>
+										<ice:outputText value="#{staff.staffId}" />
+									</ice:column>
+									<ice:column>
+										<f:facet name="header">
+											<ice:outputText value="Staff Name" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.name}" />
+									</ice:column>
+									<ice:column>
+										<f:facet name="header">
+											<ice:outputText value="Staff Skills" />
+										</f:facet>
+										<ice:outputText>
+											<ice:repeat value="#{staff.skills}" var="skills"
+												varStatus="status">
+												#{skills.skill.itemValue} &nbsp;
+											</ice:repeat>
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Contact Number" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.contactNumber}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" />
+										</f:facet>
+										<ice:outputText value="#{staff.gender}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Staff Type" />
+										</f:facet>
+										<ice:outputText value="#{staff.type.name}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Employment Type" />
+										</f:facet>
+										<ice:outputText value="#{staff.employmentType}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<fieldset
+								style="margin-top: 10px; height: 40px; border-color: rgb(124, 178, 195);">
+								<legend>
+									<ice:outputLabel value="Required Staff Skills" />
+								</legend>
+								<ice:panelGrid columns="1"
+									style="margin-top:5px;margin-bottom:10px;">
+
+									<ice:outputText
+										rendered="#{!empty(programManagerModel.studentGroup.staffSkills)}">
+										<ice:repeat
+											value="#{programManagerModel.studentGroup.staffSkills}"
+											var="sk" varStatus="status">
+												#{sk.itemValue} <ice:outputText rendered="#{!status.last}"> / </ice:outputText>
+										</ice:repeat>
+									</ice:outputText>
+									<ice:outputText
+										rendered="#{empty(programManagerModel.studentGroup.staffSkills)}">
+												No skills assigned to the program
+										</ice:outputText>
+								</ice:panelGrid>
+							</fieldset>
+							<fieldset
+								style="margin-top: 10px; border-color: rgb(124, 178, 195);">
+								<legend>
+									<ice:outputLabel value="Program Schedule" />
+								</legend>
+								<ice:panelGrid columns="2"
+									style="margin-top:5px;margin-bottom:5px"
+									rendered="#{programManagerModel.staffMember != null}">
+									<ice:panelGroup>
+										<ice:outputText value="Selected StaffMember :" />
+									</ice:panelGroup>
+									<ice:outputLabel style="margin-left:3px"
+										value="#{programManagerModel.staffMember.contact.name}" />
+								</ice:panelGrid>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{programManagerModel.staffMember == null}">
+									<ice:outputText
+										value="Please select a StaffMember to view details." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2"
+									rendered="#{programManagerModel.staffMember != null}">
+									<ice:outputText value="Scheduled Day(s) :" />
+									<br />
+									<ice:panelGroup
+										style="max-height: 150px;overflow:auto; width: 850px; margin-right: -20px;">
+										<ui:repeat var="groupedstaffweekday" id="weekdaysitr"
+											value="#{programManagerModel.groupedStaffWeekdayLs}">
+											<ice:panelGrid columns="7">
+												<ice:panelGroup style="width: 120px">
+													<ice:selectBooleanCheckbox
+														value="#{groupedstaffweekday.ui_selected}"
+														partialSubmit="true" />
+													<ice:outputText value="#{groupedstaffweekday.weekday.name}" />
+												</ice:panelGroup>
+												<ice:outputText value="Start Time :" />
+												<comp:timeControl id="groupStaffweekDaystartTime"
+													disabled="#{!groupedstaffweekday.ui_selected}"
+													value="#{groupedstaffweekday.groupStaffStartTime}" />
+												<ice:outputText value="End Time :"
+													style="margin-left: 20px;" />
+												<comp:timeControl id="groupStaffweekDayEndTime"
+													disabled="#{!groupedstaffweekday.ui_selected}"
+													value="#{groupedstaffweekday.groupStaffEndTime}" />
+												<ice:outputText value="Lunch time :"
+													style="margin-left: 20px;"
+													rendered="#{programManagerModel.studentGroup.lunchIncluded}" />
+												<ice:inputText value="#{groupedstaffweekday.lunch}"
+													rendered="#{programManagerModel.studentGroup.lunchIncluded}"
+													disabled="#{!groupedstaffweekday.ui_selected}"
+													style="width: 30px" />
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</fieldset>
+
+							<!-- <ice:outputText
+								value="Number of Staff Member(s) selected : #{programManagerModel.enrolledStaff.size()}" /> -->
+							<ice:commandButton id="commandUpdateStaff" value="Update"
+								rendered="#{programManagerModel.flag == 'edit'}"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{programManagerModel.staffMember == null}"
+								action="#{programManagerModel.enrollStaffNExit}" />
+							<ice:commandButton id="commandAddStaff"
+								value="Enroll Staff &amp; Exit"
+								rendered="#{programManagerModel.flag == 'new'}"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{programManagerModel.staffMember == null}"
+								action="#{programManagerModel.enrollStaffNExit}" />
+							<ice:commandButton id="commandAddExitStaff" value="Enroll Staff"
+								rendered="#{programManagerModel.flag == 'new'}"
+								styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-right:5px"
+								disabled="#{programManagerModel.staffMember == null}"
+								action="#{programManagerModel.enrollStaff}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.visibleProEvents}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Generate program events"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeGenerateButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{programManagerModel.proEventsPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:messages />
+							<ice:panelGrid columns="4" cellspacing="10" width="100%">
+								<ice:outputText value="Program Start Date" />
+								<ice:panelGroup>
+									<ice:outputText value=": " />
+									<ice:outputLabel
+										value="#{programManagerModel.program.startDate}"
+										converter="dateConverter" />
+								</ice:panelGroup>
+								<ice:outputText value="Program End Date" />
+								<ice:panelGroup>
+									<ice:outputText value=": " />
+									<ice:outputLabel value="#{programManagerModel.program.endDate}"
+										converter="dateConverter" />
+								</ice:panelGroup>
+								<ice:outputText value="Events Start Date" />
+								<ice:selectInputDate id="inputProgramFirstSearchDate"
+									value="#{programManagerModel.startDate}" renderAsPopup="true"
+									renderMonthAsDropdown="true" renderYearAsDropdown="true"
+									converter="dateConverter" />
+								<ice:outputText value="Events End Date" />
+								<ice:selectInputDate id="inputProgramSecondSearchDate"
+									value="#{programManagerModel.endDate}" renderAsPopup="true"
+									renderMonthAsDropdown="true" renderYearAsDropdown="true"
+									converter="dateConverter">
+								</ice:selectInputDate>
+								<ice:outputText value="Start Time" />
+								<comp:timeControl id="startTime1"
+									value="#{programManagerModel.startTime}" />
+								<ice:outputText value="End Time" />
+								<comp:timeControl id="endTime1"
+									value="#{programManagerModel.endTime}" />
+								<!-- <ice:outputText value="Coordinator" />
+								<ice:selectOneMenu id="selectProEventGenStaff"
+									style="width:188px"
+									value="#{programManagerModel.selectedStaffId}">
+									<f:selectItems
+										value="#{programManagerModel.coordinatorSelectItems}" />
+								</ice:selectOneMenu> -->
+								<ice:outputText value="Location" />
+								<ice:selectOneMenu id="selectProEventGenLocation"
+									style="width:188px"
+									value="#{programManagerModel.selectedLocationId}">
+									<f:selectItems
+										value="#{programManagerModel.locationSelectItems}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Coordinator" />
+								<ice:selectOneMenu id="selectEvntCoordinator"
+									style="width:188px"
+									disabled="#{programManagerModel.eventStatus == 'finished'}"
+									value="#{programManagerModel.selectedCoordinatorId}">
+									<f:selectItems
+										value="#{programManagerModel.coordinatorSelectItems}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Charge Amount"
+									rendered="#{programManagerModel.programType.name != 'Staff'}" />
+								<ice:inputText id="inputTextChargeAmount" style="width:180px"
+									value="#{programManagerModel.eventChargeAmount}"
+									rendered="#{programManagerModel.programType.name != 'Staff'}">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+								</ice:inputText>
+								<ice:outputText value="Include lunch break"
+									rendered="#{programManagerModel.program.type.name == 'Staff'}" />
+								<ice:selectBooleanCheckbox
+									id="selectGenerateIncludeProgramLunchBreak"
+									value="#{programManagerModel.includeBreak}"
+									rendered="#{programManagerModel.program.type.name == 'Staff'}" />
+								<ice:outputText value="Recurrence Type" />
+								<ice:selectOneRadio
+									style="height:20px;border:none;margin-top:-15px;margin-left:-20px"
+									value="#{programManagerModel.recurrenceType}"
+									partialSubmit="true">
+									<f:selectItems value="#{lookupListProvider.recurrenceType}" />
+								</ice:selectOneRadio>
+							</ice:panelGrid>
+							<ice:panelGrid columns="2">
+								<ice:panelGroup style="width:132px">
+									<ice:outputText value="Scheduled Day(s)"
+										style="margin-left:9px"
+										rendered="#{programManagerModel.recurrenceType == 'Weekly'}" />
+								</ice:panelGroup>
+								<ice:selectManyCheckbox id="selectEventDays"
+									value="#{programManagerModel.selectedWeekDayIds}"
+									partialSubmit="true" style="width:31px"
+									rendered="#{programManagerModel.recurrenceType == 'Weekly'}">
+									<f:selectItems value="#{lookupListProvider.weekDays}" var="day"
+										itemLabel="#{day.name}" itemValue="#{day.id}" />
+								</ice:selectManyCheckbox>
+							</ice:panelGrid>
+							<br />
+							<ice:commandButton value="Generate Program Events"
+								id="commandGenerateProEvent"
+								action="#{programManagerModel.generateProgramEvents}"
+								style="float:right" styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<comp:confirmationPopup
+					rendered="#{programManagerModel.visibleStatusConfirmation}"
+					actionListener="#{programManagerModel.confirmationStatusAction}"
+					message="#{programManagerModel.confirmationStatusMessage}" />
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.visibleCheckStudentEvents}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add to existing events"
+								rendered="#{programManagerModel.groupedStudent.status != 'Excluded'}"
+								styleClass="popupHeaderText" />
+							<ice:outputText value="Remove from existing events"
+								rendered="#{programManagerModel.groupedStudent.status == 'Excluded'}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeEventButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{programManagerModel.enrollStudentEventsPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:710px;margin-top:10px">
+							<ice:messages tooltip="true" showDetail="true" showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true" />
+							</ice:messages>
+							<ice:panelGrid styleClass="borderBox" width="100%">
+								<ice:panelGrid columns="4">
+									<ice:outputLabel value="#{msgs['student_label']} Name :" />
+									<ice:outputText style="margin-right:20px"
+										value="#{programManagerModel.groupedStudent.student.contact.name}" />
+									<ice:outputLabel value="Status :" />
+									<ice:outputText value="Excluded"
+										rendered="#{programManagerModel.groupedStudent.status == 'Excluded'}" />
+									<ice:outputText value="Active"
+										rendered="#{programManagerModel.groupedStudent.status != 'Excluded'}" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStudEvents" scrollable="true"
+									columnWidths="30px,320px,100px,100px,100px"
+									scrollHeight="200px"
+									value="#{programManagerModel.availableEvents}" var="event"
+									style="margin-bottom:10px">
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectEventBooleanAll"
+												partialSubmit="true"
+												disabled="#{programManagerModel.availableEvents == null || empty(programManagerModel.availableEvents)}"
+												value="#{programManagerModel.selectAllEvents}"
+												valueChangeListener="#{programManagerModel.selectAllEvents}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{event.ui_selected}"
+											id="selectBooleanEvent" partialSubmit="true"
+											valueChangeListener="#{programManagerModel.selectEvent}">
+											<f:attribute name="event" value="#{event}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column style="text-align:left">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{event.name}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Event Date" />
+										</f:facet>
+										<ice:outputText value="#{event.eventDate}"
+											converter="dateConverter" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Start Time" />
+										</f:facet>
+										<ice:outputText value="#{event.startTime}">
+											<f:convertDateTime type="time" timeStyle="short" />
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="End Time" />
+										</f:facet>
+										<ice:outputText value="#{event.endTime}">
+											<f:convertDateTime type="time" timeStyle="short" />
+										</ice:outputText>
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:outputText
+								value="Number of Event(s) selected : #{programManagerModel.enrolledEvents.size()}" />
+							<ice:commandButton id="commandAddEvent" value="Add"
+								styleClass="CommandButton"
+								style="float:right;margin-top:-3px;width:100px"
+								disabled="#{empty(programManagerModel.enrolledEvents)}"
+								rendered="#{programManagerModel.groupedStudent.status != 'Excluded'}"
+								action="#{programManagerModel.saveEnrolledEvents}" />
+							<ice:commandButton id="commandRemoveEvent" value="Remove"
+								styleClass="CommandButton"
+								style="float:right;margin-top:-3px;width:100px"
+								disabled="#{empty(programManagerModel.enrolledEvents)}"
+								rendered="#{programManagerModel.groupedStudent.status == 'Excluded'}"
+								action="#{programManagerModel.deleteEnrolledEvents}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.showCommittedEvent}"
+					style="height:110px">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Committed Events Records Wizard :  #{programManagerModel.studentGroup.name} "
+								styleClass="popupHeaderText" />
+
+							<ice:commandButton id="closeCommittedEventPopup"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{programManagerModel.showCommittedEventPopUp}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:550px;margin-top:10px">
+							<ice:outputText
+								value="This group has been included in NDIS committed events...do you want to update ?"></ice:outputText>
+							<ice:panelGroup style="margin-top:25px">
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px" value="No"
+									action="#{programManagerModel.cancelUpdateCEvent}"></ice:commandButton>
+								<ice:outputText value=" "></ice:outputText>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:20px"
+									value="Yes"
+									action="#{programManagerModel.UpdateCommittedEvents}"></ice:commandButton>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{programManagerModel.showExcludeStdPopup}"
+					style="height:110px">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Committed Event Records found"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeCommittedEventStdPopup"
+								image="#{msgs['panelPopup.closeImage']}"
+								actionListener="#{programManagerModel.unCommitEvents}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" >
+								<f:attribute name="act" value="cancel"/> 
+							</ice:commandButton>	
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:550px;margin-top:10px">
+							<ice:outputText
+								value="Do you wish to cancel NDIS commitments for the program #{programManagerModel.groupedStudent.student.contact.name}?" />
+							<ice:panelGroup style="margin-top:25px">
+							    <ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:20px"
+									value="Cancel"
+									actionListener="#{programManagerModel.unCommitEvents}">
+									<f:attribute name="act" value="cancel" />
+								</ice:commandButton>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:10px" value="No"
+									actionListener="#{programManagerModel.unCommitEvents}">
+									<f:attribute name="act" value="no" />
+								</ice:commandButton>
+								<ice:outputText value=" "></ice:outputText>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:10px"
+									value="Yes"
+									actionListener="#{programManagerModel.unCommitEvents}">
+									<f:attribute name="act" value="yes" />
+								</ice:commandButton>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

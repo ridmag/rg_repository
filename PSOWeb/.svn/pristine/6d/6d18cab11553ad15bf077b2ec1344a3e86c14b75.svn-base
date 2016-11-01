@@ -1,0 +1,79 @@
+<table width="100%">
+	<tr>
+		<td>
+			<h4>
+				<u>INDIVIDUAL ATTENDANCE SHEET</u>
+			</h4>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" style="font-size: 10">
+				<tr>
+					<td style="font-weight: bold; width: 70px">Program</td>
+					<td>$proEvents.get(0).program.name</td>
+					<td style="font-weight: bold; width: 85px">Group</td>
+					<td>$proEvents.get(0).group.name</td>
+				</tr>
+				<tr>
+					<td style="font-weight: bold">Event Date</td>
+					<td>$$dateFormat.format($proEvent.eventDate)</td>
+					<td style="font-weight: bold">Period Ending</td>
+					<td>$dateFormat.format($periodEnd)</td>
+				</tr>
+				<tr>
+					<td style="font-weight: bold">Coordinator</td>
+					<td>#if($proEvents.get(0).program.coordinator)
+						$proEvents.get(0).program.coordinator.contact.name #else Not
+						Assigned #end</td>
+					<td style="font-weight: bold; width: 85px">Location</td>
+					<td>$proEvents.get(0).group.location.name</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr style="font-size: 10">
+		<td>
+			<p /> #set($count = 0) #set($page = 0) #set($newpage=true)
+			<table width="100%" style="border-collapse: collapse" border="1">
+				<tr style="background-color: #CCCCFF">
+					<td align="center" style="width: 32px;">ID</td>
+					<td align="center" style="width: 150px">Staff Member</td>
+					<td align="center" style="width: 150px">Start Time</td>
+					<td align="center" style="width: 150px">End Time</td>
+					<td align="center" style="width: 30px">Att.</td>
+					<td align="center">Remarks</td>
+				</tr>
+				#foreach( $proEvent in $proEvents )
+				<tr>
+					<td align="right" style="padding-right: 2px">$proEvent.id</td>
+					<td valign="middle" style="padding-left: 2px">
+						#set($staffcount = 1) #foreach($staff in $proEvent.staffEvents)
+						#set($tmpPage = $page) #set($page = $count/5) #if($staffcount ==
+						$proEvent.staffEvents.size()) $staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName #else
+						$staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName, #end #set($staffcount =
+						$staffcount+1) #end</td> 
+						
+					#foreach($event in $proEvent.staffEvents)
+					<td valign="middle" align="center">
+					#if($event.startTime != null) $event.startTime ##elseif($event.programEvent.actualStartTime != null) $event.programEvent.actualStartTime #else $event.programEvent.startTime #end
+					</td> 
+					<td valign="middle" align="center">
+					#if($event.endTime != null) $event.endTime ##elseif($event.programEvent.actualEndTime != null) $event.programEvent.actualEndTime #else $event.programEvent.endTime #end
+					</td> 
+					#foreach($event in $proEvent.studentEvents)
+					<td valign="middle" align="center">
+					#if($event.attended) Yes #end</td>
+					<td valign="middle" style="padding-left: 2px">
+						#if($event.remarks) $event.remarks #end</td> #end
+				</tr>
+				#end
+			</table>
+		</td>
+	</tr>
+</table>
+<fo:block break-after="page">
+	<fo:leader />
+</fo:block>

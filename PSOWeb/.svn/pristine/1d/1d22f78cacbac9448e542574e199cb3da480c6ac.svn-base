@@ -1,0 +1,18 @@
+package com.itelasoft.pso.services;
+import java.util.List;
+
+import com.itelasoft.pso.beans.NdisInvoiceItem;
+import com.itelasoft.pso.dao.INdisInvoiceItemDao;;
+
+public class NdisInvoiceItemService extends
+		GenericService<NdisInvoiceItem, Long> implements
+		INdisInvoiceItemService {
+	
+	private INdisInvoiceItemDao ndisInvoiceItemDao;
+
+	public void setNdisInvoiceItemDao(INdisInvoiceItemDao ndisInvoiceItemDao) {
+		this.ndisInvoiceItemDao = ndisInvoiceItemDao;
+	}
+	
+	
+}

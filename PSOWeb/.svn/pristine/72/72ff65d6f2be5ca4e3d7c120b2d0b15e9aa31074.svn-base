@@ -1,0 +1,660 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0001</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0002</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0004</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0005</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:commandStaffNew</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>John</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>11/04/1978</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectRadioStaff:_2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>01/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneLeavePolicy</td>
+	<td>label=Sample Policy</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test street</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydney</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>12345678</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>123456789</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>test@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>

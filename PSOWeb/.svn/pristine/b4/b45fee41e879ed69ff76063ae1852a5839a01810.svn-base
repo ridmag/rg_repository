@@ -1,0 +1,226 @@
+
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:leavePolicyMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td>Sample Policy</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:0:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:leaveTypeSelectItems</td>
+	<td>label=Medical</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:leaveTypeSelectItems</td>
+	<td>label=Annual</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicySave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:leavePolicyMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td>Sample Policy 2</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:0:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:leaveTypeSelectItems</td>
+	<td>label=Medical</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:leaveTypeSelectItems</td>
+	<td>label=Annual</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicySave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:leavePolicyMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:inputPolicyName</td>
+	<td>Sample Policy 3</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:0:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:1:leaveTypeSelectItems</td>
+	<td>label=Medical</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:inputdaysEntitled</td>
+	<td>07</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formLeavePolicy:seriesPolicyDetail:2:leaveTypeSelectItems</td>
+	<td>label=Annual</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicySave</td>
+	<td></td>
+</tr>

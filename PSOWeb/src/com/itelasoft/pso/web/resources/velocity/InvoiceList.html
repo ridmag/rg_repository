@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<body>
+
+	#foreach( $invoice in $invoices )
+		#parse ('Invoice.html')
+		<fo:block break-after="odd-page">
+			<fo:leader />
+		</fo:block>
+	#end
+</body>
+</html>

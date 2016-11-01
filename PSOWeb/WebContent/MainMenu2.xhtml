@@ -1,0 +1,276 @@
+<ice:form xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets" id="formMenu"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+	<ice:panelGroup style="width:250px">
+		<ace:panel header="Programs" toggleable="true" toggleSpeed="700">
+			<f:facet name="header">
+				<img src="images/icons/program.png"></img>Programs
+		</f:facet>
+			<ace:menu id="programsMenuItem" title="Programs"
+				style="min-width:150px;" icon="images/icons/program.png"
+				action="ProgramManager"
+				actionListener="#{programManagerModel.initStudentPrograms}">
+				<ace:menuItem id="studentProgramsMenuItem"
+					value="#{msgs['student_label']} Cost Center"
+					action="ProgramManager" icon=""
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}"
+					actionListener="#{programManagerModel.initStudentPrograms}"
+					styleClass="menu#{selectedMenu == 'StudentPROG'}Item" />
+				<ace:menuItem id="transportProgramsMenuItem" icon=""
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}"
+					value="Transport Runs" action="TransportManager"
+					actionListener="#{transportManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'TPROG'}Item" />
+
+				<ace:menuItem id="staffProgramsMenuItem" value="Staff Cost Center"
+					action="ProgramManager" icon=""
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}"
+					actionListener="#{programManagerModel.initStaffPrograms}"
+					styleClass="menu#{selectedMenu == 'StaffPROG'}Item" />
+				<ace:menuItem id="EventMenuItem" value="Event Manager" icon=""
+					rendered="#{(request.isUserInRole('ROLE_USER')) || (request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}"
+					action="EventManager" actionListener="#{eventManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'EVENT'}Item" />
+			</ace:menu>
+
+		</ace:panel>
+		<ace:panel header="#{msgs['students_label']}" toggleable="true"
+			toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/users.png"></img>#{msgs['students_label']}
+		</f:facet>
+			<ace:menu>
+				<ace:menuItem id="studentsMenuItem"
+					value="#{msgs['students_label']}" icon="images/icons/students.png"
+					action="StudentManager"
+					actionListener="#{studentManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'STUD'}Item" />
+				<!-- <ace:menuItem id="studentSearchMenuItem" value="#{msgs['student_label']} Search"
+				icon="images/icons/students.png" action="StudentSearch"
+				actionListener="#{studentManagerModel.init}"
+				styleClass="menu#{selectedMenu == 'STD_SCH'}Item" /> -->
+				<ace:menuItem id="std360MenuItem"
+					value="#{msgs['student_label']}'s 360° View"
+					action="Student360Manager" icon=""
+					actionListener="#{studentManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'STUD360'}Item" />
+			</ace:menu>
+
+		</ace:panel>
+		<ace:panel header="Staff" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/students.png"></img>Staff
+		</f:facet>
+
+			<ace:menu id="staffMenuItem" value="Staff"
+				icon="images/icons/students.png" action="StaffManager"
+				actionListener="#{staffManagerModel.init}">
+				<ace:menuItem value="Staff" action="StaffManager" icon=""
+					actionListener="#{staffManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'STAFF'}Item" />
+			</ace:menu>
+
+		</ace:panel>
+		<ace:panel header="Roster" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/report.png"></img>Roster
+		</f:facet>
+			<ace:menu>
+				<ace:menuItem id="staffRosterMenuItem" value="Roster"
+					icon="images/icons/roster.png" action="RosterManager"
+					actionListener="#{rosterManagerModel.init}" style="width:80px"
+					styleClass="menu#{selectedMenu == 'ROSTER'}Item" />
+				<ace:menuItem id="staffTimeTrackerMenuItem" icon=""
+					value="Staff Time Tracker" action="StaffTimeTracker"
+					actionListener="#{timeTrackerModel.initStaffTracker}"
+					styleClass="menu#{selectedMenu == 'STTRACK'}Item" />
+			</ace:menu>
+
+		</ace:panel>
+		<ace:panel header="Activity Statements" toggleable="true"
+			toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER'))  || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/invoice.png"></img>Act. Stm.
+		</f:facet>
+			<ace:menu>
+				<ace:menuItem id="invoiceMenuItem" value="Act. Stmts"
+					alt="Activity Statements" icon="images/icons/invoice.png"
+					action="InvoiceManager"
+					actionListener="#{invoiceManagerModel.initStatements}"
+					style="width:100px"
+					styleClass="menu#{selectedMenu == 'INVOICE'}Item" />
+				<ace:menuItem id="paymentsMenuItem" value="Payments"
+					action="PaymentManager" style="width:180px" icon=""
+					actionListener="#{invoiceManagerModel.initPayments}"
+					styleClass="menu#{selectedMenu == 'PMNT'}Item" />
+			</ace:menu>
+
+		</ace:panel>
+		<ace:panel header="NDIS" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/students.png"></img>NDIS
+		</f:facet>
+			<ace:menu id="ndisItem" value="NDIS" icon="images/icons/students.png"
+				action="NdisInvoiceManager"
+				actionListener="#{ndisInvoiceManagerModel.init}">
+				<ace:menuItem value="NDIS Programs" action="NdisProgramManager"
+					icon="" actionListener="#{ndisProgramManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'NDISPROGRAM'}Item" />
+				<ace:menuItem value="NDIS Claim" action="NdisInvoiceManager" icon=""
+					actionListener="#{ndisInvoiceManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'NDIS'}Item" />
+			</ace:menu>
+		</ace:panel>
+		<ace:panel header="Reports" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/report.png"></img>Reports
+		</f:facet>
+			<ace:menu id="absenteeReportMenuItem" label="Absentees" icon=""
+				tiered="true">
+				<ace:submenu label="Absentees" tiered="true">
+					<ace:menuItem id="individualAbsenteeReport" value="Individual"
+						action="Report_Absentee_Individual" icon=""
+						actionListener="#{reportManagerModel.initIndividualAbsenteeReport}" />
+					<ace:menuItem id="allAbsenteeReport"
+						value="All #{msgs['students_label']}" action="Report_Absentee_All"
+						icon=""
+						actionListener="#{reportManagerModel.initAllAbsenteeReport}" />
+				</ace:submenu>
+				<ace:submenu id="fundingReportMenuItem" label="Fundings"
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE'))}"
+					tiered="true">
+					<ace:menuItem id="dailyFundingReport" value="Daily Receipts"
+						action="Report_Daily_Receipt" icon=""
+						actionListener="#{reportManagerModel.initDailyReceiptReport}" />
+					<ace:menuItem id="programFundingReport" value="Program Receipts"
+						action="Report_Funding_Program" icon="" />
+				</ace:submenu>
+			</ace:menu>
+			<ace:menu label="Reports" icon="images/icons/report.png"
+				style="z-index:0" id="reportMenuItem">
+				<ace:menuItem id="anniversaryReportMenuItem" style="width:180px"
+					value="Anniversary" action="Report_Anniversary" icon=""
+					actionListener="#{reportManagerModel.initAnniversaryReport}"
+					styleClass="menu#{selectedMenu == 'REPORTANN'}Item" />
+				<ace:menuItem id="utilReportMenuItem" value="Hours Utilized"
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE')) || (request.isUserInRole('ROLE_ADMIN'))}"
+					style="width:180px" action="Report_Hours_Utilized" icon=""
+					actionListener="#{reportManagerModel.initHoursUtilizedReport}"
+					styleClass="menu#{selectedMenu == 'REPORTHU'}Item" />
+				<ace:menuItem id="studentsEventsMenuItem"
+					value="#{msgs['student_label']} Events" style="width:180px"
+					action="Report_Student_Events" icon=""
+					actionListener="#{reportManagerModel.initStudentEventsReport}"
+					styleClass="menu#{selectedMenu == 'REPORTSE'}Item" />
+				<ace:menuItem id="eventsReportMenuItem" value="Events Completion"
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE')) || (request.isUserInRole('ROLE_ADMIN'))}"
+					style="width:180px" action="Report_Event_Completion" icon=""
+					actionListener="#{reportManagerModel.initEventCompletionReport}"
+					styleClass="menu#{selectedMenu == 'REPORTEC'}Item" />
+				<ace:menuItem id="individualCollectionReport"
+					value="#{msgs['student_label']} Collections" style="width:180px"
+					action="Report_Collections_Individual" icon=""
+					actionListener="#{reportManagerModel.initCollectionsIndvReport}"
+					styleClass="menu#{selectedMenu == 'REPORTSC'}Item" />
+				<ace:menuItem id="nonConsentMenuItem"
+					value="#{msgs['students_label']}' Consents" style="width:180px"
+					action="Report_Student_Consents" icon=""
+					actionListener="#{reportManagerModel.initConsentReport}"
+					styleClass="menu#{selectedMenu == 'REPORTSCN'}Item" />
+				<ace:menuItem id="criminalReportMenuItem" icon=""
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE')) || (request.isUserInRole('ROLE_ADMIN'))}"
+					value="Criminal Check Status" style="width:180px"
+					action="Report_Criminal_Check"
+					styleClass="menu#{selectedMenu == 'REPORTCC'}Item" />
+				<ace:menuItem id="OutstandingInvoiceMenuItem"
+					rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE')) || (request.isUserInRole('ROLE_ADMIN'))}"
+					value="Outstanding Act. Stmts." style="width:180px"
+					action="Report_Outstanding_Invoices" icon=""
+					actionListener="#{reportManagerModel.initOutstandingInvoiceReport}"
+					styleClass="menu#{selectedMenu == 'REPORTOI'}Item" />
+			</ace:menu>
+		</ace:panel>
+		<ace:panel header="Config" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<f:facet name="header">
+				<img src="images/icons/configure.png"></img>Config
+		</f:facet>
+			<ace:menu>
+				<ace:menuItem id="vehicleMenuItem" value="Vehicles" icon=""
+					action="VehicleManager"
+					actionListener="#{vehicleManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGV'}Item" />
+				<ace:menuItem id="LocationMenuItem" value="Locations"
+					action="LocationManager" icon=""
+					actionListener="#{locationManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGL'}Item" />
+				<ace:menuItem id="CollectionMenuItem" value="Collections"
+					action="CollectionsManager" icon=""
+					actionListener="#{collectionManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGC'}Item" />
+				<ace:menuItem id="leavePolicyMenuItem" value="Leave Policies"
+					action="LeavePolicyManager" icon=""
+					actionListener="#{leavePolicyManager.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGLP'}Item" />
+				<ace:menuItem id="SpecialNeedMenuItem" value="Special Needs"
+					action="SpecialNeedManager" icon=""
+					actionListener="#{sNeedManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGSN'}Item" />
+				<ace:menuItem id="referenceItemMenuItem" value="Reference Items"
+					action="ReferenceItems" icon=""
+					actionListener="#{referenceItemManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGRI'}Item" />
+				<ace:menuItem id="fundingSourceMenuItem" value="Funding Sources"
+					icon="" action="FundingManager"
+					actionListener="#{fundingManagerModel.init}"
+					styleClass="menu#{selectedMenu == 'CONFIGFS'}Item" />
+				<ace:menuItem id="HolidayMenuItem" value="Holiday Manager" icon=""
+					actionListener="#{holidayManagerModel.init}"
+					action="HolidayManager"
+					styleClass="menu#{selectedMenu == 'CONFIGHM'}Item" />
+				<ace:menuItem id="ConsentMenuItem"
+					value="#{msgs['student_label']} Consents" icon=""
+					actionListener="#{consentManagerModel.init}"
+					action="ConsentManager"
+					styleClass="menu#{selectedMenu == 'CONFIGCM'}Item" />
+				<ace:menuItem id="ExternalSourceMenuItem" value="Ext. Organizations"
+					actionListener="#{externalOrganizationManagerModel.init}" icon=""
+					action="ExternalOrganizationManager"
+					styleClass="menu#{selectedMenu == 'CONFIGEO'}Item" />
+				<ace:menuItem id="NdisMenuItem" value="NDIS Support Cluster"
+					actionListener="#{ndisSupportItemManagerModel.init}" icon=""
+					action="NdisSupportItemManager"
+					styleClass="menu#{selectedMenu == 'CONFINIS'}Item" />
+				<ace:menuItem id="InternalOrganization"
+					value="Internal Organization"
+					actionListener="#{internalOrganizationModel.init}" icon=""
+					action="InternalOrganizationManager"
+					styleClass="menu#{selectedMenu == 'CONFIO'}Item" />
+			</ace:menu>
+		</ace:panel>
+		<ace:panel header="WHS" toggleable="true" toggleSpeed="700"
+			rendered="#{(request.isUserInRole('ROLE_SUPERUSER')) || (request.isUserInRole('ROLE_SUPERVISOR')) || (request.isUserInRole('ROLE_ADMIN')) || (request.isUserInRole('ROLE_FINANCE'))}">
+			<ace:menu>
+				<ace:menuItem id="communicationManagerMenuItem" value="Comm'n"
+					icon="images/icons/communication.png" action="CommunicationManager"
+					actionListener="#{communicationManagerModel.init}"
+					style="width:105px" styleClass="menu#{selectedMenu == 'COMM'}Item" />
+				<ace:menuItem id="menuIncidentForm" value="IncidentForm"
+					action="OHS_IncidentForm" />
+				<ace:menuItem id="menuBehaviourForm" value="BehaviourForm"
+					action="OHS_BehaviourForm" />
+				<ace:menuItem id="menuHazardReport" value="HazardReport"
+					action="OHS_HazardReport" />
+			</ace:menu>
+		</ace:panel>
+	</ice:panelGroup>
+</ice:form>

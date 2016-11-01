@@ -1,0 +1,240 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:fundingSourceMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:tableFundingSources:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:tableFundingSources:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td>123456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletName</td>
+	<td>aaaaaa</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletMdsid</td>
+	<td>E123</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletDes</td>
+	<td>Sample Des</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commandSaveOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:fundingSourceMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:tableFundingSources:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:tableFundingSources:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td>123457</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletName</td>
+	<td>bbbbbb</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletMdsid</td>
+	<td>E124</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletDes</td>
+	<td>Sample Des</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commandSaveOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:fundingSourceMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:tableFundingSources:1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:tableFundingSources:1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td>123456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletName</td>
+	<td>aaaaaa</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletMdsid</td>
+	<td>E123</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletDes</td>
+	<td>Sample Des</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commandSaveOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:fundingSourceMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:tableFundingSources:1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:tableFundingSources:1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commanButtonAddNewOutlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputserviceId</td>
+	<td>123456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletName</td>
+	<td>aaaaaa</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletMdsid</td>
+	<td>E123</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=fundingForm:inputOutletDes</td>
+	<td>Sample Des</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=fundingForm:commandSaveOutlet</td>
+	<td></td>
+</tr>

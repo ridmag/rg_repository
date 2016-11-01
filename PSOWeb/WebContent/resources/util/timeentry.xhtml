@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:editableValueHolder name="text" targets="editableText" />
+       
+</composite:interface>
+<composite:implementation>
+	<h:outputScript library="js" name="jquery.min.js" target="head" />
+	<h:outputScript library="js" name="jquery.timeentry.js"
+		target="head" />
+	<h:outputStylesheet library="css" name="jquery.timeentry.css"
+		target="head"></h:outputStylesheet>
+		
+	<span id="#{cc.clientId}">
+		<ice:inputText id="editableText" value="#{cc.attrs.text}" />
+	</span>
+	<script>
+	jQuery.noConflict()
+	var id = '##{cc.clientId}:editableText';
+	
+	id=id.replace(/:/g,"\\:");
+	jQuery(id).timeEntry().change(function() { 
+	    var log = jQuery('#log'); 
+	    log.val(log.val() + (jQuery(id).val() || 'blank') + '\n'); 
+	});
+	</script>
+</composite:implementation>
+
+</html>

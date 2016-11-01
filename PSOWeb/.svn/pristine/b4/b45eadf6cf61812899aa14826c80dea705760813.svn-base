@@ -1,0 +1,27 @@
+﻿SELECT 
+  students.id, 
+  students.cisid, 
+  students.mdsid, 
+  students.status, 
+  students.serviceenddate, 
+  contacts.title, 
+  contacts.firstname, 
+  contacts.lastname, 
+  contacts.middlenames, 
+  contacts.businessname, 
+  contacts.streetaddress, 
+  contacts.city, 
+  contacts.state, 
+  contacts.postcode, 
+  contacts.country, 
+  contacts.mobilephone, 
+  contacts.homephone, 
+  contacts.officephone, 
+  contacts.email, 
+  contacts.sendnewsletter, 
+  contacts.sendinvoice,
+FROM 
+  public.contacts, 
+  public.students
+WHERE 
+  students.contactid = contacts.id;

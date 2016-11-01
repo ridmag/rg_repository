@@ -1,0 +1,995 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{communicationManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="COMM"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Communication Manager</ui:define>
+		<ui:define name="pageDescription">Select a Communication from the list to, go to the details of each Communication.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="communicationManager">
+				<div class="bodyContainer">
+					<div style="min-width: 1200px">
+						<fieldset style="float: left; width: 220px; height: 500px">
+							<legend>
+								<ice:outputLabel value="Communication Categories" />
+							</legend>
+							<ice:panelGroup style="height:493px; width:230px; overflow:auto">
+								<ice:tree id="tree"
+									value="#{communicationManagerModel.treeModel}" var="item"
+									imageDir="./xmlhttp/css/xp/css-images/" style="margin-top:10px">
+									<ice:treeNode>
+										<f:facet name="icon">
+											<ice:panelGroup style="display: inline">
+												<h:graphicImage value="#{item.userObject.icon}" />
+											</ice:panelGroup>
+										</f:facet>
+										<f:facet name="content">
+											<ice:panelGroup style="display: inline">
+												<ice:commandLink value="#{item.userObject.text}"
+													actionListener="#{communicationManagerModel.selectCategory}"
+													rendered="#{communicationManagerModel.branchNode != item}">
+													<f:attribute name="object" value="#{item}" />
+												</ice:commandLink>
+												<ice:commandLink value="#{item.userObject.text}"
+													style="font-weight:bold;color:black"
+													actionListener="#{communicationManagerModel.selectCategory}"
+													rendered="#{communicationManagerModel.branchNode == item}">
+													<f:attribute name="object" value="#{item}" />
+												</ice:commandLink>
+											</ice:panelGroup>
+										</f:facet>
+									</ice:treeNode>
+								</ice:tree>
+							</ice:panelGroup>
+						</fieldset>
+						<fieldset style="float: left; width: 910px; height: 500px">
+							<legend>
+								<ice:outputLabel value="List of Communications" />
+							</legend>
+							<ice:panelGrid columns="9" columnClasses="rghtPddn10"
+								rendered="#{communicationManagerModel.branchNode != null}">
+								<ice:outputText value="Key Person" />
+								<ice:inputText id="srchKeyPrsnTxt"
+									value="#{communicationManagerModel.commSearchTxt}"
+									action="#{communicationManagerModel.filterCommunications}" />
+								<ice:outputText value="With reminders" />
+								<ice:selectBooleanCheckbox id="selectWithRem"
+									value="#{communicationManagerModel.withReminders}"
+									partialSubmit="true" />
+								<ice:outputText value="Period"
+									style="#{communicationManagerModel.txtStyle}" />
+								<ice:selectOneMenu id="selectTimePeriod" style="width: 90px"
+									disabled="#{!communicationManagerModel.withReminders}"
+									value="#{communicationManagerModel.timePeriod}">
+									<f:selectItems value="#{lookupListProvider.timePeriods}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Upto"
+									style="#{communicationManagerModel.txtStyle}" />
+								<ice:selectInputDate id="inputToDate"
+									disabled="#{!communicationManagerModel.withReminders}"
+									value="#{communicationManagerModel.toDate}"
+									renderAsPopup="true" renderMonthAsDropdown="true"
+									renderYearAsDropdown="true" converter="dateConverter" />
+								<ice:commandButton id="cmdSrchComms" value="Filter"
+									styleClass="CommandButton"
+									action="#{communicationManagerModel.filterCommunications}" />
+							</ice:panelGrid>
+							<ice:commandButton id="commandCommunicationAdd"
+								style="margin-top:10px;" value="Add new Communication"
+								styleClass="CommandButton"
+								disabled="#{communicationManagerModel.branchNode == null || communicationManagerModel.branchNode.childCount > 0}"
+								action="#{communicationManagerModel.addNewCommunication}" />
+							<ice:panelGroup style="margin-top: 30px;margin-left: 5px"
+								rendered="#{communicationManagerModel.branchNode != null and empty(communicationManagerModel.communications)}">
+								<ice:outputText value="No Communications found.." />
+							</ice:panelGroup>
+							<ice:panelGroup style="margin: 10px;"
+								rendered="#{communicationManagerModel.branchNode == null}">
+								<ice:outputText
+									value="Please select an category to view communications.." />
+							</ice:panelGroup>
+							<ice:dataTable scrollable="true" scrollHeight="420px"
+								value="#{communicationManagerModel.communications}" var="com"
+								id="tableCommunications"
+								rendered="#{not empty(communicationManagerModel.communications)}"
+								columnWidths="30px,80px,80px,160px,160px,80px,60px,70px,30px,40px">
+								<ice:column id="columnRef" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Ref" title="Reference" />
+									</f:facet>
+									<ice:graphicImage
+										title="Administration &rarr; General Maintenance"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'General Maintenance'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Administration &rarr; #{com.category.name} &rarr; #{com.keyPersonOrg.serviceArea.name}"
+										style="border:none" rendered="#{com.keyPersonOrg != null}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Governance &rarr; Management Team &rarr; Administration"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Administration'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Governance &rarr; Management Team &rarr; Coordinators"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Coordinators'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage title="Governance &rarr; Finance &rarr; Bank"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Bank'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Governance &rarr; Finance &rarr; Other"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Other' and com.category.parentId == 12}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Governance &rarr; Management Team &rarr; Other"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Other' and com.category.parentId == 10}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage title="Governance &rarr; Other"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Other' and com.category.parentId == 2}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage title="Governance &rarr; Board"
+										style="border:none"
+										rendered="#{com.keyPersonStaff != null and com.category.name == 'Board'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage title="Governance &rarr; Funding Source"
+										style="border:none" rendered="#{com.keyPersonFunding != null}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Staff Member &rarr; #{com.keyPersonStaff.status} &rarr; #{com.keyPersonStaff.type.name}"
+										style="border:none"
+										rendered="#{com.category.name == 'Staff Member'}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage title="#{msgs['student_label']} &rarr; #{com.category.name}"
+										style="border:none" rendered="#{com.keyPersonStudent != null}"
+										url="images/icons/information.png" width="15" height="15" />
+									<ice:graphicImage
+										title="Vehicle &rarr; #{com.keyPersonVehicle.type}"
+										style="border:none" rendered="#{com.keyPersonVehicle != null}"
+										url="images/icons/information.png" width="15" height="15" />
+								</ice:column>
+								<ice:column id="columnComDate" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Created Date" />
+									</f:facet>
+									<ice:outputText value="#{com.createdDate}"
+										converter="dateConverter">
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnComTime" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Created Time" />
+									</f:facet>
+									<ice:outputText value="#{com.createdTime}">
+										<f:convertDateTime type="time"
+											timeZone="#{communicationManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnComKeyPerson">
+									<f:facet name="header">
+										<ice:outputText value="Key Person/Organization" />
+									</f:facet>
+									<ice:panelGroup style="width:155px;height:18px;overflow:hidden">
+										<ice:outputText rendered="#{com.keyPersonStaff != null}"
+											value="#{com.keyPersonStaff.contact.name}"
+											title="#{com.keyPersonStaff.contact.name}" />
+										<ice:outputText rendered="#{com.keyPersonStudent != null}"
+											value="#{com.keyPersonStudent.contact.name}"
+											title="#{com.keyPersonStudent.contact.name}" />
+										<ice:outputText rendered="#{com.keyPersonOrg != null}"
+											value="#{com.keyPersonOrg.name}"
+											title="#{com.keyPersonOrg.name}" />
+										<ice:outputText rendered="#{com.keyPersonVehicle != null}"
+											value="#{com.keyPersonVehicle.name}"
+											title="#{com.keyPersonVehicle.name}" />
+										<ice:outputText rendered="#{com.keyPersonFunding != null}"
+											value="#{com.keyPersonFunding.fundingType}"
+											title="#{com.keyPersonFunding.fundingType}" />
+									</ice:panelGroup>
+								</ice:column>
+								<ice:column id="columnComSummary">
+									<f:facet name="header">
+										<ice:outputText value="Summary" />
+									</f:facet>
+									<ice:panelGroup style="width:155px;height:18px;overflow:hidden">
+										<ice:outputText value="#{com.summary}" title="#{com.summary}" />
+									</ice:panelGroup>
+								</ice:column>
+								<ice:column id="columnComCreatedBy" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Created By" />
+									</f:facet>
+									<ice:panelGroup style="width:75px;height:18px;overflow:hidden">
+										<ice:outputText value="#{com.createdBy.userName}"
+											title="#{com.createdBy.userName}" />
+									</ice:panelGroup>
+								</ice:column>
+								<ice:column id="columnComFollowups" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Follow-ups" />
+									</f:facet>
+									<ice:graphicImage title="#{com.followUps}" style="border:none"
+										url="images/icons/appointmentTypeCON.png" width="18"
+										height="18" />
+								</ice:column>
+								<ice:column id="columnCommunicationAddReminder"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Remind On" />
+									</f:facet>
+									<ice:commandButton id="commandAddReminder"
+										actionListener="#{communicationManagerModel.addReminder}"
+										title="Add Reminder" value="Add"
+										rendered="#{com.reminder == null}">
+										<f:attribute name="com" value="#{com}" />
+									</ice:commandButton>
+									<ice:commandLink id="commandOpenReminder"
+										actionListener="#{communicationManagerModel.editReminder}"
+										title="View/Edit"
+										rendered="#{com.reminder != null and com.reminder.id != null}">
+										<ice:outputText value="#{com.reminder.remindOn}"
+											rendered="#{communicationManagerModel.today.compareTo(com.reminder.remindOn) lt 0 or com.reminder.status != 'New'}"
+											converter="dateConverter" style="color:teal">
+											<f:convertDateTime pattern="dd/MM/yyyy"
+												timeZone="#{communicationManagerModel.timeZone}" />
+										</ice:outputText>
+										<ice:outputText value="#{com.reminder.remindOn}"
+											rendered="#{communicationManagerModel.today.compareTo(com.reminder.remindOn) gt 0 and com.reminder.status == 'New'}"
+											style="color:red">
+											<f:convertDateTime pattern="dd/MM/yyyy"
+												timeZone="#{communicationManagerModel.timeZone}" />
+										</ice:outputText>
+										<f:attribute name="com" value="#{com}" />
+									</ice:commandLink>
+								</ice:column>
+								<ice:column id="columnCommunicationEdit"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Edit" />
+									</f:facet>
+									<ice:commandLink style="border:none"
+										actionListener="#{communicationManagerModel.selectCommunication}"
+										title="View/Edit">
+										<ice:graphicImage style="border:none"
+											url="images/icons/edit.png" width="18" height="18" />
+										<f:attribute name="com" value="#{com}" />
+									</ice:commandLink>
+								</ice:column>
+								<ice:column id="columnCommunicationDelete"
+									style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Delete" />
+									</f:facet>
+									<ice:commandLink style="border:none"
+										actionListener="#{communicationManagerModel.deleteCommunication}"
+										title="Delete" panelConfirmation="deleteConfirmation">
+										<ice:graphicImage style="border:none"
+											url="images/icons/delete-icon.png" />
+										<f:attribute name="com" value="#{com}" />
+									</ice:commandLink>
+									<ice:panelConfirmation id="deleteConfirmation"
+										acceptLabel="Yes" cancelLabel="No" draggable="true"
+										title="Confirm"
+										message="Are you sure you want to perform this action?" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</div>
+				</div>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{communicationManagerModel.visibleCommunication}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add new communication wizard"
+								styleClass="popupHeaderText"
+								rendered="#{communicationManagerModel.communication.id == null}" />
+							<ice:outputText value="Edit communication"
+								styleClass="popupHeaderText"
+								rendered="#{communicationManagerModel.communication.id != null}" />
+							<ice:commandButton id="closeGenerateButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{communicationManagerModel.communicationPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:700px">
+							<ice:panelGroup style="min-height:530px"
+								rendered="#{communicationManagerModel.wizardPage == 1}">
+								<ice:panelGrid columns="2">
+									<ice:outputLabel
+										rendered="#{communicationManagerModel.branchNode.userObject.serviceArea != null}"
+										value="Please select an external organization from below table to communicate with" />
+									<ice:outputLabel
+										rendered="#{communicationManagerModel.branchNode.userObject.text != 'Inquiry' and communicationManagerModel.branchNode.userObject.text != 'Existing' and communicationManagerModel.branchNode.userObject.text != 'Funding Source' and communicationManagerModel.branchNode.userObject.serviceArea == null and communicationManagerModel.branchNode.userObject.vehicleType == null}"
+										value="Please select a staff member from below table to communicate with" />
+									<ice:outputLabel
+										rendered="#{communicationManagerModel.branchNode.userObject.text == 'Funding Source'}"
+										value="Please select a funding source from below table to communicate with" />
+									<ice:outputLabel
+										rendered="#{communicationManagerModel.branchNode.userObject.text == 'Inquiry' || communicationManagerModel.branchNode.userObject.text == 'Existing'}"
+										value="Please search and select a #{msgs['student_label'].toLowerCase()} to communicate with" />
+									<ice:outputLabel
+										rendered="#{communicationManagerModel.branchNode.userObject.vehicleType != null}"
+										value="Please select a vehicle from below table to communicate with" />
+									<ice:panelGroup style="min-height:45px;border:1px solid white">
+										<ice:messages />
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:panelGrid styleClass="borderBox" width="100%">
+									<ice:panelGrid columns="2"
+										rendered="#{communicationManagerModel.branchNode.userObject.serviceArea != null}">
+										<ice:outputLabel value="Selected Organization :" />
+										<ice:outputText effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}"
+											style="margin-left:10px"
+											rendered="#{communicationManagerModel.organization != null}" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="4"
+										rendered="#{communicationManagerModel.branchNode.userObject.text != 'Inquiry' and communicationManagerModel.branchNode.userObject.text != 'Existing' and communicationManagerModel.branchNode.userObject.text != 'Funding Source' and communicationManagerModel.branchNode.userObject.serviceArea == null and communicationManagerModel.branchNode.userObject.vehicleType == null}">
+										<ice:outputLabel value="Selected Staff Member :" />
+										<!--<ice:selectOneRadio value="#{communicationManagerModel.searchValue}"
+										style="border:none;margin-top:-13px;margin-bottom:-20px;margin-left:-15px;margin-right:-15px">
+										<f:selectItem itemValue="name" itemLabel="Name" />
+										<f:selectItem itemValue="id" itemLabel="StaffId" />
+									</ice:selectOneRadio>
+									<ice:inputText id="inputTextStaffSearch"
+										action="#{communicationManagerModel.searchStaff}"
+										value="#{communicationManagerModel.searchText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonStaffSearch"
+										action="#{communicationManagerModel.searchStaff}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />-->
+										<ice:outputText effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}"
+											style="margin-left:10px"
+											rendered="#{communicationManagerModel.staffMember != null}" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="4"
+										rendered="#{communicationManagerModel.branchNode.userObject.text == 'Funding Source'}">
+										<ice:outputLabel value="Selected Funding Source :" />
+										<ice:outputText effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}"
+											style="margin-left:10px"
+											rendered="#{communicationManagerModel.source != null}" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="5"
+										rendered="#{communicationManagerModel.branchNode.userObject.text == 'Inquiry' || communicationManagerModel.branchNode.userObject.text == 'Existing'}">
+										<ice:outputText value="Search #{msgs['student_label']}(s) by name or id :" />
+										<ice:inputText id="inputTextStuSearch"
+											action="#{communicationManagerModel.searchStudents}"
+											value="#{communicationManagerModel.searchText}">
+											<f:validateLength maximum="20" />
+										</ice:inputText>
+										<ice:commandButton id="commanButtonStuSearch"
+											action="#{communicationManagerModel.searchStudents}"
+											value="#{msgs['search.label']}" styleClass="CommandButton" />
+										<ice:outputText value="Selected #{msgs['student_label']} :"
+											style="margin-left:10px" />
+										<ice:outputText effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}"
+											rendered="#{communicationManagerModel.student != null}" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="4"
+										rendered="#{communicationManagerModel.branchNode.userObject.vehicleType != null}">
+										<ice:outputText value="Selected Vehicle :" />
+										<ice:outputText effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}"
+											style="margin-left:10px"
+											rendered="#{communicationManagerModel.vehicle != null}" />
+									</ice:panelGrid>
+								</ice:panelGrid>
+								<ice:dataTable scrollable="true" scrollHeight="300px"
+									value="#{communicationManagerModel.orgList}" var="org"
+									id="tableOrganizations"
+									rendered="#{communicationManagerModel.branchNode.userObject.serviceArea != null}"
+									columnWidths="180px,90px,180px,200px">
+									<ice:column id="columOrgName">
+										<ice:rowSelector id="rowselectOrganization"
+											value="#{org.ui_selected}"
+											clickListener="#{communicationManagerModel.selectKeyPerson}">
+											<f:attribute name="keyPerson" value="#{org}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{org.name}" />
+									</ice:column>
+									<ice:column id="columOrgPhone">
+										<f:facet name="header">
+											<ice:outputText value="Phone" />
+										</f:facet>
+										<ice:outputText value="#{org.contact.contactNumber}" />
+									</ice:column>
+									<ice:column id="columOrgEmail">
+										<f:facet name="header">
+											<ice:outputText value="Email" />
+										</f:facet>
+										<ice:outputText value="#{org.contact.email}" />
+									</ice:column>
+									<ice:column id="columOrgStaffName">
+										<f:facet name="header">
+											<ice:outputText value="Contact Person" />
+										</f:facet>
+										<ice:outputText value="#{org.contactPerson.name}" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:dataTable scrollable="true" scrollHeight="300px"
+									value="#{communicationManagerModel.staffList}" var="staff"
+									id="tableStaff"
+									rendered="#{communicationManagerModel.branchNode.userObject.text != 'Inquiry' and communicationManagerModel.branchNode.userObject.text != 'Existing' and communicationManagerModel.branchNode.userObject.text != 'Funding Source' and communicationManagerModel.branchNode.userObject.serviceArea == null and communicationManagerModel.branchNode.userObject.vehicleType == null}"
+									columnWidths="70px,160px,60px,160px,100px,80px">
+									<ice:column id="columStaffId">
+										<ice:rowSelector id="rowselectStaffMember"
+											value="#{staff.ui_selected}"
+											clickListener="#{communicationManagerModel.selectKeyPerson}">
+											<f:attribute name="keyPerson" value="#{staff}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Staff Id" />
+										</f:facet>
+										<ice:outputText value="#{staff.staffId}" />
+									</ice:column>
+									<ice:column id="columStaffName">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.name}" />
+									</ice:column>
+									<ice:column id="columStaffGender" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" />
+										</f:facet>
+										<ice:outputText value="#{staff.gender}" />
+									</ice:column>
+									<ice:column id="columStaffEmail">
+										<f:facet name="header">
+											<ice:outputText value="Email" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.email}" />
+									</ice:column>
+									<ice:column id="columStaffPhone" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Phone" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.contactNumber}" />
+									</ice:column>
+									<ice:column id="columStaffJoined" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Joined Date" />
+										</f:facet>
+										<ice:outputText value="#{staff.joinedDate}"
+											converter="dateConverter" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:dataTable scrollable="true" scrollHeight="300px"
+									value="#{communicationManagerModel.fundingList}" var="fund"
+									id="tableFundingSource"
+									rendered="#{communicationManagerModel.branchNode.userObject.text == 'Funding Source'}"
+									columnWidths="100px,200px,250px,100px">
+									<ice:column id="columFundId">
+										<ice:rowSelector id="rowselectFundingSource"
+											value="#{fund.ui_selected}"
+											clickListener="#{communicationManagerModel.selectKeyPerson}">
+											<f:attribute name="keyPerson" value="#{fund}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Service Id" />
+										</f:facet>
+										<ice:outputText value="#{fund.fundingCode}" />
+									</ice:column>
+									<ice:column id="columFundType">
+										<f:facet name="header">
+											<ice:outputText value="Funding Source" />
+										</f:facet>
+										<ice:outputText value="#{fund.fundingType}" />
+									</ice:column>
+									<ice:column id="columFundDescription">
+										<f:facet name="header">
+											<ice:outputText value="Description" />
+										</f:facet>
+										<ice:outputText value="#{fund.fundingDescription}" />
+									</ice:column>
+									<ice:column id="columFundStatus" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Status" />
+										</f:facet>
+										<ice:outputText value="#{fund.status}" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:dataTable scrollable="true" scrollHeight="300px"
+									value="#{communicationManagerModel.stuList}" var="stu"
+									id="tableStudents"
+									rendered="#{communicationManagerModel.branchNode.userObject.text == 'Inquiry' || communicationManagerModel.branchNode.userObject.text == 'Existing'}"
+									columnWidths="50px,210px,100px,100px,170px">
+									<ice:column id="columStuId">
+										<ice:rowSelector id="rowselectStudents"
+											value="#{stu.ui_selected}"
+											clickListener="#{communicationManagerModel.selectKeyPerson}">
+											<f:attribute name="keyPerson" value="#{stu}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="#{msgs['student_label']} Id" />
+										</f:facet>
+										<ice:outputText value="#{stu.id}" />
+									</ice:column>
+									<ice:column id="columStuName">
+										<f:facet name="header">
+											<ice:outputText value="#{msgs['student_label']} Name" />
+										</f:facet>
+										<ice:outputText value="#{stu.contact.name}" />
+									</ice:column>
+									<ice:column id="columStuGender" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" />
+										</f:facet>
+										<ice:outputText value="#{stu.gender}" />
+									</ice:column>
+									<ice:column id="columStuPhone">
+										<f:facet name="header">
+											<ice:outputText value="Phone" />
+										</f:facet>
+										<ice:outputText value="#{stu.contact.contactNumber}" />
+									</ice:column>
+									<ice:column id="columStuEmail">
+										<f:facet name="header">
+											<ice:outputText value="Email" />
+										</f:facet>
+										<ice:outputText value="#{stu.contact.email}" />
+									</ice:column>
+								</ice:dataTable>
+								<ice:dataTable scrollable="true" scrollHeight="300px"
+									value="#{communicationManagerModel.vehicles}" var="vehi"
+									id="tableVehicles"
+									rendered="#{communicationManagerModel.branchNode.userObject.vehicleType != null}"
+									columnWidths="250px,150px,80px,80px,80px">
+									<ice:column id="columVehicleName">
+										<ice:rowSelector id="rowselectFundingSource"
+											value="#{vehi.ui_selected}"
+											clickListener="#{communicationManagerModel.selectKeyPerson}">
+											<f:attribute name="keyPerson" value="#{vehi}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{vehi.name}" />
+									</ice:column>
+									<ice:column id="columVehiRegistrationId"
+										style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Registration Id" />
+										</f:facet>
+										<ice:outputText value="#{vehi.registrationId}" />
+									</ice:column>
+									<ice:column id="columVahiPassengers" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Passengers" />
+										</f:facet>
+										<ice:outputText value="#{vehi.passengers}" />
+									</ice:column>
+									<ice:column id="columVehiWheelChairs" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="WheelChairs" />
+										</f:facet>
+										<ice:outputText value="#{vehi.wheelChairs}" />
+									</ice:column>
+									<ice:column id="columVehiStatus" style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Status" />
+										</f:facet>
+										<ice:outputText value="#{vehi.status}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:panelGroup>
+
+							<ice:panelGroup style="min-height:530px"
+								rendered="#{communicationManagerModel.wizardPage == 2}">
+								<ice:panelGrid columns="2">
+									<ice:outputLabel value="Communication Details:" />
+									<ice:panelGroup style="min-height:45px;border:1px solid white">
+										<ice:messages />
+									</ice:panelGroup>
+								</ice:panelGrid>
+								<ice:panelGrid columns="4" width="100%"
+									style="margin-left:10px;margin-top:-10px">
+									<ice:panelGrid cellpadding="0" cellspacing="0" width="120px">
+										<ice:outputText value="Key Person" />
+										<ice:outputText value="(#{msgs['student_label']})"
+											rendered="#{communicationManagerModel.branchNode.userObject.text == 'Inquiry' || communicationManagerModel.branchNode.userObject.text == 'Existing'}" />
+										<ice:outputText value="(Staff Member)"
+											rendered="#{communicationManagerModel.branchNode.userObject.text != 'Inquiry' and communicationManagerModel.branchNode.userObject.text != 'Existing' and communicationManagerModel.branchNode.userObject.text != 'Funding Source' and communicationManagerModel.branchNode.userObject.serviceArea == null and communicationManagerModel.branchNode.userObject.vehicleType == null}" />
+										<ice:outputText value="(Organisation)"
+											rendered="#{communicationManagerModel.branchNode.userObject.serviceArea != null}" />
+										<ice:outputText value="(Vehicle)"
+											rendered="#{communicationManagerModel.branchNode.userObject.vehicleType != null}" />
+										<ice:outputText value="(Funding Source)"
+											style="margin-right:-5px"
+											rendered="#{communicationManagerModel.branchNode.userObject.text == 'Funding Source'}" />
+									</ice:panelGrid>
+									<ice:panelGroup style="width:250px">
+										<ice:outputText
+											value="#{communicationManagerModel.student.contact.name}"
+											rendered="#{communicationManagerModel.student != null}" />
+										<ice:outputText
+											value="#{communicationManagerModel.staffMember.contact.name}"
+											rendered="#{communicationManagerModel.staffMember != null}" />
+										<ice:outputText
+											value="#{communicationManagerModel.organization.name}"
+											rendered="#{communicationManagerModel.organization != null}" />
+										<ice:outputText
+											value="#{communicationManagerModel.source.fundingType}"
+											rendered="#{communicationManagerModel.source != null}" />
+										<ice:outputText
+											value="#{communicationManagerModel.vehicle.name}"
+											rendered="#{communicationManagerModel.vehicle != null}" />
+									</ice:panelGroup>
+									<ice:outputText value="Event Date" />
+									<ice:selectInputDate id="inputCoomunicationcreatedDate"
+										value="#{communicationManagerModel.communication.createdDate}"
+										renderAsPopup="true" renderMonthAsDropdown="true"
+										renderYearAsDropdown="true" converter="dateConverter">
+									</ice:selectInputDate>
+									<ice:outputText value="Method" />
+									<ice:selectOneMenu id="selectOneComMethod"
+										value="#{communicationManagerModel.communication.method}">
+										<f:selectItems value="#{lookupListProvider.comMethod}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Event Time" />
+									<comp:timeControl
+										value="#{communicationManagerModel.eventTime}" />
+								</ice:panelGrid>
+
+								<ice:panelGroup style="height:160px;margin-top:10px">
+									<ice:outputLabel value="Selected #{msgs['student_label']} Details:"
+										rendered="#{communicationManagerModel.student != null}" />
+									<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+										width="100%"
+										rendered="#{communicationManagerModel.communication.keyPersonStudent != null}">
+										<ice:panelGrid columns="3" cellpadding="3"
+											style="margin-left:5px">
+											<ice:outputText value="#{msgs['student_label']} ID" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStudent.id}" />
+											<ice:outputText value="Phone Number" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStudent.contact.contactNumber}" />
+											<ice:outputText value="E - mail" />
+											<ice:outputText value=":" />
+											<ice:panelGroup style="width:150px">
+												<ice:outputText
+													value="#{communicationManagerModel.communication.keyPersonStudent.contact.email}" />
+											</ice:panelGroup>
+											<ice:outputText value="Fax" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStudent.contact.fax}" />
+										</ice:panelGrid>
+										<ice:panelGroup>
+											<fieldset style="width: 250px">
+												<legend>
+													<ice:outputLabel value="Contact Address" />
+												</legend>
+												<ice:panelGrid cellpadding="2">
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStudent.contact.streetAddress}" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStudent.contact.city}" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStudent.contact.state} - #{communicationManagerModel.communication.keyPersonStudent.contact.postCode}" />
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+									</ice:panelGrid>
+
+									<ice:outputLabel value="Selected StaffMember Details:"
+										rendered="#{communicationManagerModel.branchNode.userObject.text != 'Inquiry' and communicationManagerModel.branchNode.userObject.text != 'Existing' and communicationManagerModel.branchNode.userObject.text != 'Funding Source' and communicationManagerModel.branchNode.userObject.serviceArea == null and communicationManagerModel.branchNode.userObject.vehicleType == null}" />
+									<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+										width="100%"
+										rendered="#{communicationManagerModel.communication.keyPersonStaff != null}">
+										<ice:panelGrid columns="3" cellpadding="3"
+											style="margin-left:5px">
+											<ice:outputText value="Staff ID" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStaff.staffId}" />
+											<ice:outputText value="Phone Number" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStaff.contact.contactNumber}" />
+											<ice:outputText value="E - mail" />
+											<ice:outputText value=":" />
+											<ice:panelGroup style="width:150px">
+												<ice:outputText
+													value="#{communicationManagerModel.communication.keyPersonStaff.contact.email}" />
+											</ice:panelGroup>
+											<ice:outputText value="Fax" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonStaff.contact.fax}">
+											</ice:outputText>
+										</ice:panelGrid>
+										<ice:panelGroup>
+											<fieldset style="width: 250px">
+												<legend>
+													<ice:outputLabel value="Contact Address" />
+												</legend>
+												<ice:panelGrid cellpadding="2">
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStaff.contact.streetAddress}" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStaff.contact.city}" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonStaff.contact.state} - #{communicationManagerModel.communication.keyPersonStaff.contact.postCode}" />
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+									</ice:panelGrid>
+
+									<ice:outputLabel value="Selected Organisation Details:"
+										rendered="#{communicationManagerModel.branchNode.userObject.serviceArea != null}" />
+									<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+										style="margin-top:10px"
+										rendered="#{communicationManagerModel.communication.keyPersonOrg != null}">
+										<ice:panelGroup>
+											<fieldset style="width: 300px">
+												<legend>
+													<ice:outputLabel value="Organization Info" />
+												</legend>
+												<ice:panelGrid columns="3" cellpadding="3">
+													<ice:outputText value="Name" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.name}" />
+													<ice:outputText value="Service Area" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.serviceArea.name}" />
+													<ice:outputText value="Payment Option" />
+													<ice:outputText value=":" />
+													<ice:panelGroup style="width:150px">
+														<ice:outputText
+															value="#{communicationManagerModel.communication.keyPersonOrg.paymentOption}" />
+													</ice:panelGroup>
+													<ice:outputText value="Phone No." />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.contact.contactNumber}">
+													</ice:outputText>
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+										<ice:panelGroup>
+											<fieldset style="width: 300px">
+												<legend>
+													<ice:outputLabel value="Contact Person" />
+												</legend>
+												<ice:panelGrid columns="3" cellpadding="3">
+													<ice:outputText value="Name" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.contactPerson.name}" />
+													<ice:outputText value="E - mail" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.contactPerson.email}" />
+													<ice:outputText value="Phone" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.contactPerson.contactNumber}" />
+													<ice:outputText value="Fax" />
+													<ice:outputText value=":" />
+													<ice:outputText
+														value="#{communicationManagerModel.communication.keyPersonOrg.contactPerson.fax}" />
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+									</ice:panelGrid>
+
+									<ice:outputLabel value="Selected Vehicle Details:"
+										rendered="#{communicationManagerModel.branchNode.userObject.vehicleType != null}" />
+									<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+										width="100%"
+										rendered="#{communicationManagerModel.communication.keyPersonVehicle != null}">
+										<ice:panelGrid columns="3" cellpadding="5">
+											<ice:outputText value="Vehicle Name" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonVehicle.name}" />
+											<ice:outputText value="Registration-Id" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonVehicle.registrationId}" />
+											<ice:outputText value="Passengers" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonVehicle.passengers}" />
+											<ice:outputText value="Wheel Chairs" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonVehicle.wheelChairs}" />
+										</ice:panelGrid>
+										<ice:panelGrid
+											style="border:thick double grey;width:170px;height:120px;text-align:center">
+											<ice:graphicImage url="images/no_logo.jpg" id="imgVehice"
+												rendered="#{communicationManagerModel.communication.keyPersonVehicle.photo == null}"
+												style="height:100px;width:150px">
+											</ice:graphicImage>
+											<ice:graphicImage
+												value="#{communicationManagerModel.communication.keyPersonVehicle.photo.blobFileData.thumbnail}"
+												id="imgVehicle1"
+												rendered="#{communicationManagerModel.communication.keyPersonVehicle.photo != null}"
+												width="#{communicationManagerModel.photoW}"
+												height="#{communicationManagerModel.photoH}">
+											</ice:graphicImage>
+										</ice:panelGrid>
+									</ice:panelGrid>
+
+									<ice:outputLabel value="Selected FundingSource Details:"
+										rendered="#{communicationManagerModel.branchNode.userObject.text == 'Funding Source'}" />
+									<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+										rendered="#{communicationManagerModel.communication.keyPersonFunding != null}">
+										<ice:panelGrid columns="3" cellpadding="5">
+											<ice:outputText value="Service ID" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonFunding.fundingCode}" />
+											<ice:outputText value="Funding Source" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonFunding.fundingType}" />
+											<ice:outputText value="Description" />
+											<ice:outputText value=":" />
+											<ice:outputText
+												value="#{communicationManagerModel.communication.keyPersonFunding.fundingDescription}" />
+										</ice:panelGrid>
+									</ice:panelGrid>
+								</ice:panelGroup>
+
+								<ice:panelGrid>
+									<ice:outputLabel value="Communication Summary" />
+									<ice:inputTextarea id="textAreaSummery"
+										style="width:670px;height:40px"
+										value="#{communicationManagerModel.communication.summary}"
+										maxlength="#{msgs['communication.summery.size']}" />
+									<div style="height: 5px" />
+									<ice:panelGroup>
+										<ice:outputLabel value="Communication Notes and Notifications" />
+										<ice:commandButton id="commandAddNote" value="Add Note"
+											styleClass="CommandButton" style="margin-left:10px"
+											action="#{communicationManagerModel.addNote}" />
+									</ice:panelGroup>
+									<ice:panelGroup scrollWidth="680px" scrollHeight="115px">
+										<ui:repeat var="note"
+											value="#{communicationManagerModel.communication.notes}">
+											<ice:panelGrid columns="3">
+												<ice:inputTextarea id="textTextAreaNotes"
+													value="#{note.note}" style="width:370px;height:40px"
+													maxlength="#{msgs['communication.note.size']}"
+													title="Note / Notification" />
+												<ice:inputTextarea id="textTextAreaNotify"
+													value="#{note.notify}" style="width:200px;height:40px"
+													maxlength="#{msgs['communication.note.size']}"
+													title="Follow-up person's name" />
+												<ice:commandButton id="commandDeleteNote" value="Delete"
+													actionListener="#{communicationManagerModel.deleteNote}"
+													title="Delete Note" styleClass="CommandButton">
+													<f:attribute name="note" value="#{note}" />
+												</ice:commandButton>
+											</ice:panelGrid>
+										</ui:repeat>
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</ice:panelGroup>
+
+							<ice:commandButton id="commandNext" value="Next"
+								styleClass="CommandButton" style="float:right; width:100px"
+								rendered="#{communicationManagerModel.wizardPage == 1}"
+								disabled="#{communicationManagerModel.student == null and communicationManagerModel.staffMember == null and communicationManagerModel.organization == null and communicationManagerModel.source == null and communicationManagerModel.vehicle == null}"
+								actionListener="#{communicationManagerModel.wizardAction}">
+								<f:attribute name="actionType" value="next" />
+							</ice:commandButton>
+							<ice:commandButton id="commandAddCommunication" value="Save"
+								styleClass="CommandButton" style="float:right; width:100px"
+								rendered="#{communicationManagerModel.wizardPage == 2}"
+								disabled="#{CommunicationManagerModel.communication != null}"
+								actionListener="#{communicationManagerModel.saveCommunication}">
+								<f:attribute name="actionType" value="save" />
+							</ice:commandButton>
+							<ice:commandButton id="commandBack" value="Back"
+								styleClass="CommandButton"
+								style="float:right; width:100px; margin-right:5px"
+								rendered="#{communicationManagerModel.wizardPage == 2 and communicationManagerModel.communication.id == null}"
+								actionListener="#{communicationManagerModel.wizardAction}">
+								<f:attribute name="actionType" value="back" />
+							</ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true" positionOnLoadOnly="true"
+					rendered="#{communicationManagerModel.visibleReminder}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add New Reminder.."
+								styleClass="popupHeaderText"
+								rendered="#{communicationManagerModel.communication.reminder.id == null}" />
+							<ice:outputText value="View/Edit Reminder.."
+								styleClass="popupHeaderText"
+								rendered="#{communicationManagerModel.communication.reminder.id != null}" />
+							<ice:commandButton id="closeReminderButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{communicationManagerModel.reminderPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:270px;margin-top:10px">
+							<ice:messages />
+							<ice:panelGrid columns="2" cellspacing="5"
+								style="margin-bottom:5px">
+								<ice:outputText value="Remind-On" />
+								<ice:selectInputDate id="inputReminderDate"
+									value="#{communicationManagerModel.communication.reminder.remindOn}"
+									renderAsPopup="true" renderMonthAsDropdown="true"
+									renderYearAsDropdown="true" converter="dateConverter">
+								</ice:selectInputDate>
+								<ice:outputText value="Note" />
+								<ice:inputTextarea id="reminderNote" style="width:170px"
+									value="#{communicationManagerModel.communication.reminder.note}" />
+								<ice:outputText value="Status" />
+								<ice:selectOneMenu id="selectReminderStatus" style="width:178px"
+									value="#{communicationManagerModel.communication.reminder.status}">
+									<f:selectItems value="#{lookupListProvider.reminderStatus}" />
+								</ice:selectOneMenu>
+							</ice:panelGrid>
+							<ice:commandButton id="commandAddReminder"
+								style="float:right;margin-right:10px;margin-bottom:5px"
+								value="Add to Communication" styleClass="CommandButton"
+								rendered="#{communicationManagerModel.communication.reminder.id == null}"
+								action="#{communicationManagerModel.saveReminder}" />
+							<ice:commandButton id="commandSaveReminder" value="Save"
+								styleClass="CommandButton"
+								style="float:right;margin-right:10px;margin-bottom:5px;width:60px"
+								rendered="#{communicationManagerModel.communication.reminder.id != null}"
+								action="#{communicationManagerModel.saveReminder}" />
+							<ice:commandButton id="commandDeleteReminder" value="Delete"
+								styleClass="CommandButton"
+								style="float:right;margin-right:5px;margin-bottom:5px;width:60px"
+								rendered="#{communicationManagerModel.communication.reminder.id != null}"
+								action="#{communicationManagerModel.deleteReminder}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

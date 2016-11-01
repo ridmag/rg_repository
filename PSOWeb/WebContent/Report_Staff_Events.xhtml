@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="REPORTSTAFFE"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Staff Events Report</ui:define>
+		<ui:define name="pageDescription">Select a date range to list all #{msgs['students_label'].toLowerCase()} and their related programs and events.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formReport">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="10" width="1000px">
+						<ice:outputText value="Staff Member :" />
+								<ice:selectOneMenu value="#{reportManagerModel.staffId}"
+									id="selectOneStaff" partialSubmit="true"
+									valueChangeListener="#{rosterManagerModel.createRoster}">
+									<f:selectItems
+										value="#{staffEvents.staffSelectItemList}" />
+									<f:attribute name="flag" value="staff" />
+								</ice:selectOneMenu>
+						<ice:outputLabel value="Start Date :" />
+						<ice:selectInputDate renderMonthAsDropdown="true"
+							renderYearAsDropdown="true" renderAsPopup="true"
+							value="#{reportManagerModel.fromDate}"
+							converter="dateConverter">
+						</ice:selectInputDate>
+						<ice:outputLabel value="End Date :" />
+						<ice:selectInputDate renderMonthAsDropdown="true"
+							renderYearAsDropdown="true" renderAsPopup="true"
+							value="#{reportManagerModel.toDate}"
+							converter="dateConverter">
+						</ice:selectInputDate>
+						<ice:panelGroup style="margin-left:10px">
+							<comp:ajaxReportPopup params="#{reportManagerModel.jsonString}"
+								reportName="staffEventsReport"
+								status="#{reportManagerModel.status}" submitDisabled="false"></comp:ajaxReportPopup>
+						</ice:panelGroup>
+					</ice:panelGrid>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

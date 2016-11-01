@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFIGEO"></ui:param>
+		<ui:define name="pageTitle">External Organizations</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">External Organizations</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each organization.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formExternalSources">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText
+							value="Search external organization(s) by name or id" />
+						<ice:inputText id="inputTextOrgSearch"
+							action="#{externalOrganizationManagerModel.searchOrganizations}"
+							value="#{externalOrganizationManagerModel.searchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonOrgMainSearch"
+							action="#{externalOrganizationManagerModel.searchOrganizations}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandOrgAdd"
+							value="Add External Organization" style="margin-left:5px"
+							styleClass="CommandButton"
+							action="#{externalOrganizationManagerModel.newOrganization}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{externalOrganizationManagerModel.allOrgs}" var="org"
+						id="tableOrganizations"
+						columnWidths="100px,200px,150px,150px,200px,330px">
+						<ice:column id="columnOrgId" style="text-align:center">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectExternalSources"
+									value="#{org.ui_selected}"
+									clickListener="#{externalOrganizationManagerModel.selectOrganization}">
+									<f:attribute name="org" value="#{org}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Organization ID" />
+							</f:facet>
+							<ice:outputText value="#{org.id}" />
+						</ice:column>
+						<ice:column id="columnOrgName">
+							<f:facet name="header">
+								<ice:outputText value="Organization Name" />
+							</f:facet>
+							<ice:outputText value="#{org.name}" />
+						</ice:column>
+						<ice:column id="columnorgServiceArea">
+							<f:facet name="header">
+								<ice:outputText value="Service Area" />
+							</f:facet>
+							<ice:outputText value="#{org.serviceArea.name}" />
+						</ice:column>
+						<ice:column id="columnOrgPaymentOption">
+							<f:facet name="header">
+								<ice:outputText value="Payment Option" />
+							</f:facet>
+							<ice:outputText value="#{org.paymentOption}" />
+						</ice:column>
+						<ice:column id="columnOrgPersonName">
+							<f:facet name="header">
+								<ice:outputText value="Contact Person" />
+							</f:facet>
+							<ice:outputText value="#{org.contactPerson.name}" />
+						</ice:column>
+						<ice:column id="columnOrgAddress">
+							<f:facet name="header">
+								<ice:outputText value="Address" />
+							</f:facet>
+							<ice:outputText value="#{org.contact.address}" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelTabSet id="tabSetOrgDetails" style="margin-top:10px">
+						<ice:panelTab id="tabOrgProfile" label="Organization Profile">
+							<ice:panelGroup>
+								<fieldset style="height: 290px">
+									<ice:panelGrid columns="2" width="100%"
+										rowClasses="topAlignedTableCell">
+										<ice:panelGroup style="width: 583px;">
+											<fieldset style="height: 235px">
+												<legend>
+													<ice:outputLabel value="External Organization Details" />
+												</legend>
+												<ice:panelGroup style="margin-top:10px"
+													rendered="#{externalOrganizationManagerModel.org == null}">
+													<ice:outputText
+														value="Please select a external organization to view details.." />
+												</ice:panelGroup>
+												<ice:panelGrid columns="4" cellspacing="5" width="100%"
+													rendered="#{externalOrganizationManagerModel.org != null}">
+													<ice:outputText value="Organization Name" />
+													<ice:inputText id="input_OrganizationName" tabindex="1"
+														value="#{externalOrganizationManagerModel.org.name}"
+														maxlength="#{msgs['oragnaization.name.size']}" />
+													<ice:outputText value="Street Address" />
+													<ice:inputText id="input_OrganizationAddress" tabindex="6"
+														value="#{externalOrganizationManagerModel.org.contact.streetAddress}"
+														maxlength="#{msgs['contact.streetAddress.size']}" />
+													<ice:outputText value="Service Area" />
+													<ice:selectOneMenu id="select_OneServiceArea"
+														styleClass="SelectOneMenu" tabindex="2"
+														value="#{externalOrganizationManagerModel.selectedServiceAreaId}">
+														<f:selectItems
+															value="#{externalOrganizationManagerModel.serviceAreaSelectItems}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="City" />
+													<ice:inputText id="input_OrganizationCity" tabindex="7"
+														value="#{externalOrganizationManagerModel.org.contact.city}"
+														maxlength="#{msgs['contact.city.size']}" />
+													<ice:outputText value="Payment Option" />
+													<ice:inputText id="input_OrganizationPaymentOption"
+														tabindex="3"
+														value="#{externalOrganizationManagerModel.org.paymentOption}"
+														maxlength="#{msgs['oragnaization.paymentOption.size']}" />
+													<ice:outputText value="State" />
+													<ice:selectOneMenu id="select_State" tabindex="8"
+														value="#{externalOrganizationManagerModel.org.contact.state}">
+														<f:selectItems value="#{lookupListProvider.states}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Phone Number" />
+													<ice:inputText id="inputOrganizationPhoneNumber"
+														tabindex="4"
+														value="#{externalOrganizationManagerModel.org.contact.officePhone}"
+														maxlength="#{msgs['contact.phone.size']}" />
+													<ice:outputText value="Post Code" />
+													<ice:inputText id="input_OrganizationPostCode" tabindex="9"
+														value="#{externalOrganizationManagerModel.org.contact.postCode}"
+														maxlength="#{msgs['contact.postCode.size']}" />
+													<ice:outputText value="E - mail" />
+													<ice:inputText id="inputOrganizationEmail" tabindex="5"
+														value="#{externalOrganizationManagerModel.org.contact.email}"
+														maxlength="#{msgs['contact.email.size']}" />
+													<ice:outputText value="Country" />
+													<ice:inputText id="inputOrganizationCountry" tabindex="10"
+														value="#{externalOrganizationManagerModel.org.contact.country}"
+														maxlength="#{msgs['contact.email.size']}" readonly="true" />
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+										<ice:panelGroup
+											rendered="#{externalOrganizationManagerModel.org != null}"
+											style="width: 530px;">
+											<fieldset style="height: 235px">
+												<legend>
+													<ice:outputLabel value="Contact Person Details" />
+												</legend>
+												<ice:panelGrid columns="4" cellspacing="5" width="100%">
+													<ice:outputText value="Title" />
+													<ice:selectOneMenu id="selectOnePersonTitle"
+														styleClass="SelectOneMenu" tabindex="11"
+														value="#{externalOrganizationManagerModel.org.contactPerson.title}">
+														<f:selectItems value="#{lookupListProvider.title}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Address" />
+													<ice:inputText id="input_PersonAddress" tabindex="17"
+														value="#{externalOrganizationManagerModel.org.contactPerson.streetAddress}"
+														maxlength="#{msgs['contact.streetAddress.size']}" />
+													<ice:outputText value="First Name" />
+													<ice:inputText id="input_PersonFirstName" tabindex="12"
+														value="#{externalOrganizationManagerModel.org.contactPerson.firstName}"
+														maxlength="#{msgs['oragnaization.name.size']}" />
+													<ice:outputText value="City" />
+													<ice:inputText id="input_PersonCity" tabindex="18"
+														value="#{externalOrganizationManagerModel.org.contactPerson.city}"
+														maxlength="#{msgs['contact.city.size']}" />
+													<ice:outputText value="Middle Names" />
+													<ice:inputText id="inputPersonMiddleName" tabindex="13"
+														value="#{externalOrganizationManagerModel.org.contactPerson.middleNames}"
+														maxlength="#{msgs['oragnaization.paymentOption.size']}" />
+													<ice:outputText value="State" />
+													<ice:selectOneMenu id="select_PersonState" tabindex="19"
+														value="#{externalOrganizationManagerModel.org.contactPerson.state}">
+														<f:selectItems value="#{lookupListProvider.states}" />
+													</ice:selectOneMenu>
+													<ice:outputText value="Last Name" />
+													<ice:inputText id="input_PersonLastName" tabindex="14"
+														value="#{externalOrganizationManagerModel.org.contactPerson.lastName}"
+														maxlength="#{msgs['contact.phone.size']}" />
+													<ice:outputText value="Post Code" />
+													<ice:inputText id="input_PersonPostCode" tabindex="20"
+														value="#{externalOrganizationManagerModel.org.contactPerson.postCode}"
+														maxlength="#{msgs['contact.postCode.size']}" />
+													<ice:outputText value="Phone Number" />
+													<ice:inputText id="inputPersonMobileNumber" tabindex="15"
+														value="#{externalOrganizationManagerModel.org.contactPerson.mobilePhone}"
+														maxlength="#{msgs['contact.phone.size']}" />
+													<ice:outputText value="Country" />
+													<ice:inputText id="inputContactPersonCountry" tabindex="21"
+														value="#{externalOrganizationManagerModel.org.contactPerson.country}"
+														maxlength="#{msgs['contact.email.size']}" readonly="true" />
+													<ice:outputText value="E - mail" />
+													<ice:inputText id="inputContactPersonEmail" tabindex="16"
+														value="#{externalOrganizationManagerModel.org.contactPerson.email}"
+														maxlength="#{msgs['contact.email.size']}" />
+													<ice:outputText value="Fax" />
+													<ice:inputText id="inputPersonPhoneNumber" tabindex="22"
+														value="#{externalOrganizationManagerModel.org.contactPerson.homePhone}"
+														maxlength="#{msgs['contact.phone.size']}" />
+												</ice:panelGrid>
+											</fieldset>
+											<ice:panelGroup style="float:right;margin-top:10px">
+												<ice:commandButton id="commandOrganizationDelete"
+													value="Delete" style="width:80px;margin-right:5px"
+													tabindex="24" panelConfirmation="deleteConfirmation"
+													rendered="#{externalOrganizationManagerModel.org.id != null}"
+													styleClass="CommandButton"
+													action="#{externalOrganizationManagerModel.deleteOrganization}" />
+												<ice:commandButton id="commandLocationSave" value="Save"
+													style="width:80px" tabindex="23"
+													rendered="#{externalOrganizationManagerModel.org != null}"
+													styleClass="CommandButton"
+													action="#{externalOrganizationManagerModel.saveOrganization}" />
+											</ice:panelGroup>
+											<ice:panelConfirmation id="deleteConfirmation"
+												acceptLabel="Yes" cancelLabel="No" draggable="true"
+												title="Confirm"
+												message="Are you sure you want to perform this action?" />
+										</ice:panelGroup>
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelTab>
+					</ice:panelTabSet>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="NDIS"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">NDIS Claim Manager</ui:define>
+		<ui:define name="pageDescription">This allows you to view and generate NDIS claim for selected student.</ui:define>
+		<ui:define name="extraHeader">
+			<script type="text/javascript" src="js/pdfobject.js"></script>
+		</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formNdisInvoiceManager">
+				<ice:panelGroup style="width:790px"
+					rendered="#{ndisInvoiceManagerModel.internalOrganization == null}">
+					<ice:outputText value="Please add an Internal organization first." />
+					<br />
+					<ice:commandButton action="InternalOrganizationManager"
+						value="Goto Internal Organizations View" style="margin-top: 20px;"/>
+				</ice:panelGroup>
+				<ice:panelGroup style="width:790px"
+					rendered="#{ndisInvoiceManagerModel.internalOrganization != null}">
+					<fieldset style="height: 250px">
+						<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+							<ice:panelGroup style="width:350px">
+								<fieldset style="height: 230px">
+									<legend>
+										<ice:outputLabel value="Select Participant(s)" />
+									</legend>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable scrollable="true" scrollHeight="150px"
+											value="#{ndisInvoiceManagerModel.studentList}" var="stdList"
+											id="tableStudents" columnWidths="20px,200px">
+											<ice:column style="text-align:center;width:20px">
+												<f:facet name="header">
+													<ice:selectBooleanCheckbox
+														value="#{ndisInvoiceManagerModel.selectStudents}"
+														id="selectAllStudents" partialSubmit="true"
+														valueChangeListener="#{ndisInvoiceManagerModel.selectAllStudents}" />
+												</f:facet>
+												<ice:selectBooleanCheckbox value="#{stdList.ui_selected}"
+													id="selectStudent" partialSubmit="true"
+													valueChangeListener="#{ndisInvoiceManagerModel.selectStudent}">
+													<f:attribute name="student" value="#{stdList}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column id="columnProgramName">
+												<f:facet name="header">
+													<ice:outputText value="Participant Name" />
+												</f:facet>
+												<ice:outputText value="#{stdList.contact.name}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="width:400px">
+								<fieldset style="height: 230px">
+									<ice:panelGrid columns="2" cellspacing="5" width="100%">
+										<ice:outputLabel value="NDIS Registration Code :" />
+										<ice:selectOneMenu id="selectRegistrationCode"
+											partialSubmit="true"
+											value="#{ndisInvoiceManagerModel.registrationCode}">
+											<f:selectItems value="#{ndisInvoiceManagerModel.regCodes}"
+												var="reg" itemLabel="#{reg.NDISRegistrationCode}"
+												itemValue="#{reg.NDISRegistrationCode}">
+											</f:selectItems>
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Authorizing Officer :" />
+										<ice:selectOneMenu id="selectAuthorizedStaff"
+											partialSubmit="true"
+											value="#{ndisInvoiceManagerModel.staffId}">
+											<f:selectItem itemLabel="Please select" itemValue="0" />
+											<f:selectItems value="#{ndisInvoiceManagerModel.staffs}"
+												var="stf" itemLabel="#{stf.staffMember.contact.name}" itemValue="#{stf.id}">
+											</f:selectItems>
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Date:" />
+										<ice:selectInputDate renderMonthAsDropdown="true"
+											id="inputEventToDate" renderYearAsDropdown="true"
+											renderAsPopup="true"
+											value="#{ndisInvoiceManagerModel.weekDate}"
+											converter="dateConverter" partialSubmit="true">
+											<f:attribute name="flag" value="date" />
+										</ice:selectInputDate>
+										<ice:outputLabel value="Period:" />
+										<ice:selectOneMenu id="selectPeriod"
+											value="#{ndisInvoiceManagerModel.timePeriod}"
+											partialSubmit="true">
+											<f:selectItem itemLabel="1 Week" itemValue="1W" />
+											<f:selectItem itemLabel="2 Week" itemValue="2W" />
+											<f:attribute name="flag" value="period" />
+										</ice:selectOneMenu>
+										<ice:outputLabel value="" />
+										<ice:commandButton id="commandSpecialNeedToStudentSave"
+											style="margin-top:15px;float:right;margin-right:30px"
+											value="Generate NDIS Claim" styleClass="CommandButton"
+											action="#{ndisInvoiceManagerModel.downloadNDISInvoice}">
+											<f:ajax disabled="true" />
+										</ice:commandButton>
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</fieldset>
+				</ice:panelGroup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='formMenu:menuBarTop:configMenuItem']/a/img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:leavePolicyMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formLeavePolicy:commandPolicyAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formLeavePolicy:inputPolicyName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>formLeavePolicy:inputPolicyName</td>
+	<td>Some Policy</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formLeavePolicy:commandPolicyDetailAdd</td>
+	<td></td>
+</tr>

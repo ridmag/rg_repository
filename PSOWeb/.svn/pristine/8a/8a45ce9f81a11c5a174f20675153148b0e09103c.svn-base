@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle">CCPSO Home</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">CENTRAL COAST POST SCHOOL OPTIONS HOME</ui:define>
+		<ui:define name="pageDescription">Welcome to the Central Coast Post School Options. Use the above Menu Items to get started.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formMain">
+				<ice:panelGroup style="width:100%;text-align:center">
+					<ice:graphicImage url="images/Logo.jpg" />
+				</ice:panelGroup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

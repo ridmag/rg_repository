@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFIGC"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Admin Manager</ui:define>
+		<ui:define name="pageDescription">Admin tasks.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="collectionform">
+				
+				<div class="bodyContainer">
+					<h:commandButton actionListener="#{adminModel.buildTSIndex}" value="Build Text Search Index"></h:commandButton>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

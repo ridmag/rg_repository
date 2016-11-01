@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		- Application context containing authentication, channel - security
+		and web URI beans. - - Only used by "filter" artifact. - - $Id:
+		applicationContext-acegi-security.xml 1425 2006-04-28 06:43:50Z
+		benalex $
+	-->
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<global-method-security pre-post-annotations="enabled">
+		<expression-handler ref="expressionHandler" />
+	</global-method-security>
+
+	<http realm="Contacts Realm">
+		<intercept-url pattern="/" access="ROLE_USER" />
+		<intercept-url pattern="/index.jsp" access="ROLE_USER" />
+		<intercept-url pattern="/hello.htm" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/switchuser.jsp" access="ROLE_SUPERVISOR" />
+		<intercept-url pattern="/InvoiceManager.jsf" access="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE" />
+		<intercept-url pattern="/PaymentManager.jsf" access="ROLE_SUPERUSER,ROLE_ADMIN,ROLE_FINANCE" />
+		<intercept-url pattern="/VehicleManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/LocationManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/CollectionsManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/SpecialNeedManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/ReferenceItems.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/FundingManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/HolidayManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/ConsentManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/ExternalOrganizationManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/NdisSupportItemManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/InternalOrganizationManager.jsf" access="ROLE_SUPERUSER,ROLE_FINANCE" />
+		<intercept-url pattern="/j_spring_security_switch_user"
+			access="ROLE_SUPERVISOR" />
+		<intercept-url pattern="/**" access="ROLE_USER" />
+		<intercept-url pattern="/css/**" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/images/**" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/jasper/**" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/block/**" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/resources/**" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/imageDownload*" filters="none"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<form-login login-page="/login.jsp"
+			authentication-failure-url="/login.jsp?login_error=1" />
+
+		<form-login />
+		<logout logout-success-url="/index.jsp" />
+		<remember-me />
+		<custom-filter ref="switchUserProcessingFilter"
+			position="SWITCH_USER_FILTER" />
+	</http>
+
+	<authentication-manager>
+		<authentication-provider>
+			<jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query="SELECT U.username, U.password, U.enabled  FROM users U where U.username=?"
+				authorities-by-username-query="select username,authority from authorities where username = ?" />
+		</authentication-provider>
+	</authentication-manager>
+
+	<!-- Automatically receives AuthenticationEvent messages -->
+	<b:bean id="loggerListener"
+		class="org.springframework.security.authentication.event.LoggerListener" />
+
+	<!--
+		Filter used to switch the user context. Note: the switch and exit url
+		must be secured based on the role granted the ability to 'switch' to
+		another user
+	-->
+	<!--
+		In this example 'rod' has ROLE_SUPERVISOR that can switch to regular
+		ROLE_USER(s)
+	-->
+	<b:bean id="switchUserProcessingFilter"
+		class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter"
+		autowire="byType">
+		<b:property name="targetUrl" value="/secure/index.htm" />
+	</b:bean>
+
+	<b:bean id="expressionHandler"
+		class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		<b:property name="permissionEvaluator" ref="permissionEvaluator" />
+	</b:bean>
+
+	<b:bean id="permissionEvaluator"
+		class="org.springframework.security.acls.AclPermissionEvaluator">
+		<b:constructor-arg ref="aclService" />
+	</b:bean>
+</b:beans>

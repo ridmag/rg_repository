@@ -1,0 +1,911 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="NDISPROGRAM"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">NDIS Profile</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each #{msgs['student_label'].toLowerCase()}.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formStudents">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="7">
+						<ice:outputText
+							value="Search #{msgs['students_label'].toLowerCase()} by name or ID :" />
+						<ice:inputText id="inputTextProSearch"
+							action="#{ndisProgramManagerModel.searchStudents}"
+							value="#{ndisProgramManagerModel.searchStudentText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:selectOneMenu id="selectInactive"
+							value="#{ndisProgramManagerModel.status}">
+							<f:selectItem itemValue="all" itemLabel="All"></f:selectItem>
+							<f:selectItems value="#{lookupListProvider.status}"></f:selectItems>
+						</ice:selectOneMenu>
+						<ice:commandButton id="commanButtonStuSearch"
+							action="#{ndisProgramManagerModel.searchStudents}"
+							style="margin-left:10px" value="#{msgs['search.label']}"
+							styleClass="CommandButton" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="">
+					<ice:setEventPhase events="FacesEvent" phase="UPDATE_MODEL_VALUES">
+						<ice:dataTable scrollable="true" scrollHeight="137px"
+							value="#{ndisProgramManagerModel.students}" var="stu"
+							id="tableStudents"
+							columnWidths="60px,75px,75px,260px,80px,100px,80px,90px,80px,140px">
+							<ice:column id="columnStudentId"
+								style="text-align:right;width:60px">
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} ID"
+										style="width:60px" />
+								</f:facet>
+								<ice:outputText value="#{stu.id}" style="width:60px" />
+							</ice:column>
+							<ice:column id="columnStudentCISID" style="width:75px">
+								<f:facet name="header">
+									<ice:outputText value="CISID" style="width:75px" />
+								</f:facet>
+								<ice:outputText value="#{stu.cisid}" title="#{stu.cisid}"
+									style="overflow:hidden;width:75px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentMDSID" style="width:75px">
+								<f:facet name="header">
+									<ice:outputText value="MDSID" style="width:75px" />
+								</f:facet>
+								<ice:outputText value="#{stu.mdsid}" title="#{stu.mdsid}"
+									style="overflow:hidden;width:75px;height:1em" />
+							</ice:column>
+							<ice:column id="columnStudentName" style="width:260px">
+								<ice:rowSelector id="rowselectStudent"
+									clickListener="#{ndisProgramManagerModel.selectStudent}"
+									value="#{stu.ui_selected}">
+									<f:attribute name="stu" value="#{stu}" />
+								</ice:rowSelector>
+								<f:facet name="header">
+									<ice:outputText value="#{msgs['student_label']} Name"
+										style="width:260px" />
+								</f:facet>
+								<ice:outputText value="#{stu.contact.name}" style="width:260px" />
+							</ice:column>
+							<ice:column id="columnStudentSneedIcon" style="width:250px">
+								<f:facet name="header">
+									<ice:outputText value="Special Needs" style="width:250px" />
+								</f:facet>
+								<ui:repeat value="#{stu.specialNeeds}" var="sneed"
+									varStatus="status">
+									<ice:graphicImage value="/imageDownload?p=#{sneed.icon.id}"
+										height="25" rendered="#{sneed.icon != null}" width="25"
+										title="#{sneed.name}" style="margin-left:5px" />
+									<ice:outputText value="#{sneed.name}"
+										style="float:left;width:250px" title="#{sneed.name}"
+										rendered="#{sneed.icon == null}">
+										<f:converter converterId="truncateConverter" />
+									</ice:outputText>
+									<ice:outputText value=",&nbsp;" style="float:left"
+										rendered="#{sneed.icon == null and stu.specialNeeds.size() > 1 and status.index != stu.specialNeeds.size() - 1}" />
+								</ui:repeat>
+							</ice:column>
+							<ice:column id="columnStudentDob"
+								style="text-align:center;width:100px">
+								<f:facet name="header">
+									<ice:outputText value="Date of Birth" style="width:100px" />
+								</f:facet>
+								<ice:outputText value="#{stu.dob}" converter="dateConverter"
+									style="width:100px">
+								</ice:outputText>
+							</ice:column>
+							<ice:column id="columnStudentGender"
+								style="text-align:center;width:80px">
+								<f:facet name="header">
+									<ice:outputText value="Gender" style="width:80px" />
+								</f:facet>
+								<ice:outputText value="#{stu.gender}" style="width:80px" />
+							</ice:column>
+							<ice:column id="columnStudentContactNo"
+								style="text-align:center;width:90px">
+								<f:facet name="header">
+									<ice:outputText value="Contact Number" style="width:90px" />
+								</f:facet>
+								<ice:outputText value="#{stu.contact.contactNumber}"
+									style="width:90px" />
+							</ice:column>
+							<ice:column id="columnStudentTransport"
+								style="text-align:center;width:50px">
+								<f:facet name="header">
+									<ice:outputText value="Transport Requested" style="width:50px" />
+								</f:facet>
+								<ice:selectBooleanCheckbox value="#{stu.transport}"
+									style="width:50px" disabled="true" />
+							</ice:column>
+							<ice:column id="columnNdisNumber"
+								style="text-align:center;width:140px">
+								<f:facet name="header">
+									<ice:outputText value="NDIS Number" style="width:140px" />
+								</f:facet>
+								<ice:outputText value="#{stu.ndisNumber}" style="width:140px" />
+							</ice:column>
+						</ice:dataTable>
+					</ice:setEventPhase>
+					<!-- 			<ice:panelGroup
+						style="width:100%;height:25px;border:1px solid white"
+						rendered="#{ndisProgramManagerModel.student != null}">
+						<ice:panelGrid columns="2" styleClass="borderBox"
+							rendered="#{ndisProgramManagerModel.student != null}"
+							style="height:20px;margin-top:45px;margin-bottom:5px;margin-left:450px;width:1100px">
+							<ice:outputText value="Selected #{msgs['student_label']} :"
+								style="margin-left:5px" />
+							<ice:panelGroup style="width:437px">
+								<ice:outputText value="#{sessionContext.activeStringDetails}"
+									effect="#{sessionContext.effectDetails}"
+									styleClass="ReportSectionHeader" />
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</ice:panelGroup> -->
+					<ice:panelTabSet id="tabSetStudentDetails"
+						tabChangeListener="#{ndisProgramManagerModel.tabChangeListner}"
+						selectedIndex="#{ndisProgramManagerModel.selectedTabIndex}">
+						<ice:panelTab id="tabNDISContribution" label="NDIS Contribution"
+							rendered="#{ndisProgramManagerModel.student!=null}">
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{ndisProgramManagerModel.student == null}">
+								<ice:outputText
+									value="Please select a student to view details.." />
+							</ice:panelGroup>
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="margin-right:10px;"
+									rendered="#{ndisProgramManagerModel.student != null}">
+									<fieldset
+										style="margin-top: 10px; margin-bottom: 10px; width: 600px">
+										<legend>
+											<ice:outputLabel value="NDIS Summary" />
+										</legend>
+										<ice:dataTable scrollable="true" scrollHeight="152px"
+											id="tableSummery" value="#{ndisProgramManagerModel}" var="np"
+											columnWidths="140px,80px,80px,80px,80px,80px"
+											style="margin-top:35px">
+											<ice:column id="columnname"
+												style="text-align:left;width:140px">
+												<f:facet name="header">
+													<ice:outputText value=""
+														style="width:140px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="Total Contribution"
+													style="margin-top:10px" />
+												<ice:outputText value="Committed Amount"
+													style="margin-top:10px" />
+												<ice:outputText value="Uncommitted Amount"
+													style="margin-top:10px" />
+												<ice:outputText value="Claimed Amount"
+													style="margin-top:10px" />
+												<ice:outputText value="Uncliamed Amount"
+													style="margin-top:10px" />
+											</ice:column>
+											<ice:column id="columndayprog"
+												style="text-align:right;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Day Program"
+														style="width:80px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="#{np.dayProgNdisFund}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.dayProgCommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.dayProgBalance}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.dayProgClaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.dayProgUnclaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInd"
+												style="text-align:right;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Individual"
+														style="width:80px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="#{np.indProgNdisFund}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.indProgCommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.indProgBalance}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.indProgClaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.indProgUnclaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columntrans"
+												style="text-align:right;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Transport"
+														style="width:80px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="#{np.transProgNdisFund}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.transProgCommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.transProgBalance}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.transProgClaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.transProgUnclaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnanci"
+												style="text-align:right;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Ancillary"
+														style="width:80px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="#{np.ancProgNdisFund}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.ancProgCommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.ancProgBalance}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.ancProgClaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.ancProgUnclaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columntotal"
+												style="text-align:right;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Summary"
+														style="width:80px;margin-top:10px" />
+												</f:facet>
+												<ice:outputText value="#{np.totalNdisFund}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.totalCommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.totalUncommittedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.totalClaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+												<ice:outputText value="#{np.totalUnclaimedAmount}"
+													style="margin-top:10px">
+													<f:convertNumber minFractionDigits="2"
+														maxFractionDigits="2" />
+												</ice:outputText>
+											</ice:column>
+										</ice:dataTable>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup>
+									<fieldset style="margin-top: 10px; margin-bottom: 10px">
+										<legend>
+											<ice:outputLabel value="NDIS Contribution" />
+										</legend>
+										<ice:commandButton id="commandcontributionNew"
+											value="Add New Contribution" styleClass="CommandButton"
+											action="#{ndisProgramManagerModel.addnewcontribution}" />
+										<ice:dataTable scrollable="true" scrollHeight="152px"
+											value="#{ndisProgramManagerModel.allNdisContributions}"
+											var="nc" id="tablePrice"
+											columnWidths="80px,150px,100px,100px,50px">
+											<ice:column id="columnContributionId"
+												style="text-align:center;width:80px">
+												<f:facet name="header">
+													<ice:outputText value="Contribution ID" style="width:80px" />
+												</f:facet>
+												<ice:outputText value="#{nc.id}" style="width:80px" />
+											</ice:column>
+											<ice:column id="columnClusterType" style="width:150px">
+												<!-- <ice:setEventPhase phase="INVOKE_APPLICATION"
+														events="FacesEvent">
+														<ice:rowSelector id="rowselectNdisContribution"
+															value="#{nc.ui_selected}"
+															clickListener="#{ndisProgramManagerModel.selectNdisContribution}">
+															<f:attribute name="ndisContribution" value="#{ndisContribution}" />
+														</ice:rowSelector>
+													</ice:setEventPhase> -->
+												<!-- <ice:setEventPhase phase="INVOKE_APPLICATION"
+														events="FacesEvent">
+														<ice:rowSelector id="rowselectorContribution"
+															immediate="true" value="#{nc.ui_selected}"
+															multiple="false"
+															clickListener="#{ndisProgramManagerModel.selectContribution}"
+															singleRowAutoSelect="true">
+															<f:attribute name="nc" value="#{nc}" />
+														</ice:rowSelector>
+													</ice:setEventPhase> -->
+												<f:facet name="header">
+													<ice:outputText value="Cluster Type" style="width:150px" />
+												</f:facet>
+												<ice:outputText rendered="#{nc.clusterType=='1'}"
+													value="Day Program" />
+												<ice:outputText rendered="#{nc.clusterType=='2'}"
+													value="Individual" />
+												<ice:outputText rendered="#{nc.clusterType=='3'}"
+													value="Transport" />
+												<ice:outputText rendered="#{nc.clusterType=='4'}"
+													value="Ancillary" />
+											</ice:column>
+											<ice:column id="columnAmount"
+												style="text-align:center;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Amount" style="width:100px" />
+												</f:facet>
+												<ice:outputText value="#{nc.amount}" style="width:100px">
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnDate"
+												style="text-align:center;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Contributed Date"
+														style="width:100px" />
+												</f:facet>
+												<ice:outputText value="#{nc.contributedDate}"
+													style="width:100px">
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnPriceDelete"
+												style="text-align:center;width:50px">
+												<f:facet name="header" style="text-align:center;width:50px">
+													<ice:outputText value="Remove" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													actionListener="#{ndisProgramManagerModel.deletecontribution}"
+													panelConfirmation="deleteNdisContributionConfirmation"
+													title="deleteContributionMember"
+													id="commandlinkDeletePrice">
+													<ice:graphicImage style="border:none"
+														id="graphicDeleteContribution"
+														url="images/icons/delete-icon.png" />
+													<f:attribute name="np" value="#{np}" />
+												</ice:commandLink>
+												<ice:panelConfirmation
+													id="deleteNdisContributionConfirmation" acceptLabel="Yes"
+													cancelLabel="No" draggable="true" title="Confirm"
+													message="Are you sure you want to perform this action?" />
+											</ice:column>
+										</ice:dataTable>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+						<ice:panelTab id="tabStudentndis" label="NDIS Program"
+							rendered="#{ndisProgramManagerModel.student != null}"
+							disabled="#{ndisProgramManagerModel.student.id == null}">
+							<fieldset style="height: 915px">
+								<legend>
+									<ice:outputLabel value="NDIS Program Details" />
+								</legend>
+								<ice:panelGroup>
+									<ice:panelGrid styleClass="borderBox" width="100%">
+										<ice:panelGrid columns="8">
+											<ice:outputText value="Program Type:" style="width :50px" />
+											<ice:setEventPhase events="ValueChangeEvent"
+												phase="INVOKE_APPLICATION">
+												<ice:selectOneMenu id="select_ProgramTypes"
+													value="#{ndisProgramManagerModel.programTypeId}"
+													partialSubmit="true"
+													valueChangeListener="#{ndisProgramManagerModel.selectStudentGroup}">
+													<f:selectItem itemValue="0" itemLabel="Select a Category"></f:selectItem>
+													<f:selectItems value="#{lookupListProvider.programTypes}"></f:selectItems>
+												</ice:selectOneMenu>
+											</ice:setEventPhase>
+											<ice:outputText value="Programs" />
+											<ice:selectOneMenu id="select_programs"
+												value="#{ndisProgramManagerModel.selectedGroupId}">
+												<f:selectItem itemLabel="All Programs" itemValue="0" />
+												<f:selectItems value="#{ndisProgramManagerModel.stdGroups}"
+													var="grp" itemValue="#{grp.id}" itemLabel="#{grp.name}" />
+											</ice:selectOneMenu>
+											<ice:outputText />
+											<ice:outputText />
+											<ice:outputText />
+											<ice:outputText />
+											<ice:outputText value="Start Date :" />
+											<ice:panelGroup id="input_EventFromDate">
+												<ice:selectInputDate renderMonthAsDropdown="true"
+													renderYearAsDropdown="true" renderAsPopup="true"
+													value="#{ndisProgramManagerModel.sDate}"
+													converter="dateConverter" partialSubmit="true">
+													<f:attribute name="flag" value="date" />
+												</ice:selectInputDate>
+											</ice:panelGroup>
+											<ice:outputText value="End Date :" />
+											<ice:panelGroup id="input_EventToDate">
+												<ice:selectInputDate renderMonthAsDropdown="true"
+													renderYearAsDropdown="true" renderAsPopup="true"
+													value="#{ndisProgramManagerModel.eDate}"
+													converter="dateConverter" partialSubmit="true">
+													<f:attribute name="flag" value="date" />
+												</ice:selectInputDate>
+											</ice:panelGroup>
+											<ice:commandButton id="commanButtonStuSearch"
+												action="#{ndisProgramManagerModel.generateNDISEvents}"
+												style="margin-left:10px ;margin-right:10px; width : 100px"
+												value="#{msgs['search.label']}" styleClass="CommandButton" />
+											<ice:commandButton id="commanButtonCommitAll"
+												disabled="#{ndisProgramManagerModel.selectedNdisEventsMapUncommit.size()!=0 || ndisProgramManagerModel.selectedNdisEventsMap.size()==0 }"
+												style="margin-left:10px ;margin-right:10px; width : 100px"
+												panelConfirmation="commitConfirmation" value="Commit All"
+												styleClass="CommandButton"
+												actionListener="#{ndisProgramManagerModel.commitAll}" />
+											<ice:commandButton id="commanButtonUnCommitAll"
+												disabled="#{ndisProgramManagerModel.selectedNdisEventsMapUncommit.size()==0}"
+												panelConfirmation="uncommitConfirmation"
+												actionListener="#{ndisProgramManagerModel.uncommitEvents}"
+												style="margin-left:10px;margin-right:10px; width :100px"
+												value="Uncommit All" styleClass="CommandButton" />
+										</ice:panelGrid>
+									</ice:panelGrid>
+									<ice:panelConfirmation id="commitConfirmation"
+										acceptLabel="Yes" cancelLabel="No" draggable="true"
+										title="Confirm"
+										message="Has the Participant(s) authorized to the claim?" />
+									<ice:panelConfirmation id="uncommitConfirmation"
+										acceptLabel="Yes" cancelLabel="No" draggable="true"
+										title="Confirm"
+										message="Are you sure you want to perform this action?" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable scrollable="true" scrollHeight="400px"
+											rendered="#{ndisProgramManagerModel.programTypeId !=2}"
+											value="#{ndisProgramManagerModel.ndisEvents}" var="rec"
+											id="tableNDISPrograms"
+											columnWidths="20px,250px,210px,210px,190px,190px">
+											<ice:column style="text-align:center;width:20px">
+												<f:facet name="header">
+													<ice:selectBooleanCheckbox
+														value="#{ndisProgramManagerModel.selectAllEvents}"
+														id="selectAllEvents" partialSubmit="true"
+														valueChangeListener="#{ndisProgramManagerModel.selectAllNdisEvents}" />
+												</f:facet>
+												<ice:selectBooleanCheckbox value="#{rec.ui_selected}"
+													id="selectNdisEvent" partialSubmit="true"
+													valueChangeListener="#{ndisProgramManagerModel.selectNdisEvent}">
+													<f:attribute name="event" value="#{rec}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column id="columnProgramName">
+												<f:facet name="header">
+													<ice:outputText value="Program Name" />
+												</f:facet>
+												<ice:outputText value="#{rec.studentGroup.name}" />
+											</ice:column>
+											<ice:column id="columnProgramLOS">
+												<f:facet name="header">
+													<ice:outputText value="Program Support Cluster" />
+												</f:facet>
+												<ice:outputText value="#{rec.ndisSupportCluster.itemName}"
+													title="#{rec.ndisSupportCluster.numerator} - #{rec.ndisSupportCluster.denominator}" />
+											</ice:column>
+											<ice:column id="columnParticipantLOS">
+												<f:facet name="header">
+													<ice:outputText
+														value="Participant Support Cluster Override" />
+												</f:facet>
+												<ice:selectOneMenu id="clusterOverride"
+													value="#{rec.clusterOverrideId}">
+													<f:selectItems
+														value="#{ndisProgramManagerModel.getClusterOverrideList(rec.studentGroup.id)}"
+														var="cluster" itemValue="#{cluster.id}"
+														itemLabel="#{cluster.itemName}" />
+												</ice:selectOneMenu>
+											</ice:column>
+											<ice:column id="columnUncommitted">
+												<f:facet name="header">
+													<ice:outputText value="Uncommited Hours" />
+												</f:facet>
+												<ice:outputText value="#{rec.uncommittedhours}" />
+											</ice:column>
+											<ice:column id="columnCommitted">
+												<f:facet name="header">
+													<ice:outputText value="Commited Hours" />
+												</f:facet>
+												<ice:outputText value="#{rec.committedHours}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable scrollable="true" scrollHeight="400px"
+											rendered="#{ndisProgramManagerModel.programTypeId ==2}"
+											value="#{ndisProgramManagerModel.ndisEvents}" var="rec"
+											id="tableNDISTransportPrograms"
+											columnWidths="20px,250px,180px,170px,150px,150px,150px">
+											<ice:column style="text-align:center;width:20px">
+												<f:facet name="header">
+													<ice:selectBooleanCheckbox
+														value="#{ndisProgramManagerModel.selectAllEvents}"
+														id="selectAllTransportEvents" partialSubmit="true"
+														valueChangeListener="#{ndisProgramManagerModel.selectAllNdisEvents}" />
+												</f:facet>
+												<ice:selectBooleanCheckbox value="#{rec.ui_selected}"
+													id="selectNdisTransportEvent" partialSubmit="true"
+													valueChangeListener="#{ndisProgramManagerModel.selectNdisEvent}">
+													<f:attribute name="event" value="#{rec}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column id="columnTransportProgramName">
+												<f:facet name="header">
+													<ice:outputText value="Transport Program Name" />
+												</f:facet>
+												<ice:outputText value="#{rec.studentGroup.name}" />
+											</ice:column>
+											<ice:column id="columnTransportProgramLOS">
+												<f:facet name="header">
+													<ice:outputText value="Program Support Cluster" />
+												</f:facet>
+												<ice:outputText value="#{rec.ndisSupportCluster.itemName}"
+													title="#{rec.ndisSupportCluster.numerator} - #{rec.ndisSupportCluster.denominator}" />
+											</ice:column>
+											<ice:column id="columnTransportParticipantLOS">
+												<f:facet name="header">
+													<ice:outputText
+														value="Participant Support Cluster Override" />
+												</f:facet>
+												<ice:selectOneMenu id="TransportclusterOverride"
+													value="#{rec.clusterOverrideId}">
+													<f:selectItems
+														value="#{ndisProgramManagerModel.getClusterOverrideList(rec.studentGroup.id)}"
+														var="cluster" itemValue="#{cluster.id}"
+														itemLabel="#{cluster.itemName}" />
+												</ice:selectOneMenu>
+											</ice:column>
+											<ice:column id="columnUnits">
+												<f:facet name="header">
+													<ice:outputText value="Kms" />
+												</f:facet>
+												<ice:inputText id="inputkms"
+													value="#{ndisProgramManagerModel.kmsPerDay}">
+													<f:validateLength maximum="20" />
+												</ice:inputText>
+												<!-- <ice:selectOneMenu id="selectPrice" value="#{rec.price.id}">
+													<f:selectItems
+														value="#{ndisProgramManagerModel.getNdisPriceList(rec.studentGroup.id)}"
+														var="price" itemValue="#{price.id}"
+														itemLabel="#{price.priceName}" />
+												</ice:selectOneMenu> -->
+											</ice:column>
+											<ice:column id="columnUnCommittedunits">
+												<f:facet name="header">
+													<ice:outputText value="Days Uncommitted" />
+												</f:facet>
+												<ice:outputText value="#{rec.uncommittedUnits}" />
+											</ice:column>
+											<ice:column id="columnCommittedunits">
+												<f:facet name="header">
+													<ice:outputText value="Days Committed" />
+												</f:facet>
+												<ice:outputText value="#{rec.committedUnits}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab id="tabNDISAncillary" label="NDIS Ancillary"
+							rendered="#{ndisProgramManagerModel.student!=null}">
+							<fieldset style="min-height: 580px">
+								<legend>
+									<ice:outputLabel value="NDIS Ancillary Details" />
+								</legend>
+								<ice:panelGroup>
+									<ice:commandButton
+										rendered="#{ndisProgramManagerModel.student!=null}"
+										value="Add an Ancillary Cost" styleClass="CommandButton"
+										action="#{ndisProgramManagerModel.addNewNdisAncillaryCost}" />
+									<ice:dataTable
+										columnWidths="100px,100px,400px,100px,100px,100px,100px,100px,100px"
+										value="#{ndisProgramManagerModel.allNdisAncillaryCosts}"
+										var="ndisAncyCost">
+										<ice:column id="columnID" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="ID" />
+											</f:facet>
+											<ice:outputText value="#{ndisAncyCost.id}" />
+										</ice:column>
+										<ice:column id="columnDate" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Date" />
+											</f:facet>
+											<ice:outputText value="#{ndisAncyCost.date}"
+												converter="dateConverter" />
+										</ice:column>
+										<ice:column id="columnSupportItem" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Support Item" />
+											</f:facet>
+											<ice:outputText
+												value="#{ndisAncyCost.ndisSupportItem.itemName}" />
+										</ice:column>
+										<ice:column id="columnSupportItemNo" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Support Item No" />
+											</f:facet>
+											<ice:outputText value="#{ndisAncyCost.ndisPrice.itemNumber}" />
+										</ice:column>
+										<ice:column id="columnUOM" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Unit of Measure" />
+											</f:facet>
+											<ice:outputText value="#{ndisAncyCost.uom}" />
+										</ice:column>
+										<ice:column id="columnNoUnit" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="No of Unit" />
+											</f:facet>
+											<ice:outputText value="#{ndisAncyCost.noofunit}" />
+										</ice:column>
+										<ice:column id="columnClaimed" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Authorization to claim" />
+											</f:facet>
+											<ice:outputText value="Authorized"
+												rendered="#{ndisAncyCost.authorized}" />
+											<ice:outputText value="Unauthorized"
+												rendered="#{!ndisAncyCost.authorized}" />
+										</ice:column>
+										<ice:column id="columnEdit" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Edit" />
+											</f:facet>
+											<ice:commandLink style="border:none"
+												actionListener="#{ndisProgramManagerModel.editNdisAncyCost}"
+												title="Edit">
+												<ice:graphicImage style="border:none" id="EditndisAncyCost"
+													url="images/icons/edit.png" />
+												<f:attribute name="ndisAncyCost" value="#{ndisAncyCost}" />
+											</ice:commandLink>
+										</ice:column>
+										<ice:column id="columnDelete" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Delete" />
+											</f:facet>
+											<ice:commandLink style="border:none"
+												actionListener="#{ndisProgramManagerModel.removeNdisAncyCost}"
+												title="Delete"
+												panelConfirmation="deleteNdisAncyCostConfirmation">
+												<ice:graphicImage style="border:none"
+													id="DeletendisAncyCost" url="images/icons/delete-icon.png" />
+												<f:attribute name="ndisAncyCost" value="#{ndisAncyCost}" />
+											</ice:commandLink>
+											<ice:panelConfirmation id="deleteNdisAncyCostConfirmation"
+												acceptLabel="Yes" cancelLabel="No" draggable="true"
+												title="Confirm"
+												message="Are you sure you want to perform this action?" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelPopup modal="true" styleClass="icePnlPop"
+							draggable="true"
+							rendered="#{ndisProgramManagerModel.visibleAncillaryPopUp}">
+							<f:facet name="header">
+								<ice:panelGroup styleClass="popupHeaderWrapper1"
+									style="background:url(images/dialogbg1.png);">
+									<ice:outputText value="Add an Ancillary Cost"
+										styleClass="popupHeaderText" />
+									<ice:commandButton id="closeButtonAncillaryCost"
+										image="#{msgs['panelPopup.closeImage']}"
+										action="#{ndisProgramManagerModel.showNDISAncillaryPopup}"
+										styleClass="popupHeaderImage" title="Close" alt="Close" />
+								</ice:panelGroup>
+							</f:facet>
+							<f:facet name="body">
+								<ice:panelGroup style="width:100%;margin-top:10px">
+									<ice:messages></ice:messages>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:panelGroup>
+											<ice:outputText value="Selected Student :" />
+										</ice:panelGroup>
+										<ice:panelGroup>
+											<ice:outputLabel
+												value="#{ndisProgramManagerModel.student.contact.name}" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:outputText value="Date" />
+										</ice:panelGroup>
+										<ice:panelGroup id="input_NDISAncillaryCostDate">
+											<ice:selectInputDate value="#{ndisProgramManagerModel.date}"
+												renderAsPopup="true" renderMonthAsDropdown="true"
+												renderYearAsDropdown="true" converter="dateConverter">
+											</ice:selectInputDate>
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:outputText value="NDIS Cluster Name" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:setEventPhase events="FacesEvent"
+												phase="UPDATE_MODEL_VALUES">
+												<ice:selectOneMenu id="select_NDISAncillaryItem"
+													value="#{ndisProgramManagerModel.ndisSupportItemId}"
+													valueChangeListener="#{ndisProgramManagerModel.selectNdisItem}"
+													partialSubmit="true">
+													<f:selectItem itemValue="0" itemLabel="Please select"
+														itemDisabled="true" />
+													<f:selectItems
+														value="#{ndisProgramManagerModel.ndisItemList}" var="item"
+														itemLabel="#{item.itemName}" itemValue="#{item.id}" />
+												</ice:selectOneMenu>
+											</ice:setEventPhase>
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:outputText value="NDIS Item No" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:setEventPhase events="FacesEvent"
+												phase="UPDATE_MODEL_VALUES">
+												<ice:selectOneMenu id="select_NDISprice"
+													value="#{ndisProgramManagerModel.ndisPriceId}"
+													valueChangeListener="#{ndisProgramManagerModel.selectNdisPriceItem}"
+													partialSubmit="true">
+													<f:selectItem itemValue="0" itemLabel="Please select"
+														itemDisabled="true" />
+													<f:selectItems
+														value="#{ndisProgramManagerModel.ndisPricesList}"
+														var="item" itemLabel="#{item.itemNumber}"
+														itemValue="#{item.id}" />
+												</ice:selectOneMenu>
+											</ice:setEventPhase>
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:outputText
+												rendered="#{ndisProgramManagerModel.uom !=null}" value="UOM" />
+										</ice:panelGroup>
+										<ice:outputLabel value="#{ndisProgramManagerModel.uom}" />
+										<ice:panelGroup style="width:170px">
+											<ice:outputText value="No of Unit" />
+										</ice:panelGroup>
+										<ice:panelGroup style="width:170px">
+											<ice:inputText id="input_NoofUnit"
+												value="#{ndisProgramManagerModel.noofunit}" />
+										</ice:panelGroup>
+										<ice:outputText value="Authorization to claim" />
+										<ice:selectBooleanCheckbox id="input_claimed"
+											value="#{ndisProgramManagerModel.ndisAncillaryCost.authorized}" />
+									</ice:panelGrid>
+									<ice:commandButton id="commandSavenExit" value="Cancel"
+										styleClass="CommandButton"
+										style="float:right;margin-top:10px;width:100px;margin-left:10px"
+										action="#{ndisProgramManagerModel.showNDISAncillaryPopup}" />
+									<ice:commandButton id="commandAddNdisAnciCost" value="Save"
+										styleClass="CommandButton"
+										style="float:right;margin-top:10px;width:80px;margin-left:10px"
+										action="#{ndisProgramManagerModel.saveAndExit}" />
+								</ice:panelGroup>
+							</f:facet>
+						</ice:panelPopup>
+						<ice:panelPopup modal="true" styleClass="icePnlPop"
+							draggable="true"
+							rendered="#{ndisProgramManagerModel.visibleAddContribution}">
+							<f:facet name="header">
+								<ice:panelGroup styleClass="popupHeaderWrapper1"
+									style="background:url(images/dialogbg1.png);">
+									<ice:outputText
+										value="Add new Contribution to Student : #{ndisProgramManagerModel.student.contact.name}"
+										styleClass="popupHeaderText" />
+									<ice:commandButton id="closeButton"
+										image="#{msgs['panelPopup.closeImage']}"
+										action="#{ndisProgramManagerModel.addContributionPopup()}"
+										styleClass="popupHeaderImage" title="Close" alt="Close" />
+								</ice:panelGroup>
+							</f:facet>
+							<f:facet name="body">
+								<ice:panelGroup>
+									<ice:messages />
+									<ice:panelGrid columns="3">
+										<ice:outputText value="Cluster Type " />
+										<ice:outputText value=" : " />
+										<ice:selectOneMenu id="select_ClusterTypes"
+											value="#{ndisProgramManagerModel.ndisContribution.clusterType}">
+											<f:selectItems value="#{lookupListProvider.programTypesList}"
+												var="type" itemLabel="#{type.name}" itemValue="#{type.id}" />
+										</ice:selectOneMenu>
+										<ice:outputText value=" Amount ($)" />
+										<ice:outputText value=" : " />
+										<ice:inputText id="input_StudentFirstName"
+											value="#{ndisProgramManagerModel.ndisContribution.amount}"
+											style="margin-bottom:10px">
+											<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+										</ice:inputText>
+										<ice:outputText value="Contribution Date " />
+										<ice:outputText value=" : " />
+										<ice:selectInputDate
+											value="#{ndisProgramManagerModel.ndisContribution.contributedDate}"
+											renderAsPopup="true" renderMonthAsDropdown="true"
+											renderYearAsDropdown="true" converter="dateConverter"
+											converterMessage="Start date must be valide date">
+										</ice:selectInputDate>
+									</ice:panelGrid>
+									<ice:commandButton id="commandcontributionSave" value="Add"
+										styleClass="CommandButton"
+										style="float:right;margin:10px;width:80px"
+										action="#{ndisProgramManagerModel.savecontribution}" />
+								</ice:panelGroup>
+							</f:facet>
+						</ice:panelPopup>
+					</ice:panelTabSet>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

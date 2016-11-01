@@ -1,0 +1,556 @@
+<table width="100%">
+
+	#if($proEvent.program.type.name == "Student")
+
+	<tr style="background-color: #FFA500; padding-bottom: 100px"
+		align="left" valign="middle">
+		<td>
+			<h4 style="font-weight: bold">PROGRAM ATTENDANCE SHEET</h4>
+		</td>
+	</tr>
+	
+	<tr style="border-bottom: 1px solid #000;">
+		<td>
+			<table width="100%" style="font-size: 10" cellspacing="8">
+				<colgroup>
+					<col style="width: 16%" />
+					<col style="width: 1%" />
+					<col style="width: 21%" />
+					<col style="width: 12%" />
+					<col style="width: 1%" />
+					<col style="width: 19%" />
+					<col style="width: 17%" />
+					<col style="width: 1%" />
+					<col style="width: 12%" />
+				</colgroup>
+				<tr>
+					<td style="font-weight: bold">Program Name</td>
+					<td>:</td>
+					<td>$proEvent.group.name</td>
+				
+					#if($proEvent.program.type.name == "Student")
+					<td style="font-weight: bold">Coordinator</td>
+					<td>:</td> #if($proEvent.coordinator)
+					<td>$proEvent.coordinator.contact.name</td> #else
+					<td>Not Assigned</td> #end #end #if($proEvent.program.type.name ==
+					"Student")
+					
+					<td style="font-weight: bold">Location</td>
+					<td>:</td> #if($proEvent.location)
+					<td>$proEvent.location.name</td> #else
+					<td>Not Assigned</td> #end #end
+
+				</tr>
+
+				<tr>
+
+					<td style="font-weight: bold">Assigned Staff</td>
+					<td>:</td>
+					<td>#if($proEvent.staffEvents.size() > 0) #set($staffcount =
+						1) #foreach($staff in $proEvent.staffEvents) #set($tmpPage =
+						$page) #set($page = $count/5) #if($staffcount ==
+						$proEvent.staffEvents.size()) $staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName #else
+						$staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName, #end #set($staffcount =
+						$staffcount+1) #end #else Not Assigned #end</td>
+
+
+					<td style="font-weight: bold">Start Time</td>
+					<td>:</td>
+					<td>$timeFormat.format($proEvent.startTime)</td>
+
+					<td style="font-weight: bold">End Time</td>
+					<td>:</td>
+					<td>$timeFormat.format($proEvent.endTime)</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #000;">
+				<td style="font-weight: bold">Day of Week</td>
+				<td>:</td>
+				<td>$dateFormat2.format($proEvent.eventDate)</td>
+
+				<td style="font-weight: bold">Event Date</td>
+				<td>:</td>
+				<td>$dateFormat.format($proEvent.eventDate)</td>
+
+				<td style="font-weight: bold">Charge Amount</td>
+				<td>:</td>
+				<td>$myFormatter.format($proEvent.chargeAmount)</td>
+				</tr>
+
+			</table></td>
+
+	</tr>
+	#end #if($proEvent.program.type.name == "Staff")
+
+	<tr style="background-color: #FFA500; padding-bottom: 100px"
+		align="left" valign="middle">
+		<td>
+			<h4 style="font-weight: bold">STAFF ATTENDANCE SHEET</h4>
+		</td>
+	</tr>
+	
+	<tr style="border-bottom: 1px solid #000;">
+		<td>
+			<table width="100%" style="font-size: 10" cellspacing="8">
+				<colgroup>
+					<col style="width: 16%" />
+					<col style="width: 1%" />
+					<col style="width: 21%" />
+					<col style="width: 12%" />
+					<col style="width: 1%" />
+					<col style="width: 19%" />
+					<col style="width: 17%" />
+					<col style="width: 1%" />
+					<col style="width: 12%" />
+				</colgroup>
+				<tr>
+					<td style="font-weight: bold">Program Name</td>
+					<td>:</td>
+					<td>$proEvent.group.name</td>
+				
+					#if($proEvent.program.type.name == "Saff")
+					<td style="font-weight: bold">Coordinator</td>
+					<td>:</td> #if($proEvent.coordinator)
+					<td>$proEvent.coordinator.contact.name</td> #else
+					<td>Not Assigned</td> #end #end #if($proEvent.program.type.name ==
+					"Staff")
+					
+					<td style="font-weight: bold">Location</td>
+					<td>:</td> #if($proEvent.location)
+					<td>$proEvent.location.name</td> #else
+					<td>Not Assigned</td> #end #end
+
+				</tr>
+
+				<tr>
+
+					<!-- <td style="font-weight: bold">Assigned Staff</td>
+					<td>:</td>
+					<td>#if($proEvent.staffEvents.size() > 0) #set($staffcount =
+						1) #foreach($staff in $proEvent.staffEvents) #set($tmpPage =
+						$page) #set($page = $count/5) #if($staffcount ==
+						$proEvent.staffEvents.size()) $staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName #else
+						$staff.staffMember.contact.firstName
+						$staff.staffMember.contact.lastName, #end #set($staffcount =
+						$staffcount+1) #end #else Not Assigned #end</td> -->
+
+
+					<td style="font-weight: bold">Start Time</td>
+					<td>:</td>
+					<td>$timeFormat.format($proEvent.startTime)</td>
+
+					<td style="font-weight: bold">End Time</td>
+					<td>:</td>
+					<td>$timeFormat.format($proEvent.endTime)</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #000;">
+				<td style="font-weight: bold">Day of Week</td>
+				<td>:</td>
+				<td>$dateFormat2.format($proEvent.eventDate)</td>
+
+				<td style="font-weight: bold">Event Date</td>
+				<td>:</td>
+				<td>$dateFormat.format($proEvent.eventDate)</td>
+
+				<!-- <td style="font-weight: bold">Charge Amount</td>
+				<td>:</td>
+				<td>$myFormatter.format($proEvent.chargeAmount)</td> -->
+				</tr>
+
+			</table></td>
+
+	</tr>
+	
+	
+
+
+
+	#end #if($proEvent.program.type.name == "Transport")
+
+
+	<tr>
+		<td>
+			<table width="100%">
+				<tr>
+					<td>
+						<h4>
+							<div style="width: 300px">
+								<u>TRANSPORT ATTENDANCE SHEET</u>
+							</div>
+						</h4>
+					</td> #if($return)
+					<td align="right">
+						<h4>
+							<u>RETURN TRIP</u>
+						</h4>
+					</td> #end
+					<td align="right">
+						<h4>$proEvent.group.name</h4>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table style="font-size: 10" width="100%">
+				<tr>
+					<td style="font-weight: bold; width: 78px">Start Time</td>
+					<td>$timeFormat.format($proEvent.startTime)</td>
+					<td style="font-weight: bold; width: 60px">Event Date</td>
+					<td align="right" style="width: 60px">$dateFormat.format($proEvent.eventDate)</td>
+				</tr>
+				<tr>
+					<td style="font-weight: bold">End Time</td>
+					<td>$timeFormat.format($proEvent.endTime)</td>
+					<td></td>
+					<td></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+
+	<tr style="font-size: 10">
+		<td><b style="font-weight: bold">Assigned Staff: </b>
+			#if($proEvent.staffEvents.size() > 0) #set($staffcount = 1)
+			#foreach($staff in $proEvent.staffEvents) #set($tmpPage = $page)
+			#set($page = $count/5) #if($staffcount ==
+			$proEvent.staffEvents.size()) $staff.staffMember.contact.firstName
+			$staff.staffMember.contact.lastName #else
+			$staff.staffMember.contact.firstName
+			$staff.staffMember.contact.lastName, #end #set($staffcount =
+			$staffcount+1) #end #else Not Assigned #end</td>
+	</tr>
+
+
+
+	#end #if($proEvent.program.type.name != "Transport")
+
+
+	<tr style="font-size: 9">
+		<td>
+			<p />
+			#if($proEvent.program.type.name == "Staff")
+			<table width="100%" style="border-collapse: collapse" border="1"
+				cellspacing="3">
+				<tr style="background-color: #FFA500" height="10px">
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 130px;height:10px; font-weight: bold">Staff Name</th>
+					<!--><th rowspan='2' align="center" valign="middle"
+						style="width: 42px;height:10px; font-weight: bold">Support Needs</th><-->
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 35px; height:10px;font-weight: bold">Attend</th>
+					<!-- <th rowspan='2' align="center" valign="middle"
+						style="width: 92px;height:10px; font-weight: bold">Start Time</th>
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 92px;height:10px; font-weight: bold">End Time</th> -->
+					<th colspan='2' align="center" valign="middle"
+						style="width:100px;height:10px; font-weight: bold">Roster Time</th>	
+					<th colspan='2' align="center" valign="middle"
+						style="width:100px;height:10px; font-weight: bold">Actual Time</th>	
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 100px; height:10px;font-weight: bold">Remark</th>	
+				</tr>
+				<tr style="font-size: 8; background-color: #FFA500" height="10px" >
+					<th align="center" valign="middle"
+						style="width: 50px;height:10px; font-weight: bold">Roster Start Time</th>
+					<th align="center" valign="middle"
+						style="width: 50px;height:10px; font-weight: bold">Roster End Time</th>	
+					<th align="center" valign="middle"
+						style="width: 50px;height:10px; font-weight: bold">Actual Start Time</th>
+					<th align="center" valign="middle"
+						style="width: 50px;height:10px; font-weight: bold">Actual End Time</th>		
+					
+				</tr>
+
+
+
+
+				#foreach($event in $proEvent.staffEvents)
+				<tr class="spaceUnder">
+					<td style="padding-left: 2px;height:15px" align="left" valign="middle">
+						$event.staffMember.contact.name</td>
+
+					<td align="left">#if($event.attended) Yes #end</td>
+					
+					<td style="padding-left: 2px;height:15px" valign="middle">
+					#if($event.attended)
+					#if($event.rosterStartTime)
+					$timeFormat.format($event.rosterStartTime)
+					#else
+					#end
+					#end</td>
+					<td style="padding-left: 2px;height:15px" valign="middle">
+					#if($event.attended)
+					#if($event.rosterEndTime)
+					$timeFormat.format($event.rosterEndTime)
+					#else
+					#end
+					#end
+					</td>			
+					<td align="left" style="padding-left: 2px;height:15px" valign="middle">
+					#if($event.attended)
+					#if($event.startTime)
+					$timeFormat.format($event.startTime)
+					#else
+					#end
+					#end
+					</td>	
+									
+					<td style="padding-left: 2px;height:15px" align="left" valign="middle">
+					#if($event.attended)
+				    #if($event.endTime)
+					$timeFormat.format($event.endTime)
+					#else
+					#end
+					#end
+					</td>
+                    <td style="padding-left: 2px;height:15px" align="left" valign="middle">
+					</td>
+
+				</tr>
+				#end 
+
+			</table>
+			#else
+			<table width="100%" style="border-collapse: collapse" border="1"
+				cellspacing="3">
+				<tr style="background-color: #FFA500" height="10px">
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 130px;height:10px; font-weight: bold">Participant Name</th>
+					<!--><th rowspan='2' align="center" valign="middle"
+						style="width: 42px;height:10px; font-weight: bold">Support Needs</th><-->
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 35px; height:10px;font-weight: bold">Attend</th>
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 35px;height:10px; font-weight: bold">Paid($)</th>
+					<th rowspan='2' align="center" valign="middle"
+						style="width: 92px;height:10px; font-weight: bold">Needs and Preferences</th>
+					<th colspan='3' align="center" valign="middle"
+						style="width: 234px;height:10px; font-weight: bold">Staff Signatures</th>
+				</tr>
+				<tr style="font-size: 8; background-color: #FFA500" height="10px" >
+					<th align="center" valign="middle"
+						style="width: 78px;height:10px; font-weight: bold">Allocated Staff</th>
+					<th align="center" valign="middle"
+						style="width: 78px;height:10px; font-weight: bold">Meds Received</th>
+					<th align="center" valign="middle"
+						style="width: 78px;height:10px; font-weight: bold">Meds Returned</th>
+				</tr>
+
+
+
+
+				#foreach($event in $proEvent.studentEvents)
+				<tr class="spaceUnder">
+					<td style="padding-left: 2px;height:15px" align="left" valign="middle">
+						$event.groupedStudent.student.contact.name</td>
+
+					<td align="left">#if($event.attended) Yes #end</td>
+								
+					<td align="left" style="padding-left: 2px;height:15px" valign="middle">
+						#if($event.amountPaid !=
+						0)$myFormatter.format($event.amountPaid)#end</td>	
+									
+					<td style="padding-left: 2px;height:15px" align="left" valign="middle">#set($count = 1)
+						#foreach($sn in $event.groupedStudent.student.specialNeeds)
+						#if($sn.icon) <img width="10" height="10"
+						src="$site-url/imageDownload?p=$sn.icon.id"/>
+						
+						#else #if($count ==
+						$event.groupedStudent.student.specialNeeds.size())
+						$sn.name.substring(0, 3) #else $sn.name.substring(0, 3), #end #end
+						#set($count = $count + 1) #end</td>
+					<td style="padding-left: 2px;height:15px" valign="middle"></td>
+					<td style="padding-left: 2px;height:15px" valign="middle"></td>
+					<td style="padding-left: 2px;height:15px" valign="middle"></td>
+
+
+
+				</tr>
+				#end 
+
+			</table>
+			#end
+             #if($proEvent.program.type.name == "Staff")
+			<table cellspacing="10">
+                
+				<tr>
+					<td style="font-size: 10;padding-top: 25px;">
+					One staff member must sign below at
+						the end of the program to confirm attendance,</td>
+				</tr>
+				<tr>
+				<td>
+						staff signature.</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10; font-weight: bold; padding-top: 25px; padding-bottom: 20px">Signed_______________________</td>
+				</tr>
+
+			</table>
+			#else
+				<table cellspacing="10">
+
+				<tr>
+					<td style="font-weight: bold; font-size: 12; padding-top: 30px"><u>NOTES</u>
+					</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10">All staff must sign for the
+						participant they are allocated to support for the day.</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10; font-weight: bold">EMPLOYEE ASSIGNED
+						TO MEDICATION ADMINISTRATION:________________________</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10">As the allocated staff member for
+						administering medication during this program I have read the
+						information regarding my role and understand my responsibilities
+						regarding the administration of medication.</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10; font-weight: bold; padding-top: 25px">Signed_______________________</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10">One staff member must sign below at
+						the end of the program to confirm attendance, monies receipted and
+						staff signatures.</td>
+				</tr>
+				<tr>
+					<td style="font-size: 10; font-weight: bold; padding-top: 25px; padding-bottom: 20px">Signed_______________________</td>
+				</tr>
+
+			</table>
+			#end
+            #if($proEvent.program.type.name != "Staff")
+			<table width="100%" style="border-collapse: collapse" border="1"
+				cellspacing="3" >
+				<tr style="background-color: #FFA500; padding-top: 20px" height="20px">
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Date</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Vehicle Registration</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Venue</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Staff Member</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Number of Passengers</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Start KM</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Finish KM</th>
+					<th align="center" valign="middle"
+						style="width: 65px; font-weight: bold">Total KM</th>
+				</tr>
+				
+				<tr class="spaceUnder">
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					
+				</tr>
+					<tr class="spaceUnder">
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					
+				</tr>
+					<tr class="spaceUnder">
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					<td style="padding-left: 2px; padding-top: 10px;height:10px"></td>
+					
+				</tr>
+				
+
+			</table>
+			#end
+			</td>
+	</tr>
+
+	#else
+
+
+	<tr style="font-size: 8">
+		<td>
+			<p />
+			<table style="border-collapse: collapse" border="1">
+				<tr style="background-color: #CCCCFF">
+					<td align="center" style="width: 27px">Std.ID</td>
+					<td align="center" style="width: 100px">Name</td>
+					<td align="center" style="width: 30px">Sp. Needs</td>
+					<td align="center" style="width: 25px">Att.</td>
+					<td align="center" style="width: 30px">Paid</td>
+					<td align="center">Pick</td>
+					<td align="center">Drop</td>
+					<td align="center" style="width: 150px">Address</td>
+					<td align="center">Remarks</td>
+				</tr>
+				#foreach($event in $proEvent.studentEvents)
+				<tr>
+					<td align="right" style="padding-right: 2px">
+						$event.groupedStudent.student.id</td>
+					<td style="padding-left: 2px">
+						$event.groupedStudent.student.contact.name</td>
+					<td style="font-size: 0.67em; padding-left: 2px">#set($count =
+						1) #foreach($sn in $event.groupedStudent.student.specialNeeds)
+						#if($sn.icon) <img width="10" height="10"
+						src="$site-url/imageDownload?p=$sn.icon.id" />
+						#else #if($count ==
+						$event.groupedStudent.student.specialNeeds.size())
+						$sn.name.substring(0, 3) #else $sn.name.substring(0, 3), #end #end
+						#set($count = $count + 1) #end</td>
+					<td align="center">#if($event.attended) Yes #end</td>
+					<td align="right" style="padding-right: 2px">
+						#if($event.amountPaid != 0) $myFormatter.format($event.amountPaid)
+						#end</td>
+					<td style="padding-left: 2px">$event.groupedStudent.pickup.name</td>
+					<td style="padding-left: 2px">$event.groupedStudent.dropoff.name</td>
+					<td style="padding-left: 2px">
+						$event.groupedStudent.student.contact.streetAddress,
+						$event.groupedStudent.student.contact.city</td>
+					<td style="padding-left: 2px">#if($event.remarks)
+						$event.remarks #end</td>
+				</tr>
+				#end
+			</table>
+		</td>
+	</tr>
+
+	<tr style="font-size: 10">
+		<td>
+			<p /> #if($proEvent.totalMoneyCollected != "$0.00")
+			<table width="100%">
+				<tr>
+					<td align="right">Total money collected :
+						$proEvent.totalMoneyCollected</td>
+				</tr>
+			</table> #end
+			<p style="margin-top: 10px" />
+			-------------------------------------------------------<br /> <span
+			style="padding-left: 30px">(Coordinator's Signature)</span>
+		</td>
+	</tr>
+	#end
+	<p />
+</table>

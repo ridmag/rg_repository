@@ -1,0 +1,55 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:vehicleMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formVehicle:commandVehicleAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formVehicle:commandVehicleAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formVehicle:tabSetVehicleDetails:0:inputVehicleName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>formVehicle:tabSetVehicleDetails:0:inputVehicleName</td>
+	<td>GTX-2001</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>formVehicle:tabSetVehicleDetails:0:inputVehicleRegId</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formVehicle:tabSetVehicleDetails:0:inputVehicleMaxPassengers</td>
+	<td>12</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formVehicle:tabSetVehicleDetails:0:inputVehicleWheelChairs</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formVehicle:tabSetVehicleDetails:0:selectOneVehicleType</td>
+	<td>label=Van</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formVehicle:tabSetVehicleDetails:0:commandVehicleSave</td>
+	<td></td>
+</tr>

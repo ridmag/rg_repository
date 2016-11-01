@@ -1,0 +1,166 @@
+@charset "utf-8";
+/* CSS Document */
+
+BODY{padding:0px;margin:0px;font-family:verdana;font-size:12px;color:#000000;font-weight:normal; min-width:980px; background:url(../images/bg.jpg) repeat-x #0D2744 center top}
+
+/* HEADING STYLES*/
+H1{ font-weight:normal; font-size:18px; color:#666666; font-family:Arial, Helvetica, sans-serif }
+H2{ font-weight:normal; font-size:16px; color:#666666; font-family:Arial, Helvetica, sans-serif}
+H3{ font-weight:normal; font-size:14px; color:#666666; font-family:Arial, Helvetica, sans-serif}
+
+/* STRUCTURE STYLES*/
+#MainWrapper{ width:980px; height:100%; position:absolute; left:50%; margin-left:-490px}
+#ContentContainer{ background:#FFFFFF; padding:10px;}
+#MainHeader{ height:65px;}
+#TopMenu{  background:#EEEEEE; height:29px; background:url(../images/bgMenu.jpg) repeat-x}
+#MainHeaderLogo{float:left; margin-left:0px }
+#MainHeaderRight{float:right; color:#FFFFFF; padding:20px 0px 0px 10px; font-size:16px;}
+#BodyWrapper{border:2px solid #AAB9C1}
+#BodyWrapperSplash{border:2px solid #AAB9C1; width:965px; height:504px; background:url(../images/bgSplash.jpg) no-repeat}
+#MessageContainer{font-family:Arial; font-size:11px }
+#PageContent{font-family:Arial; font-size:12px; color:#555}
+
+.FloatLeft{ float:left}
+.FloatRight{ float:right}
+
+/* FOOTER STYLES */ 
+#Footer{padding:10px; color:#FFFFFF}
+#Footer a { color:#FFFFFF; font-weight:none;text-decoration:none; margin:0px 10px}
+#Footer a:hover{ text-decoration:none; color:orange}
+
+/* CLEAR FLOAT AND CLEAR FIX */ 
+.clearfloat { clear:both; height:0; font-size: 1px;line-height: 0px;}
+.clearfix:after { content: "."; display: block; clear: both; visibility: hidden; line-height: 0; height: 0px;}
+.clearfix {display: inline-block;}
+html[xmlns] .clearfix { display: block;}
+* html .clearfix {    height: 1%;}
+
+#SplashLogin{width:250px; padding:10px; float:left}
+#SplashLogin { color:#FFFFFF}
+#SplashLogin a { color:#FFFFFF; text-decoration:none }
+
+.PageTitleWrapper{height:40px; margin-bottom:10px;}
+.PageTitleIcon{width:32px;float:left;}
+.PageTitleRight{float:left; margin-left:10px}
+.PageTitle{font-size:16px; padding-bottom:3px; border-bottom:1px solid #ccc; margin-bottom:5px; font-family:ARIAL; color:#666; font-weight:bold}
+.PageTdescription{font-size:11px; color:#666666}
+
+/* COMPONENT STYLES */
+.TextBox{ border:1px solid #CCCCCC; padding:5px; margin-bottom:10px}
+.TextBoxLarge{ border:1px solid #CCCCCC; height:25px; padding:5px; font-size:12px; color:#666666; font-weight:bold;}
+.CommandButton{ background:url(../images/btn_bg.jpg) repeat-x; padding:3px; border:1px solid #4D565E; color:#FFFFFF; cursor:pointer}
+.HeaderCaption{ font-weight:bold; color: #555555}
+.Caption{ font-weight:bold; color: #555555}
+
+/* ICEFACES OVERRIDES */
+
+table {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #555555;
+}
+
+.topAlignedTableCell { 
+    vertical-align: top;
+    padding: 0px;
+}
+
+.icePnlGrd {
+	cellspacing:0px;
+    cellpadding:0px;
+}
+
+.iceInpTxt {
+	font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #555555;
+}
+
+.iceInpTxtArea {
+	font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #555555;
+}
+
+.iceSelOneMnu{
+	font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #555555;
+    border: #d9d9d9 1px solid;
+}
+
+.iceSelOneLb{
+	font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #555555;
+}
+
+.iceCmdLnk {color: CadetBlue}
+.iceCmdLnk:hover{ text-decoration:none; color:orange}
+
+.iceMnuBar {
+	width: auto;
+	background:url(../images/bgMenu.jpg);
+	height: 35px;
+}
+
+.iceMnuBarItem {
+	width: 65px;
+	height: 54px;
+}
+
+.iceMsgsError {color:red}
+.iceMsgsInfo {color:green}
+
+.corePopup {
+    position: absolute;
+    z-index: 1001;
+    width: 300px;
+    height: 150px;
+    top: 60%;
+    left: 40%;
+}
+
+.corePopup table {
+    width: 100%;
+}
+
+.popupBody {
+    margin-top: 25px;
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.popupHeaderWrapper {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.popupHeaderText {
+    float: left;
+    color:red;
+}
+
+.popupHeaderImage {
+    float: right;
+    margin-top: 2px;
+    margin-right: 2px;
+}
+
+
+/*------- TESTING ------------*/
+
+ /*for schedule*/
+.columnClass{
+	height:100px;
+	background-color: LightBlue;
+}
+
+.freeReddish{
+	background-color: lightgrey;
+}
+
+.entryClass{
+  background-color:LightCyan;
+}

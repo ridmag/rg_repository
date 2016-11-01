@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="CONFIGHM"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Holiday Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each holiday.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formHoliday">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="8">
+						<!-- <ice:outputLabel value="Search holidays :" /> -->
+						<!-- <ice:selectOneMenu id="selectOneHolidayCalendarSearch"
+							styleClass="SelectOneMenu" partialSubmit="true"
+							valueChangeListener="#{holidayManagerModel.calendarChanged}"
+							value="#{holidayManagerModel.selectedCalId}">
+							<f:selectItems value="#{lookupListProvider.calendars}" />
+						</ice:selectOneMenu> -->
+						<ice:outputText value="Search holidays from : " style="margin-left:20px" />
+						<ice:selectInputDate renderAsPopup="true"
+							id="inputSearchStartDate" value="#{holidayManagerModel.fromDate}"
+							renderMonthAsDropdown="true" renderYearAsDropdown="true"
+							converter="dateConverter"
+							label="Search holidays from">
+						</ice:selectInputDate>
+						<ice:outputText value="To : " style="margin-left:20px" />
+						<ice:selectInputDate renderAsPopup="true" id="inputSearchEndDate"
+							value="#{holidayManagerModel.toDate}"
+							renderMonthAsDropdown="true" renderYearAsDropdown="true"
+							converter="dateConverter"
+							label="To">
+						</ice:selectInputDate>
+						<ice:commandButton id="commanButtonHolidayMainSearch"
+							action="#{holidayManagerModel.searchHoliday}"
+							style="margin-left:20px;width:80px"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandholidayAdd" value="Add New Holiday"
+							style="width:130px" styleClass="CommandButton"
+							action="#{holidayManagerModel.addNewHoliday}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+					style="margin-top:10px">
+					<ice:panelGroup>
+						<fieldset style="height: 280px; width: 700px">
+							<legend>
+								<ice:outputLabel value="Holiday List" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{empty(holidayManagerModel.holidays)}">
+								<ice:outputText value="No holidays available.." />
+							</ice:panelGroup>
+							<ice:dataTable scrollable="true" scrollHeight="220px"
+								rendered="#{not empty(holidayManagerModel.holidays)}"
+								value="#{holidayManagerModel.holidays}" var="hol"
+								id="tableholidays" columnWidths="100px,100px,105px,350px">
+								<ice:column id="columnholidayStartDate"
+									style="text-align:center">
+									<ice:setEventPhase events="FacesEvent"
+										phase="INVOKE_APPLICATION">
+										<ice:rowSelector id="rowselectHoliday"
+											value="#{hol.ui_selected}"
+											clickListener="#{holidayManagerModel.selectHoliday}">
+											<f:attribute name="holiday" value="#{hol}" />
+										</ice:rowSelector>
+									</ice:setEventPhase>
+									<f:facet name="header">
+										<ice:outputText value="Start Date" />
+									</f:facet>
+									<ice:outputText value="#{hol.startDate}"
+										converter="dateConverter">
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnholidayEndDate" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="End Date" />
+									</f:facet>
+									<ice:outputText value="#{hol.endDate}"
+										converter="dateConverter">
+									</ice:outputText>
+								</ice:column>
+								<ice:column id="columnholidayType" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Holiday Type" />
+									</f:facet>
+									<ice:outputText value="#{hol.holidayType.id}" />
+								</ice:column>
+								<ice:column id="columnholidayAddress">
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{hol.remarks}" title="#{hol.remarks}"
+										style="width:210px;height:1em;overflow:hidden" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="height: 280px; width: 430px; margin-right: -10px">
+							<legend>
+								<ice:outputLabel value="Holiday Details" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{holidayManagerModel.holiday == null}">
+								<ice:outputText value="Select a holiday to view deatils.." />
+							</ice:panelGroup>
+							<ice:panelGrid columns="1" rowClasses="topAlignedTableCell"
+								rendered="#{holidayManagerModel.holiday != null}"
+								style="margin-top:10px">
+								<!-- <ice:panelGroup style="border:thick double grey">
+									<ice:selectInputDate id="inputDate"
+										value="#{holidayManagerModel.holiday.date}"
+										renderMonthAsDropdown="true" renderYearAsDropdown="true"
+										valueChangeListener="#{holidayManagerModel.selectedDateChanged}"
+										highlightClass="weekend: newyear" partialSubmit="true"
+										highlightUnit="DAY_OF_WEEK: DAY_OF_YEAR"
+										highlightValue="1,7:8" converter="dateConverter">
+									</ice:selectInputDate>
+								</ice:panelGroup> -->
+								<ice:panelGroup style="margin-left:30px;width:400px">
+									<ice:panelGrid columns="2" width="100%" cellspacing="10">
+										<!-- <ice:outputText value="Selected Date " />
+										<ice:outputText styleClass="ReportSectionHeader"
+											effect="#{sessionContext.effectDetails}"
+											value="#{sessionContext.activeStringDetails}">
+											<f:convertDateTime pattern="MMM dd, yyyy"
+												timeZone="#{holidayManagerModel.timeZone}" />
+										</ice:outputText>
+										<ice:outputText value="Holiday Type " />
+										<ice:selectOneMenu id="selectOneHolidayType"
+											styleClass="SelectOneMenu"
+											value="#{holidayManagerModel.holiday.holidayType}">
+											<f:selectItems value="#{lookupListProvider.holidayType}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Remarks " />
+										<ice:inputTextarea rows="3" style="width:145px"
+											id="inputHolRemarks"
+											value="#{holidayManagerModel.holiday.remarks}"
+											maxlength="#{msgs['holiday.remarks.size']}" /> -->
+
+										<ice:outputText value="Start Date" />
+										<ice:selectInputDate
+											value="#{holidayManagerModel.holiday.startDate}"
+											renderAsPopup="true" renderMonthAsDropdown="true"
+											renderYearAsDropdown="true" id="inputStartDate"
+											converter="dateConverter">
+										</ice:selectInputDate>
+										<ice:panelGrid cellpadding="0" cellspacing="0">
+											<ice:outputText value="End Date" />
+											<ice:outputText value="(Not required for a single Holiday)"
+												style="font-size:10px" />
+										</ice:panelGrid>
+										<ice:selectInputDate
+											value="#{holidayManagerModel.holiday.endDate}"
+											renderAsPopup="true" renderMonthAsDropdown="true"
+											renderYearAsDropdown="true" id="inputEndDate"
+											converter="dateConverter">
+										</ice:selectInputDate>
+										<ice:outputText value="Holiday Type" />
+										<ice:selectOneMenu id="selectHolidayType" style="width:178px"
+											value="#{holidayManagerModel.holiday.holidayType}">
+											<f:selectItems var="holidayType" itemValue="#{holidayType}"
+												itemLabel="#{holidayType.id}"
+												value="#{lookupListProvider.holidayTypeForHolidayManager}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Remarks" />
+										<ice:inputTextarea rows="3" style="width:170px"
+											id="inputRemarks"
+											value="#{holidayManagerModel.holiday.remarks}"
+											maxlength="#{msgs['holiday.remarks.size']}" />
+									</ice:panelGrid>
+								</ice:panelGroup>
+							</ice:panelGrid>
+							<ice:panelGroup style="float:right; margin-top:15px">
+								<ice:commandButton id="commandholidayDelete" value="Delete"
+									style="margin-right:5px;width:80px" styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									rendered="#{holidayManagerModel.holiday.id != null}"
+									action="#{holidayManagerModel.deleteHoliday}" />
+								<ice:commandButton id="commandholidaySave" value="Save"
+									style="margin-right:30px;width:80px" styleClass="CommandButton"
+									actionListener="#{holidayManagerModel.saveHoliday}"
+									rendered="#{holidayManagerModel.holiday != null}" />
+							</ice:panelGroup>
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+
+				<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+					cancelLabel="No" draggable="true" title="Confirm"
+					message="Are you sure you want to perform this action?" />
+
+
+				<!-- <ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{holidayManagerModel.newHoliday}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Create new Holiday(s).."
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{holidayManagerModel.newHolidayPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:350px">
+							<ice:messages />
+							<ice:panelGrid columns="2" cellspacing="10">
+								<ice:outputText value="Start Date" />
+								<ice:selectInputDate value="#{holidayManagerModel.startDate}"
+									renderAsPopup="true" renderMonthAsDropdown="true"
+									renderYearAsDropdown="true" id="inputStartDate"
+									converter="dateConverter">
+								</ice:selectInputDate>
+								<ice:panelGrid cellpadding="0" cellspacing="0">
+									<ice:outputText value="End Date" />
+									<ice:outputText value="(Not required for a single Holiday)"
+										style="font-size:10px" />
+								</ice:panelGrid>
+								<ice:selectInputDate value="#{holidayManagerModel.endDate}"
+									renderAsPopup="true" renderMonthAsDropdown="true"
+									renderYearAsDropdown="true" id="inputEndDate"
+									converter="dateConverter">
+								</ice:selectInputDate>
+								<ice:outputText value="Holiday Type" />
+								<ice:selectOneMenu id="selectHolidayType" style="width:178px"
+									value="#{holidayManagerModel.holidayType}">
+									<f:selectItems value="#{lookupListProvider.holidayType}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Remarks" />
+								<ice:inputTextarea rows="3" style="width:170px"
+									id="inputRemarks" value="#{holidayManagerModel.remarks}"
+									maxlength="#{msgs['holiday.remarks.size']}" />
+							</ice:panelGrid>
+							<ice:commandButton value="Cancel" id="cancelPopup"
+								action="#{holidayManagerModel.newHolidayPopup}"
+								style="float:right;margin-right:13px;width:60px"
+								styleClass="CommandButton" />
+							<ice:commandButton value="Create" id="savePopup"
+								actionListener="#{holidayManagerModel.createHolidays}"
+								style="float:right;margin-right:5px; width:60px"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup> -->
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

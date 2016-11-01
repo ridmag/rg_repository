@@ -1,0 +1,756 @@
+package com.itelasoft.pso.web;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletResponse;
+
+import com.itelasoft.pso.beans.AuthorisedStaff;
+import com.itelasoft.pso.beans.InternalOrganization;
+import com.itelasoft.pso.beans.NdisAncillaryCost;
+import com.itelasoft.pso.beans.NdisCommittedEvent;
+import com.itelasoft.pso.beans.Student;
+import com.itelasoft.pso.beans.StudentEvent;
+import com.itelasoft.pso.beans.StudentGroup;
+
+
+@ManagedBean(name = "ndisInvoiceManagerModel")
+@SessionScoped
+public class NdisInvoiceManagerModel extends UIModel {
+
+	private List<SelectItem> studentSelectItemList;
+	private InternalOrganization internalOrganization;
+	private List<SelectItem> staffList;
+	private List<AuthorisedStaff> authorizedStaffs;
+	private List<InternalOrganization> registrationCodes;
+	private Date weekDate;
+	private String timePeriod;
+	private Long studentId;
+	private Long staffId;
+	private String registrationCode;
+	private List<Student> studentList;
+	private Calendar calendar = Calendar.getInstance();
+	private Date startDate;
+	private Date endDate;
+	private String ndisTime;
+	private Double price;
+	private String uom;
+	private Double quantity;
+	private Long ancillaryCount;
+	private String reportDate;
+	private Student student;
+	private boolean selectStudents, selectAllStudents, selectStudent;
+	private List<NdisCommittedEvent> ndisCommittedEventItems;
+	private List<NdisAncillaryCost> ancillaryCostItems;
+	private HashMap<Long, Student> studentMap;
+	private HashMap<Long, AuthorisedStaff> staffMap;
+	private HashMap<Long, InternalOrganization> registrationCodeMap;
+	private String commaDelimiter = ",";// Delimiter used in CSV file
+	private String newLineSeparater = "\n";
+	private static final String fileHeader = "RegistrationNumber,NDISNumber,SupportsDeliveredFrom,SupportsDeliveredTo,SupportNumber,ClaimReference,Quantity,Hours,UnitPrice,GSTCode,AuthorisedBy,ParticipantApproved";
+	FileWriter fileWriter = null;
+	Long count = new Long(1);
+	AuthorisedStaff staff;
+	String invoiceName;
+
+	public NdisInvoiceManagerModel() {
+		init();
+	}
+
+	public void init() {
+		internalOrganization = null;
+		List<InternalOrganization> orgs = new ArrayList<InternalOrganization>();
+		orgs = serviceLocator.getInternalOrganizationService().findAll();
+		if (orgs.isEmpty() || orgs == null)
+			showError("There is no Internal Organization exists.");
+		else {
+			registrationCode = "";
+			staffList = new ArrayList<SelectItem>();
+			staffId = new Long(0);
+			staff = null;
+			weekDate = new Date();
+			studentId = new Long(0);
+			uom = null;
+			studentList = null;
+			internalOrganization = orgs.get(0);
+			studentList = serviceLocator.getStudentService().listActiveStudentswithNdisnumber();
+			studentMap = new HashMap<Long, Student>();
+			registrationCodeMap = new HashMap<Long, InternalOrganization>();
+			staffMap = new HashMap<Long, AuthorisedStaff>();
+			authorizedStaffs = serviceLocator.getAuthorisedStaffService()
+					.listAuthorisedStaffToOrg(internalOrganization.getId());
+			if (authorizedStaffs.size() != 0) {
+				for (AuthorisedStaff staff : authorizedStaffs) {
+					staffMap.put(staff.getId(), staff);
+				}
+			}
+			registrationCodes = serviceLocator.getInternalOrganizationService().findAll();
+			if (registrationCodes.size() != 0) {
+				for (InternalOrganization intOrg : registrationCodes) {
+					registrationCodeMap.put(intOrg.getId(), intOrg);
+				}
+			}
+			DateFormat df = new SimpleDateFormat("yyyyMMdd");
+			Date date = new Date();
+			reportDate = df.format(date);
+			selectAllStudents = false;
+			selectStudent = false;
+		}
+	}
+
+	public void selectAllStudents(ValueChangeEvent ve) {
+		selectAllStudents = (Boolean) ve.getNewValue();
+		for (Student student : studentList) {
+			student.setUi_selected(selectAllStudents);
+			if (student.isUi_selected()) {
+				studentMap.put(student.getId(), student);
+			} else {
+				studentMap.clear();
+			}
+		}
+	}
+
+	public void selectStudent(ValueChangeEvent ve) {
+		selectStudent = (Boolean) ve.getNewValue();
+		student = (Student) ve.getComponent().getAttributes().get("student");
+		student.setUi_selected(selectStudent);
+		if (student.isUi_selected()) {
+			studentMap.put(student.getId(), student);
+		} else {
+			studentMap.remove(student.getId());
+		}
+		if (studentList.size() == studentMap.size()) {
+			selectAllStudents = true;
+		} else {
+			selectAllStudents = false;
+		}
+	}
+
+	public void createInvoice() {
+		calculateRosterDates();
+		invoiceName = new SimpleDateFormat("ddMMMyy").format(startDate) + "-"
+				+ new SimpleDateFormat("ddMMMyy").format(endDate);
+		staff = serviceLocator.getAuthorisedStaffService().retrieve(staffId);
+		try {
+			fileWriter = new FileWriter(Util.getMessage("ndis_invoice_path") + invoiceName + ".csv");
+			fileWriter.append(fileHeader.toString());
+			fileWriter.append(newLineSeparater);
+			for (Student std : studentMap.values()) {
+				if (std.getId() != null) {
+					createInvoiceData(std);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (Exception e) {
+				showError("Error while flushing/closing fileWriter !!!");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void createInvoiceData(Student student) {
+		String supportStart,supportEnd,referenceNumber,hours = null;
+		long timeLong12 = 0, timeLong1 =0, timeLong6 =0;
+		ndisTime = null;
+		price = null;
+		quantity = null;
+		String gstCode;
+		uom = null;
+		Date eventEndDate = null;
+		DecimalFormat formatDecimal = new DecimalFormat("00");
+		ndisCommittedEventItems = serviceLocator.getNdisInvoiceService().retrieveInvoiceItem(startDate, endDate,
+				student.getId());
+		try {
+			if (ndisCommittedEventItems.size() != 0) {
+					DateFormat formattertime = new SimpleDateFormat("hh:mm:ss a");
+					try {
+						String timeString12 = "12:00:00 AM";
+						Date timeDate12 = formattertime.parse(timeString12);
+						timeLong12 = timeDate12.getTime();
+						String timeString1 = "01:00:00 AM";
+						Date timeDate1 = formattertime.parse(timeString1);
+						timeLong1 = timeDate1.getTime();
+						String timeString6 = "06:00:00 AM";
+						Date timeDate6 = formattertime.parse(timeString6);
+						timeLong6 = timeDate6.getTime();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				for (NdisCommittedEvent item : ndisCommittedEventItems) {
+					supportStart = null;
+					supportEnd = null;
+					eventEndDate = null;
+					
+					if (item.getStudentGroup().getProgram().getType().getName().equals("Individual")) {
+						List<StudentEvent> StudentEvents = new ArrayList<StudentEvent>();
+						StudentEvents = serviceLocator.getStudentEventService().retrieveStudentEventsByDate(
+								item.getParticipant().getId(), item.getStudentGroup().getId(), item.getEventDate());
+						if (StudentEvents == null || StudentEvents.isEmpty()) {
+							continue;
+						}
+					}
+					if (item.getStudentGroup().getProgram().getType().getName().equals("Transport")) {
+						List<StudentEvent> StudentEvents = new ArrayList<StudentEvent>();
+						List<StudentEvent> returnStudentEvents = new ArrayList<StudentEvent>();
+						if(item.getStudentGroup().isReturnAvailable()){
+							StudentGroup returnGroup = serviceLocator.getStudentGroupService().getReturnGroup(item.getStudentGroup().getId(), false);
+							returnStudentEvents = serviceLocator.getStudentEventService().retrieveStudentEventsByDate(
+									item.getParticipant().getId(), returnGroup.getId(), item.getEventDate());
+						}
+							StudentEvents = serviceLocator.getStudentEventService().retrieveStudentEventsByDate(
+									item.getParticipant().getId(), item.getStudentGroup().getId(), item.getEventDate());
+							if (StudentEvents.isEmpty() && returnStudentEvents.isEmpty()) {
+								continue;
+							}
+					}
+					String refNumber = String.format("%04d", count);
+					referenceNumber = reportDate + refNumber;
+					gstCode = item.getPrice().getSupportItem().getGstCode();
+						if (!item.getStudentGroup().getProgram().getType().getName().equals("Transport")) {	
+							Date endTime = item.getEndTime();
+							DateFormat time = new SimpleDateFormat("hh:mm:ss a");
+							String endTimeString = time.format(endTime);
+							Date endTime2 = null;
+							try {
+								endTime2 = formattertime.parse(endTimeString);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+							Long currentEndTimeLong = endTime2.getTime();
+							Calendar cal = Calendar.getInstance();
+							cal.setTime(item.getEventDate());
+						if (timeLong12 <= currentEndTimeLong && currentEndTimeLong <= timeLong1) {
+							Calendar c = Calendar.getInstance();
+							c.setTime(item.getEventDate());
+							c.add(Calendar.DATE, 1);
+							eventEndDate = c.getTime();
+						} else if (timeLong1 < currentEndTimeLong && currentEndTimeLong < timeLong6) {
+							Calendar c = Calendar.getInstance();
+							c.setTime(item.getEventDate());
+							c.add(Calendar.DATE, 1);
+							eventEndDate = c.getTime();
+						}	
+						uom = item.getPrice().getUom();
+						if (uom != null) {
+							if (uom.equals("Hour")) {
+								quantity = null;
+								if (item.getHours() != null) {
+									String startTime = "00:00";
+									double minutes = item.getHours() * 60.0;
+									int i = (int) (minutes + 0.5d);
+									int h = i / 60 + Integer.valueOf(startTime.substring(0, 1));
+									int m = i % 60 + Integer.valueOf(startTime.substring(3, 4));
+									hours = h + ":" + formatDecimal.format(m);
+								}
+							} else if (uom.equals("Each")) {
+								hours = null;
+								quantity = 1.00;
+							}
+						}
+						}else if (item.getStudentGroup().getProgram().getType().getName().equals("Transport")) {
+							hours = null;
+							quantity = item.getKmsPerDay();
+							 
+						}
+						price = item.getPrice().getPrice();	
+						DateFormat d1 = new SimpleDateFormat("yyyy-MM-dd");
+						supportStart = d1.format(item.getEventDate());
+						if(eventEndDate != null){
+							supportEnd = d1.format(eventEndDate);
+						}else{
+							supportEnd = d1.format(item.getEventDate());
+						}
+						fileWriter.append(registrationCode);
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(item.getParticipant().getNdisNumber());
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(supportStart);
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(supportEnd);
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(item.getPrice().getItemNumber());
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(referenceNumber);
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(((quantity == null) ? "" : String.valueOf(quantity)));// quantity
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(((hours == null) ? "" : String.valueOf(hours)));
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(String.valueOf(price));
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(((gstCode == null) ? "" : gstCode));
+						fileWriter.append(commaDelimiter);
+						fileWriter.append(staff.getAuthorisingCode());// Authorized
+																		// By
+						fileWriter.append(commaDelimiter);
+						fileWriter.append("true");
+						fileWriter.append(newLineSeparater);
+						item.setClaimed(true);
+						serviceLocator.getNdisCommittedEventService().update(item);
+						count++;
+					
+				}
+			}
+			createAncillaryCostInvoice(startDate, endDate, student.getId());
+			showInfo("CSV file was created successfully and Saved in" + Util.getMessage("ndis_invoice_path")+ invoiceName
+					+ ".csv");
+		} catch (Exception e) {
+			showInfo("Error in CsvFileWriter");
+			e.printStackTrace();
+		}
+	}
+
+	public void createAncillaryCostInvoice(Date startDate, Date endDate, Long studentId) {
+		ancillaryCount = new Long(0);
+		Boolean claimed = false;
+		ancillaryCostItems = serviceLocator.getNdisInvoiceService().retrieveNdisAncillaryCostItems(startDate, endDate,
+				studentId, claimed);
+		ancillaryCount = count;
+		try {
+			if (ancillaryCostItems != null) {
+				for (NdisAncillaryCost ancillaryCost : ancillaryCostItems) {
+					DateFormat d1 = new SimpleDateFormat("yyyy-MM-dd");
+					String supportStart = d1.format(ancillaryCost.getDate());
+					String supportEnd = d1.format(ancillaryCost.getDate());
+					String ndisSupportCluster = ancillaryCost.getNdisPrice().getItemNumber();
+					String refNumber = String.format("%04d", ancillaryCount);
+					String referenceNumber = reportDate + refNumber;
+					Double hours = null;
+					int quantity = ancillaryCost.getNoofunit();
+					Double price = ancillaryCost.getNdisPrice().getPrice();
+					fileWriter.append(registrationCode);
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(ancillaryCost.getStudent().getNdisNumber());
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(supportStart);
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(supportEnd);
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(ndisSupportCluster);
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(referenceNumber);
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(String.valueOf(quantity));
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(((hours == null) ? "" : String.valueOf(hours)));
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(String.valueOf(price));
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(ancillaryCost.getNdisSupportItem().getGstCode());
+					fileWriter.append(commaDelimiter);
+					fileWriter.append(staff.getAuthorisingCode());
+					fileWriter.append(commaDelimiter);
+					fileWriter.append("true");
+					fileWriter.append(newLineSeparater);
+					ancillaryCost.setClaimed(true);
+					serviceLocator.getNdisAncillaryCostService().update(ancillaryCost);
+					ancillaryCount++;
+				}
+			}
+		} catch (Exception e) {
+			showInfo("Error in CsvFileWriter");
+			e.printStackTrace();
+		}
+	}
+
+	private void calculateRosterDates() {
+		calendar.setTime(weekDate);
+		if (calendar.get(Calendar.DAY_OF_WEEK) != 7) {
+			calendar.set(Calendar.DAY_OF_WEEK, 1);
+			calendar.add(Calendar.DATE, -1);
+		}
+		startDate = calendar.getTime();
+		if (timePeriod.equals("1W")) {
+			calendar.add(Calendar.DATE, 6);
+		}
+		if (timePeriod.equals("2W")) {
+			calendar.add(Calendar.DATE, 13);
+		}
+
+		endDate = calendar.getTime();
+	}
+
+	public void downloadNDISInvoice() throws IOException {
+		if (validateDetails()) {
+			createInvoice();
+			FacesContext fc = FacesContext.getCurrentInstance();
+			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+			File file = new File(Util.getMessage("ndis_invoice_path")+ invoiceName + ".csv");
+			String fileName = file.getName();
+			ExternalContext ec = fc.getExternalContext();
+			String contentType = ec.getMimeType(fileName); // JSF
+															// 1.x:((ServletContext)ec.getContext()).getMimeType(fileName);
+			int contentLength = (int) file.length();
+
+			response.reset(); // Some JSF component library or some Filter might
+								// have set some headers in the buffer
+								// beforehand.
+								// We want to get rid of them, else it may
+								// collide.
+			response.setContentType(contentType); // Check
+													// http://www.iana.org/assignments/media-types
+													// for all types. Use if
+													// necessary
+													// ServletContext#getMimeType()
+													// for auto-detection based
+													// on
+													// filename.
+			response.setContentLength(contentLength); // Set it with the file
+														// size.
+														// This header is
+														// optional.
+														// It will work if it's
+														// omitted, but the
+														// download
+														// progress will be
+														// unknown.
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			// The Save As popup magic is done here. You can give it any file
+			// name you want, this only won't work
+			// in MSIE it will use current request URL as file name instead.
+
+			OutputStream output = response.getOutputStream();
+			// Now you can write the InputStream of the file to the above
+			// OutputStream the usual way.
+			// ...
+			try {
+				Files.copy(file.toPath(), output);
+				
+				fc.responseComplete(); // Important! Otherwise JSF will attempt to
+										// render the response which obviously will
+										// fail
+										// since it's already written with a file
+										// and
+										// closed.
+			} catch (NoSuchFileException nfe) {
+				showError("File path isn't specified correctly. Please contact system administrator.");
+			}
+		}
+	}
+
+	private boolean validateDetails() {
+		if (studentMap == null || studentMap.isEmpty()) {
+			showError("At least one student must be selected..");
+			return false;
+		}
+		if (registrationCode.equals(0) || registrationCode.isEmpty()) {
+			showError("NDIS Registration Code should not be empty..");
+			return false;
+		}
+		if (staffId == null || staffId == 0) {
+			showError("Authorized Officer should not be empty..");
+			return false;
+		}
+		return true;
+	}
+
+	public String getCommaDelimiter() {
+		return commaDelimiter;
+	}
+
+	public void setCommaDelimiter(String commaDelimiter) {
+		this.commaDelimiter = commaDelimiter;
+	}
+
+	public String getNewLineSeparater() {
+		return newLineSeparater;
+	}
+
+	public void setNewLineSeparater(String newLineSeparater) {
+		this.newLineSeparater = newLineSeparater;
+	}
+
+	public static String getFileheader() {
+		return fileHeader;
+	}
+
+	public List<SelectItem> getStudentSelectItemList() {
+		return studentSelectItemList;
+	}
+
+	public void setStudentSelectItemList(List<SelectItem> studentSelectItemList) {
+		this.studentSelectItemList = studentSelectItemList;
+	}
+
+	public List<Student> getStudentList() {
+		return studentList;
+	}
+
+	public void setStudentList(List<Student> studentList) {
+		this.studentList = studentList;
+	}
+
+	public Date getWeekDate() {
+		return weekDate;
+	}
+
+	public void setWeekDate(Date weekDate) {
+		this.weekDate = weekDate;
+	}
+
+	public String getTimePeriod() {
+		return timePeriod;
+	}
+
+	public void setTimePeriod(String timePeriod) {
+		this.timePeriod = timePeriod;
+	}
+
+	public Long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
+	}
+
+	public Calendar getCalendar() {
+		return calendar;
+	}
+
+	public void setCalendar(Calendar calendar) {
+		this.calendar = calendar;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public List<NdisCommittedEvent> getNdisCommittedEventItems() {
+		return ndisCommittedEventItems;
+	}
+
+	public void setNdisCommittedEventItems(List<NdisCommittedEvent> ndisCommittedEventItems) {
+		this.ndisCommittedEventItems = ndisCommittedEventItems;
+	}
+
+	public HashMap<Long, Student> getStudentMap() {
+		return studentMap;
+	}
+
+	public void setStudentMap(HashMap<Long, Student> studentMap) {
+		this.studentMap = studentMap;
+	}
+
+	public Collection<Student> getStudents() {
+		return (Collection<Student>) studentMap.values();
+	}
+
+	public HashMap<Long, AuthorisedStaff> getStaffMap() {
+		return staffMap;
+	}
+
+	public void setStaffMap(HashMap<Long, AuthorisedStaff> staffMap) {
+		this.staffMap = staffMap;
+	}
+
+	public Collection<AuthorisedStaff> getStaffs() {
+		return (Collection<AuthorisedStaff>) staffMap.values();
+	}
+
+	public Collection<InternalOrganization> getRegCodes() {
+		return (Collection<InternalOrganization>) registrationCodeMap.values();
+	}
+
+	public List<SelectItem> getStaffList() {
+		return staffList;
+	}
+
+	public void setStaffList(List<SelectItem> staffList) {
+		this.staffList = staffList;
+	}
+
+	public List<AuthorisedStaff> getAuthorizedStaffs() {
+		return authorizedStaffs;
+	}
+
+	public void setAuthorizedStaffs(List<AuthorisedStaff> authorizedStaffs) {
+		this.authorizedStaffs = authorizedStaffs;
+	}
+	
+	public Long getStaffId() {
+		return staffId;
+	}
+
+	public void setStaffId(Long staffId) {
+		this.staffId = staffId;
+	}
+
+	public String getRegistrationCode() {
+		return registrationCode;
+	}
+
+	public void setRegistrationCode(String registrationCode) {
+		this.registrationCode = registrationCode;
+	}
+
+	public HashMap<Long, InternalOrganization> getRegistrationCodeMap() {
+		return registrationCodeMap;
+	}
+
+	public void setRegistrationCodeMap(HashMap<Long, InternalOrganization> registrationCodeMap) {
+		this.registrationCodeMap = registrationCodeMap;
+	}
+
+	public List<InternalOrganization> getRegistrationCodes() {
+		return registrationCodes;
+	}
+
+	public void setRegistrationCodes(List<InternalOrganization> registrationCodes) {
+		this.registrationCodes = registrationCodes;
+	}
+
+	public String getNdisTime() {
+		return ndisTime;
+	}
+
+	public void setNdisTime(String ndisTime) {
+		this.ndisTime = ndisTime;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public String getUom() {
+		return uom;
+	}
+
+	public void setUom(String uom) {
+		this.uom = uom;
+	}
+
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+
+	public List<NdisAncillaryCost> getAncillaryCostItems() {
+		return ancillaryCostItems;
+	}
+
+	public void setAncillaryCostItems(List<NdisAncillaryCost> ancillaryCostItems) {
+		this.ancillaryCostItems = ancillaryCostItems;
+	}
+
+	public String getReportDate() {
+		return reportDate;
+	}
+
+	public void setReportDate(String reportDate) {
+		this.reportDate = reportDate;
+	}
+
+	public FileWriter getFileWriter() {
+		return fileWriter;
+	}
+
+	public void setFileWriter(FileWriter fileWriter) {
+		this.fileWriter = fileWriter;
+	}
+
+	public Long getCount() {
+		return count;
+	}
+
+	public void setCount(Long count) {
+		this.count = count;
+	}
+
+	public Long getAncillaryCount() {
+		return ancillaryCount;
+	}
+
+	public void setAncillaryCount(Long ancillaryCount) {
+		this.ancillaryCount = ancillaryCount;
+	}
+
+	public boolean isSelectStudents() {
+		return selectStudents;
+	}
+
+	public void setSelectStudents(boolean selectStudents) {
+		this.selectStudents = selectStudents;
+	}
+
+	public boolean isSelectAllStudents() {
+		return selectAllStudents;
+	}
+
+	public void setSelectAllStudents(boolean selectAllStudents) {
+		this.selectAllStudents = selectAllStudents;
+	}
+
+	public boolean isSelectStudent() {
+		return selectStudent;
+	}
+
+	public void setSelectStudent(boolean selectStudent) {
+		this.selectStudent = selectStudent;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
+	public AuthorisedStaff getStaff() {
+		return staff;
+	}
+
+	public void setStaff(AuthorisedStaff staff) {
+		this.staff = staff;
+	}
+
+	public InternalOrganization getInternalOrganization() {
+		return internalOrganization;
+	}
+
+}

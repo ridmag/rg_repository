@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://www.itelasoft.com/facescomponents"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:util="http://java.sun.com/jsf/composite/util"
+	xmlns:itsa="http://www.itelasoft.com/faces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{sampleModel.loadSample}" type="preRenderView"></f:event>
+	</f:metadata>
+	
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle">Sample</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">User Manager</ui:define>
+		<ui:define name="pageDescription">Select a program from the list to, go to the details of each program.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formSample">
+				<!-- <util:timeentry></util:timeentry>
+				<comp:ajaxtask></comp:ajaxtask>
+				<itsa:custom></itsa:custom>
+				<comp:report name="sample" params="#{reportsModel.json}"
+					label="Print"></comp:report>-->
+				<comp:ajaxReportPopup reportName="sample" /> 
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+
+</h:body>
+</html>

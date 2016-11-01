@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle">iTelaVet Home</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">ITELAVET HOME</ui:define>
+		<ui:define name="pageDescription">Welcome to the iTelaVet Veterinary Practice Management. Follow instructions below to get started.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formMain">
+				<ice:panelGrid columns="3" width="100%"
+					rowClasses="topAlignedTableCell">
+
+					<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+
+						<ice:graphicImage value="/images/icons/schedule_l.png"></ice:graphicImage>
+						<ice:panelGroup style="width:20px; height:30px"></ice:panelGroup>
+						<ice:panelGroup>
+
+							<h2>Today's Schedule and Outlook for the Week</h2>
+							<ice:outputText value="Total consultations planned for the day: "></ice:outputText>
+							<ice:outputText value="#{homeModel.appointmentsDay}"></ice:outputText>
+							<br></br>
+							<ice:panelGrid columns="3">
+								<ice:outputText value="#{homeModel.appointmentsScheduled}"></ice:outputText>
+								<ice:outputText value="scheduled appointments."></ice:outputText>
+								<ice:panelGroup styleClass="AppointmentStatusSCH"
+									style="width: #{homeModel.amountScheduled}px; height:10px"></ice:panelGroup>
+								<ice:outputText value="#{homeModel.appointmentsCompleted}"></ice:outputText>
+								<ice:outputText value="completed appointments."></ice:outputText>
+								<ice:panelGroup styleClass="AppointmentStatusVIS"
+									style="width: #{homeModel.amountCompleted}px; height:10px"></ice:panelGroup>
+								<ice:outputText value="#{homeModel.appointmentsCancelled}"></ice:outputText>
+								<ice:outputText value="cancelled appointments."></ice:outputText>
+								<ice:panelGroup styleClass="AppointmentStatusCAN"
+									style="width: #{homeModel.amountCancelled}px; height:10px"></ice:panelGroup>
+							</ice:panelGrid>
+							<br></br>
+							<ice:outputText
+								value="Scheduled consultations for the next 7 days: "></ice:outputText>
+							<ice:outputText value="#{homeModel.appointmentsWeek}"></ice:outputText>
+							<br></br>
+							<br></br>
+							<ice:dataTable value="#{homeModel.visits}" var="var">
+								<ice:column>
+									<ice:outputText value="#{var.id}" />
+								</ice:column>
+								<ice:column>
+									<ice:outputText value="#{var.consultationType.name}" />
+								</ice:column>
+								<ice:column>
+									<ice:outputText value="#{var.status.id}" />
+								</ice:column>
+								<ice:column>
+									<ice:outputText
+										value="#{var.consultant.contact.title} #{var.consultant.contact.firstName}" />
+								</ice:column>
+								<ice:column>
+									<ice:outputText
+										value="#{var.patientId} #{var.consultant.contact.firstName}" />
+								</ice:column>
+
+							</ice:dataTable>
+						</ice:panelGroup>
+
+						<ice:graphicImage value="/images/icons/help_l.png"></ice:graphicImage>
+						<ice:outputText value=" "></ice:outputText>
+						<ice:panelGroup>
+
+							<h2>Online Help and Support</h2>
+							<p>iTelaVet is designed with ease of use and productivity in
+								mind. The user interface is self guided and intuitive to use. To
+								understand the basics and whenever usage assistance is required,
+								integrated online help provides guidance on how to perform a
+								task. (See help topics in the right hand side column).</p>
+							<p>Whenever extended support is required, please seek
+								iTelaVet support for guided assistance (See Product Support for
+								more information)</p>
+
+						</ice:panelGroup>
+
+						<ice:graphicImage value="/images/icons/calc_l.png"></ice:graphicImage>
+						<ice:outputText value=" "></ice:outputText>
+						<ice:panelGroup>
+							<h2>Business Intelligence</h2>
+							<p>Beyond it's core purpose of productivity tool and a
+								records management infrastructure, iTelaVet also provides a
+								series of useful reports based on the accumulated records. Those
+								information can be used for follow-ups, research, provide value
+								added services, making your practice more efficient and
+								elevating the service level. See reports for more details</p>
+						</ice:panelGroup>
+
+					</ice:panelGrid>
+
+					<ice:outputText value=" "></ice:outputText>
+
+					<ice:panelGroup style="width: 320px; float:right">
+						<script>
+							jQuery(document).ready(function() {
+								jQuery(".focus").focus();
+							});
+						</script>
+						<ice:panelCollapsible expanded="true">
+							<f:facet name="header">
+								<ice:panelGroup>
+									<ice:outputText value="Search Client by Name or Code"></ice:outputText>
+								</ice:panelGroup>
+							</f:facet>
+							<ice:inputText accesskey="h" id="inputTextClientSearch"
+								styleClass="focus" value="#{homeModel.clientSearchText}"
+								action="#{homeModel.loadClientSerach}">
+							</ice:inputText>
+							<ice:commandButton id="commandButtonClientSearch" accesskey="C"
+								value="#{msgs['search.label']} Client"
+								action="#{homeModel.loadClientSerach}"
+								styleClass="CommandButton" style="width: 100px"></ice:commandButton>
+						</ice:panelCollapsible>
+						<ice:panelCollapsible expanded="true">
+							<f:facet name="header">
+								<ice:panelGroup>
+									<ice:outputText value="Search by Microchip No"></ice:outputText>
+								</ice:panelGroup>
+							</f:facet>
+							<ice:inputText id="inputTextMicrochipNo"
+								value="#{homeModel.microChipNo}"
+								binding="#{homeModel.htmlInputTextMicroChipNo}"
+								action="#{homeModel.loadPatientSerach}"></ice:inputText>
+							<ice:commandButton id="commandButtonPatientSearch"
+								value="#{msgs['search.label']} Patient"
+								action="#{homeModel.loadPatientSerach}"
+								styleClass="CommandButton" style="width: 100px"></ice:commandButton>
+						</ice:panelCollapsible>
+						<ice:panelCollapsible expanded="true">
+							<f:facet name="header">
+								<ice:panelGroup>
+									<ice:outputText value="Activity History"></ice:outputText>
+								</ice:panelGroup>
+							</f:facet>
+							<ice:outputText
+								value="List of recently browsed clients appear here..."></ice:outputText>
+						</ice:panelCollapsible>
+						<ice:panelCollapsible expanded="true">
+							<f:facet name="header">
+								<ice:panelGroup>
+									<ice:outputText value="Quick Actions"></ice:outputText>
+								</ice:panelGroup>
+							</f:facet>
+							<ice:outputText value="Shortcuts for frequently used activities"></ice:outputText>
+							<ice:panelGrid>
+								<ice:commandLink value="Add a New Client"
+									action="#{mainMenuModel.newClient}"></ice:commandLink>
+								<ice:commandLink value="Create an Appointment"
+									action="#{mainMenuModel.showSchedule}"></ice:commandLink>
+								<ice:commandLink value="See Today's Schedule"
+									action="#{mainMenuModel.showSchedule}"></ice:commandLink>
+							</ice:panelGrid>
+						</ice:panelCollapsible>
+						<ice:panelCollapsible expanded="true">
+							<f:facet name="header">
+								<ice:panelGroup>
+									<ice:outputText value="Getting Started and Help"></ice:outputText>
+								</ice:panelGroup>
+							</f:facet>
+							<ice:outputText
+								value="Refer to integrated online help for imemdiate assistance"></ice:outputText>
+							<ice:panelGrid>
+								<ice:commandLink value="Introduction to iTelaVet"></ice:commandLink>
+								<ice:commandLink value="Locate a Client or a Patient"></ice:commandLink>
+								<ice:commandLink value="Consultations and Medical Records"></ice:commandLink>
+								<ice:commandLink value="How to Manage Appointments"></ice:commandLink>
+								<ice:commandLink value="Issuing Invoices"
+									action="#{homeModel.helpInvoice}"></ice:commandLink>
+							</ice:panelGrid>
+						</ice:panelCollapsible>
+					</ice:panelGroup>
+
+				</ice:panelGrid>
+
+
+			</ice:form>
+		</ui:define>
+
+	</ui:composition>
+
+</h:body>
+</html>

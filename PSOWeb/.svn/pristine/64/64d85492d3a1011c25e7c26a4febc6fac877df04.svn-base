@@ -1,0 +1,1479 @@
+package com.itelasoft.pso.web;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.imageio.ImageIO;
+
+import org.springframework.dao.DataIntegrityViolationException;
+
+import com.icesoft.faces.component.ext.ClickActionEvent;
+import com.icesoft.faces.component.paneltabset.TabChangeEvent;
+import com.itelasoft.pso.beans.Authority;
+import com.itelasoft.pso.beans.CheckRecord;
+import com.itelasoft.pso.beans.Contact;
+import com.itelasoft.pso.beans.EnumEmploymentType;
+import com.itelasoft.pso.beans.EnumItemCategory;
+import com.itelasoft.pso.beans.EnumLeaveType;
+import com.itelasoft.pso.beans.EnumSkillLevel;
+import com.itelasoft.pso.beans.GroupedStaff;
+import com.itelasoft.pso.beans.InternalOrganization;
+import com.itelasoft.pso.beans.Leave;
+import com.itelasoft.pso.beans.LeaveCategory;
+import com.itelasoft.pso.beans.LeavePolicy;
+import com.itelasoft.pso.beans.NDISStaffTime;
+import com.itelasoft.pso.beans.Program;
+import com.itelasoft.pso.beans.ProgramEvent;
+import com.itelasoft.pso.beans.ReferenceItem;
+import com.itelasoft.pso.beans.StaffCheckRecord;
+import com.itelasoft.pso.beans.StaffEvent;
+import com.itelasoft.pso.beans.StaffMember;
+import com.itelasoft.pso.beans.StaffSkill;
+import com.itelasoft.pso.beans.StaffType;
+import com.itelasoft.pso.beans.User;
+import com.itelasoft.pso.beans.WeekDay;
+import com.itelasoft.util.SortObjectByName;
+
+@ManagedBean(name = "staffManagerModel")
+@SessionScoped
+public class StaffManagerModel extends UIModel {
+
+	private StaffMember staffMember, tmpStaff;
+	private List<StaffMember> staffMembers;
+	private List<SelectItem> staffTypeSelectItems;
+	private List<SelectItem> staffAuthorities;
+	private List<StaffType> staffTypes;
+	private String confirmPass;
+	private String selectedAuthority1;
+	private String selectedAuthority2;
+	private String searchStaffText;
+	private String searchValue;
+	private List<ReferenceItem> availableSkills;
+	private int selectedTabIndex, photoH, photoW;
+	private boolean visibleSkills, defaultAddress;
+	private ReferenceItem selectedSkill;
+	private EnumSkillLevel skillLevel;
+	private Long selectedLeaveId;
+	private List<SelectItem> leavePolicySelectItems;
+	private List<SelectItem> leaveTypes;
+	private Leave leave, tempLeave;
+	private Long leavePolicyId, staffTypeId;
+	private HashMap<String, Integer> leaveCount;
+	private boolean visibleLeave, visibleAddLeave;
+	private boolean visibleConfirmation;
+	private List<CheckRecord> checkRecords;
+	private List<String> selectedWeekDayIds;
+	private List<WeekDay> weekDays = new ArrayList<WeekDay>();
+	private List<EnumLeaveType> availableLeaveTypes;
+	private LeaveCategory leaveCat;
+
+	private List<Program> actPrograms;
+	private List<ProgramEvent> actProEvents;
+	private List<StaffEvent> actStaffEvents;
+	private List<GroupedStaff> actGroupedStaff;
+	private boolean visibleActRecs;
+	private String nxtBtnTxt, srchStatus;
+	private List<Integer> wizPages;
+	private int wizardPage;
+	private boolean saveOnExit;
+	private InternalOrganization organization;
+
+	public StaffManagerModel() {
+		init();
+		weekDays = serviceLocator.getWeekDayService().findAll();
+	}
+
+	public void init() {
+		staffMembers = serviceLocator.getStaffMemberService().listAll();
+		List<InternalOrganization> orgs = serviceLocator.getInternalOrganizationService().findAll();
+		if (!orgs.isEmpty()) {
+			organization = orgs.get(0);
+		} else
+			organization = null;
+		staffMember = tmpStaff = null;
+		staffTypeSelectItems = new ArrayList<SelectItem>();
+		staffAuthorities = new ArrayList<SelectItem>();
+		leaveTypes = new ArrayList<SelectItem>();
+		staffTypes = serviceLocator.getStaffTypeService().findAll();
+		searchValue = "name";
+		searchStaffText = "";
+		selectedTabIndex = 0;
+		srchStatus = "all";
+		visibleConfirmation = visibleLeave = visibleSkills = visibleActRecs = false;
+		for (StaffType type : staffTypes) {
+			staffTypeSelectItems.add(new SelectItem(type.getId(), type.getName()));
+		}
+		selectedWeekDayIds = new ArrayList<String>();
+		visibleAddLeave = false;
+	}
+
+	public void tabChangeListner(TabChangeEvent event) {
+		if (staffMember != null) {
+			if (event.getOldTabIndex() == 0) {
+				if (validateStaff())
+					selectedTabIndex = event.getNewTabIndex();
+				else {
+					selectedTabIndex = 0;
+				}
+			}
+			if (event.getOldTabIndex() == 2) {
+				if (validateUser())
+					selectedTabIndex = event.getNewTabIndex();
+				else {
+					selectedTabIndex = 2;
+				}
+			} else
+				selectedTabIndex = event.getNewTabIndex();
+			if (selectedTabIndex == 1)
+				loadLeaveCount();
+		} else
+			showError("Please select a staff member.");
+	}
+
+	public void setDefaultTime(ValueChangeEvent event) {
+		EnumEmploymentType type = (EnumEmploymentType) event.getNewValue();
+		if (organization != null && staffMember.getId() == null && type != null) {
+			for (NDISStaffTime staffTime : organization.getNdisStaffTimes()) {
+				if (type.equals(staffTime.getEmploymentType())) {
+					staffMember.setHoursperFortnight(staffTime.getHours());
+					break;
+				}
+			}
+		}
+	}
+
+	/*
+	 * Staff Member Functions
+	 */
+
+	public void searchStaff() {
+		List<StaffMember> staffs = serviceLocator.getTextSearchService().searchStaffByNameNId(searchStaffText,
+				srchStatus.equals("all") ? null : srchStatus);
+		Collections.sort(staffs, new SortObjectByName());
+		if (staffs == null || staffs.isEmpty())
+			showError("No results for the given search text.");
+		else {
+			this.staffMembers = staffs;
+			staffMember = tmpStaff = null;
+			selectedTabIndex = 0;
+		}
+	}
+
+	public void newStaff() {
+		if (tmpStaff != null)
+			tmpStaff.setUi_selected(false);
+		tmpStaff = null;
+		staffMember = new StaffMember();
+		staffMember.setCreatedOn(new Date());
+		staffMember.setType(new StaffType());
+		staffMember.setGender("Male");
+		staffMember.setContact(new Contact());
+		staffMember.setMailingAddress(new Contact());
+		staffMember.setUserType("STF");
+		staffMember.setSkills(new ArrayList<StaffSkill>());
+		staffMember.setStaffCheckRecordList(new ArrayList<StaffCheckRecord>());
+		// staffMember.setLeaveCategories(new ArrayList<LeaveCategory>());
+		confirmPass = "";
+		leavePolicyId = staffTypeId = new Long(0);
+		selectedTabIndex = 0;
+		setActiveStaffMember();
+		loadAuthorities();
+		loadCheckRecords();
+		// loadLeavePolicies();
+		/*
+		 * selectedWeekDayIds = new ArrayList<String>(); for(WeekDay
+		 * day:staffMember.getWeekDays()){
+		 * selectedWeekDayIds.add(day.getId().toString()); }
+		 */
+	}
+
+	public void selectStaff(ClickActionEvent re) {
+		defaultAddress = false;
+		leave = null;
+		if (tmpStaff != null)
+			tmpStaff.setUi_selected(false);
+		tmpStaff = (StaffMember) re.getComponent().getAttributes().get("staff");
+		tmpStaff.setUi_selected(true);
+		staffMember = serviceLocator.getStaffMemberService().retrieveEager(tmpStaff.getId());
+		confirmPass = staffMember.getPassword();
+		// leavePolicyId = staffMember.getLeavePolicy().getId();
+		staffTypeId = staffMember.getType().getId();
+		loadAuthorities();
+		loadCheckRecords();
+		initPhotoImage();
+		// loadLeavePolicies();
+		// loadLeaveCount();
+		setActiveStaffMember();
+		selectedWeekDayIds = new ArrayList<String>();
+		for (WeekDay d : weekDays) {
+			boolean found = false;
+			for (WeekDay day : staffMember.getUnAvailableDays()) {
+				if (day.getId().equals(d.getId())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				selectedWeekDayIds.add(d.getId().toString());
+			}
+		}
+		if (staffMember.getServiceEndDate() != null)
+			processActiveRecords();
+		else
+			wizPages = new ArrayList<Integer>();
+	}
+
+	private void loadCheckRecords() {
+		checkRecords = serviceLocator.getCheckRecordService().findAll();
+		if (staffMember.getStaffCheckRecordList() != null && !staffMember.getStaffCheckRecordList().isEmpty()) {
+			for (StaffCheckRecord sc : staffMember.getStaffCheckRecordList()) {
+				for (CheckRecord cr : checkRecords) {
+					if (sc.getCheckRecord().getId().equals(cr.getId())) {
+						cr.setUi_selected(true);
+						if (cr.getNeedCompleted())
+							cr.setDateCompleted(sc.getDateCompleted());
+						if (cr.getNeedExpiry())
+							cr.setExpiryDate(sc.getExpiryDate());
+						if (cr.getNeedRemarks())
+							cr.setRemarks(sc.getRemarks());
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public void recordChecked(ValueChangeEvent event) {
+		boolean checked = (Boolean) event.getNewValue();
+		CheckRecord record = (CheckRecord) event.getComponent().getAttributes().get("record");
+		if (checked) {
+			StaffCheckRecord stfChk = new StaffCheckRecord();
+			stfChk.setStaffMember(staffMember);
+			stfChk.setCheckRecord(record);
+			staffMember.getStaffCheckRecordList().add(stfChk);
+		} else {
+			for (StaffCheckRecord sc : staffMember.getStaffCheckRecordList()) {
+				if (sc.getCheckRecord().getId().equals(record.getId())) {
+					staffMember.getStaffCheckRecordList().remove(sc);
+					break;
+				}
+			}
+		}
+		// record.setChecked(checked);
+		// record.setDateCompleted(null);
+		// record.setExpiryDate(null);
+		// record.setRemarks(null);
+	}
+
+	private void processCheckRecords() {
+		for (CheckRecord record : checkRecords) {
+			if (record.isUi_selected()) {
+				for (StaffCheckRecord sc : staffMember.getStaffCheckRecordList()) {
+					if (sc.getCheckRecord().getId().equals(record.getId())) {
+						if (record.getNeedCompleted())
+							sc.setDateCompleted(record.getDateCompleted());
+						if (record.getNeedExpiry())
+							sc.setExpiryDate(record.getExpiryDate());
+						if (record.getNeedRemarks())
+							sc.setRemarks(record.getRemarks());
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	private void processWorkingDays() {
+		staffMember.setUnAvailableDays(new ArrayList<WeekDay>());
+		if (!selectedWeekDayIds.isEmpty()) {
+			for (WeekDay d : weekDays) {
+				boolean found = false;
+				for (String str : selectedWeekDayIds) {
+					if (d.getId().toString().equals(str)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					staffMember.getUnAvailableDays().add(d);
+				}
+			}
+		}
+	}
+
+	private void setActiveStaffMember() {
+		if (staffMember != null) {
+			if (staffMember.getId() != null) {
+				sessionContext.setActiveString(staffMember.getContact().getName());
+				staffMember.setLeaveCategories(
+						serviceLocator.getLeaveCategoryService().listByStaffId(staffMember.getId()));
+				staffMember.setLeaves(serviceLocator.getLeaveService().listByStaffId(staffMember.getId()));
+			} else
+				sessionContext.setActiveString("New-Staff Member");
+		} else
+			sessionContext.setActiveString("");
+	}
+
+	public void initPhotoImage() {
+		byte[] tmpData = null;
+		if (staffMember.getPhoto() != null) {
+			tmpData = staffMember.getPhoto().getBlobFileData().getData();
+			if (tmpData != null) {
+				BufferedImage loadImg;
+				try {
+					loadImg = ImageIO.read(new ByteArrayInputStream(tmpData));
+					int w = loadImg.getWidth();
+					int h = loadImg.getHeight();
+					if (w > h) {
+						photoW = 230;
+						photoH = photoW * h / w;
+					} else {
+						photoH = 180;
+						photoW = photoH * w / h;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void deleteStaff() {
+		try {
+			serviceLocator.getStaffMemberService().delete(staffMember.getId());
+			staffMembers.remove(tmpStaff);
+			staffMember = tmpStaff = null;
+			showInfo("Staff member deleted succesfully.");
+		} catch (DataIntegrityViolationException d) {
+			showError(Util.getMessage("error.integrity"));
+		}
+	}
+
+	public void saveStaff(ActionEvent ae) {
+		if (validateStaff()) {
+			if (tmpStaff != null && !tmpStaff.getStatus().equals(staffMember.getStatus())
+					&& !staffMember.getStatus().equals("Current")) {
+				// processActiveRecords();
+				if (!wizPages.isEmpty()) {
+					wizardPage = 0;
+					nxtBtnTxt = "Next >";
+					saveOnExit = true;
+					visibleActRecs = true;
+				} else
+					saveStaff();
+			} else
+				saveStaff();
+		}
+	}
+
+	public void serviceEndDateChanged(ValueChangeEvent event) {
+		staffMember.setServiceEndDate((Date) event.getNewValue());
+		processActiveRecords();
+	}
+
+	private void processActiveRecords() {
+		actPrograms = serviceLocator.getProgramService().listActiveByCoordinator(staffMember.getId());
+		actGroupedStaff = serviceLocator.getGroupedStaffService().listByStaff(staffMember.getId());
+		actProEvents = serviceLocator.getProgramEventService().listForCoordinatorEnd(staffMember.getId(),
+				staffMember.getServiceEndDate());
+		actStaffEvents = serviceLocator.getStaffEventService().listForStaffEnd(staffMember.getId(),
+				staffMember.getServiceEndDate());
+		wizPages = new ArrayList<Integer>();
+		if (!actPrograms.isEmpty())
+			wizPages.add(1);
+		if (!actGroupedStaff.isEmpty())
+			wizPages.add(2);
+		if (!actProEvents.isEmpty())
+			wizPages.add(3);
+		if (!actStaffEvents.isEmpty())
+			wizPages.add(4);
+	}
+
+	public void openActiveRecords() {
+		wizardPage = 0;
+		nxtBtnTxt = "Next >";
+		saveOnExit = false;
+		visibleActRecs = true;
+	}
+
+	public void wizardBack() {
+		do {
+			wizardPage--;
+			nxtBtnTxt = "Next >";
+		} while (!wizPages.contains(wizardPage) && wizardPage > 0);
+	}
+
+	public void wizardNext() {
+		if (nxtBtnTxt.equals("Save")) {
+			try {
+				serviceLocator.getStaffMemberService().updateActiveRecords(actPrograms, actProEvents, actGroupedStaff,
+						actStaffEvents);
+				visibleActRecs = false;
+				showInfo("Staff records updated successfully.");
+				if (saveOnExit)
+					saveStaff();
+				wizPages = new ArrayList<Integer>();
+				if (!actPrograms.isEmpty())
+					wizPages.add(1);
+				if (!actGroupedStaff.isEmpty())
+					wizPages.add(2);
+				if (!actProEvents.isEmpty())
+					wizPages.add(3);
+				if (!actStaffEvents.isEmpty())
+					wizPages.add(4);
+				return;
+			} catch (Exception e) {
+				showError("Operation not allowed. Record(s) may be in use.");
+				return;
+			}
+		}
+		do {
+			wizardPage++;
+			nxtBtnTxt = "Next >";
+		} while (!wizPages.contains(wizardPage) && wizardPage < 4);
+		if (wizardPage == wizPages.get(wizPages.size() - 1)) {
+			nxtBtnTxt = "Save";
+		}
+	}
+
+	public void activeRecordsPopup() {
+		if (visibleActRecs)
+			visibleActRecs = false;
+		else
+			visibleActRecs = true;
+	}
+
+	public void confirmationAction(ActionEvent ae) {
+		visibleConfirmation = false;
+		String action = (String) ae.getComponent().getAttributes().get("confirmation");
+		if (action.equals("Yes")) {
+			saveStaff();
+		}
+	}
+
+	public void saveStaff() {
+		processCheckRecords();
+		staffMember.setType(serviceLocator.getStaffTypeService().retrieve(staffTypeId));
+		if (staffMember.getId() == null) {
+			// if(isNumeric(staffMember.getStaffId())){
+			staffMember = (StaffMember) serviceLocator.getUserService().create(staffMember);
+			tmpStaff = staffMember;
+			staffMember = serviceLocator.getStaffMemberService().retrieveEager(staffMember.getId()); // for
+																										// not
+																										// to
+																										// update
+																										// table
+																										// data
+																										// if
+																										// user
+																										// have
+																										// done
+																										// any
+																										// changes
+																										// to
+																										// staffMember
+			tmpStaff.setUi_selected(true);
+			staffMembers.add(tmpStaff);
+			showInfo("New staff member added succesfully.");
+			/*
+			 * }else{ showError("Staff id must be a numeric value"); }
+			 */
+		} else {
+			// if(isNumeric(staffMember.getStaffId())){
+			if (staffMember.getStatus().equals("Current") || staffMember.getStatus().equals("Prospective")) {
+				staffMember.setServiceEndDate(null);
+			}
+			if (!staffMember.getEmploymentType().equals(EnumEmploymentType.FULLTIME)) {
+				if (selectedWeekDayIds.isEmpty()) {
+					showError("At least one weekday should be selected..");
+					return;
+				}
+				processWorkingDays();
+			} else {
+				selectedWeekDayIds.clear();
+				for (WeekDay day : weekDays)
+					selectedWeekDayIds.add(day.getId().toString());
+				staffMember.getUnAvailableDays().clear();
+			}
+			staffMember = (StaffMember) serviceLocator.getUserService().save(staffMember);
+			staffMember.setUi_selected(true);
+			staffMembers.set(staffMembers.indexOf(tmpStaff), staffMember);
+			tmpStaff = staffMember;
+			staffMember = serviceLocator.getStaffMemberService().retrieveEager(staffMember.getId()); // for
+																										// not
+																										// to
+																										// update
+																										// table
+																										// data
+																										// if
+																										// user
+																										// have
+																										// done
+																										// any
+																										// changes
+																										// to
+																										// staffMember
+			showInfo("Staff member saved succesfully.");
+			/*
+			 * }else{ showError("Staff id must be a numeric value"); }
+			 */
+		}
+		if (staffMembers != null) {
+			Collections.sort(staffMembers, new SortObjectByName());
+		}
+		if (staffMember.isSystemUser())
+			loadAuthorities();
+		setActiveStaffMember();
+	}
+
+	private static boolean isNumeric(String str) {
+		try {
+			double d = Double.parseDouble(str);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean validateStaff() {
+		List<String> componentIds = new ArrayList<String>();
+		clearInputs();
+		String staffId = staffMember.getStaffId();
+		String firstName = staffMember.getContact().getFirstName();
+		String lastName = staffMember.getContact().getLastName();
+		String street = staffMember.getContact().getStreetAddress();
+		String city = staffMember.getContact().getCity();
+		String state = staffMember.getContact().getState();
+		String postalCode = staffMember.getContact().getPostCode();
+		String country = staffMember.getContact().getCountry();
+		String homeNo = staffMember.getContact().getHomePhone();
+		String mobileNo = staffMember.getContact().getMobilePhone();
+		String officeNo = staffMember.getContact().getOfficePhone();
+		String email = staffMember.getContact().getEmail();
+		String fax = staffMember.getContact().getFax();
+		if (!validateString(firstName) || !validateString(lastName)) {
+			if (firstName.isEmpty() || firstName == null) {
+				showError("First name cannot be empty.");
+				componentIds.add("input_StaffFirstName");
+			}
+			if (lastName.isEmpty() || lastName == null) {
+				showError("Last name cannot be empty.");
+				componentIds.add("input_StafftLastName");
+			}
+			highlightInputs(componentIds);
+			return false;
+		}
+
+		if (!validateString(staffId)) {
+			showError("Staff ID can not be empty..");
+			componentIds.add("input_staffId");
+			highlightInputs(componentIds);
+			return false;
+		}
+
+		if (!serviceLocator.getStaffMemberService().validateStaffId(staffMember.getId(), staffId)) {
+			showError("Staff ID is already assigned..");
+			componentIds.add("input_staffId");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (staffMember.getJoinedDate() == null) {
+			showError("Joined date can not be empty..");
+			componentIds.add("input_StaffCreatedOn");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (staffMember.getDob() == null || staffMember.getDob().after(new Date())) {
+			showError("Invalid date of birth..");
+			componentIds.add("input_StaffDob");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (staffTypeId == 0) {
+			showError("Please select a staff type..");
+			componentIds.add("select_OneStaffType");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (staffMember.getEmploymentType() == null) {
+			showError("Please select an employment type..");
+			componentIds.add("select_OneEmpType");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!staffMember.getStatus().equals("Current") && !staffMember.getStatus().equals("Prospective")
+				&& staffMember.getServiceEndDate() == null) {
+			showError("Service end date cannot be empty.");
+			return false;
+			/*
+			 * String message = ""; if
+			 * (serviceLocator.getStaffMemberService().isHavingActivePrograms(
+			 * staffMember.getId())) { message =
+			 * "This person is a coordinator of active Program(s)"; } if
+			 * (serviceLocator.getStaffMemberService().isHavingPendingEvents(
+			 * staffMember.getId())) { if (message.isEmpty()) { message =
+			 * "This person has pending event(s).."; } else { message = message
+			 * + " and also has pending event(s).."; } } if (!message.isEmpty())
+			 * { showError(message); showError(
+			 * "Status can not be other than 'Current'."); return false; }
+			 */
+		}
+		if (staffMember.getHoursperFortnight() <= 0) {
+			showError("Invalide Fortnight hours");
+			return false;
+		}
+		if (!validateString(street) || !validateString(city) || !validateString(state) || !validateString(postalCode)
+				|| !validateString(country)) {
+			if (street.isEmpty() || street == null) {
+				showError("Street address can not be empty.");
+				componentIds.add("input_StreetAddress");
+				highlightInputs(componentIds);
+			}
+			if (city.isEmpty() || city == null) {
+				showError("City  can not be empty.");
+				componentIds.add("input_StaffCity");
+				highlightInputs(componentIds);
+			}
+			if (state.isEmpty() || state == null) {
+				showError("State  can not be empty.");
+				componentIds.add("input_StaffState");
+				highlightInputs(componentIds);
+			}
+			if (postalCode.isEmpty() || postalCode == null) {
+				showError("Postal code can not be empty.");
+				componentIds.add("input_StaffPostalCode");
+				highlightInputs(componentIds);
+			}
+			return false;
+		}
+		if (!validateString(mobileNo) && !validateString(homeNo) && !validateString(officeNo)) {
+			if (mobileNo.isEmpty() || mobileNo == null) {
+				componentIds.add("input_StaffMobileNumber");
+				highlightInputs(componentIds);
+			}
+			if (homeNo.isEmpty() || homeNo == null) {
+				componentIds.add("input_StaffHomeNumber");
+				highlightInputs(componentIds);
+			}
+			if (officeNo.isEmpty() || officeNo == null) {
+				componentIds.add("input_StaffOfficeNumber");
+				highlightInputs(componentIds);
+			}
+			showError("Required at least one phone number..");
+			return false;
+		}
+		if (!mobileNo.equals("")) {
+			if (!Util.validatePhoneNumberAndFax(mobileNo, "Mobile")) {
+				return false;
+			}
+		}
+		if (!homeNo.equals("")) {
+			if (!Util.validatePhoneNumberAndFax(homeNo, "Home")) {
+				return false;
+			}
+		}
+		if (!officeNo.equals("")) {
+			if (!Util.validatePhoneNumberAndFax(officeNo, "Office")) {
+				return false;
+			}
+		}
+
+		// email validation
+		if (!validateString(email)) {
+			showError("Not a valid Email");
+			componentIds.add("input_StaffEmail");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!validateUser()) {
+			return false;
+		}
+
+		if (staffMember.getJoinedDate().compareTo(staffMember.getDob()) < 0
+				|| staffMember.getJoinedDate().compareTo(staffMember.getDob()) == 0) {
+			showError("Joined date must be comes after the date of birth.");
+			return false;
+		}
+		if (!Util.validatePhoneNumberAndFax(fax, "Fax")) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean validatePhoneNumber(String phoneNo, String phn) {
+		if (phoneNo.matches("^\\+?[0-9. ()-]{1,25}$")) {
+			return true;
+			// return false if nothing matches the input
+		} else {
+			showError(phn + " is not valide phone number");
+			return false;
+		}
+
+	}
+
+	private boolean validateUser() {
+		List<String> componentIds = new ArrayList<String>();
+		clearInputs();
+		if (!staffMember.isSystemUser()) {
+			return true;
+		}
+		if (!validateString(staffMember.getUserName())) {
+			showError("User name can not be empty..");
+			componentIds.add("input_StaffUserName");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!serviceLocator.getUserService().validateUserName(staffMember.getId(), staffMember.getUserName())) {
+			showError("Username already exists.");
+			componentIds.add("input_StaffUserName");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!validateString(staffMember.getPassword())) {
+			showError("Password field can not be empty..");
+			componentIds.add("input_StaffPassword");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!validateString(confirmPass)) {
+			showError("Confirm Password field can not be empty..");
+			componentIds.add("input_StaffConfirmPassword");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!staffMember.getPassword().equals(confirmPass)) {
+			showError("Password fields did not match. Please re-enter..");
+			staffMember.setPassword("");
+			confirmPass = "";
+			return false;
+		}
+		return true;
+	}
+
+	private boolean validateString(String string) {
+		if (string != null && !string.isEmpty()) {
+			// email validation
+			if (string == staffMember.getContact().getEmail()) {
+				Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
+				Matcher mat = pattern.matcher(string);
+				if (mat.matches()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			return true;
+		} else
+			return false;
+	}
+
+	public void setMailingAddress(ValueChangeEvent event) {
+		defaultAddress = (Boolean) event.getNewValue();
+		if (defaultAddress) {
+			String street = staffMember.getContact().getStreetAddress();
+			String city = staffMember.getContact().getCity();
+			String state = staffMember.getContact().getState();
+			String postalCode = staffMember.getContact().getPostCode();
+			String country = staffMember.getContact().getCountry();
+			staffMember.getMailingAddress().setStreetAddress(street);
+			staffMember.getMailingAddress().setCity(city);
+			staffMember.getMailingAddress().setState(state);
+			staffMember.getMailingAddress().setPostCode(postalCode);
+			staffMember.getMailingAddress().setCountry(country);
+		}
+	}
+
+	/*
+	 * User Authority Functions
+	 */
+
+	private void loadAuthorities() {
+		staffAuthorities.clear();
+		if (staffMember.getAuthorities() != null) {
+			for (Authority authority : staffMember.getAuthorities()) {
+				staffAuthorities.add(new SelectItem(authority.getAuthority(), authority.getAuthority()));
+			}
+		}
+	}
+
+	public void addAuthority(ActionEvent event) {
+		try {
+			if (selectedAuthority1 != null && !selectedAuthority1.isEmpty()) {
+				this.serviceLocator.getUserService().assignAuthority((User) this.staffMember, selectedAuthority1);
+			} else {
+				showError("Please select a role to add.");
+			}
+		} catch (Exception exception) {
+			showExceptionAsError(exception);
+		}
+		loadAuthorities();
+	}
+
+	public void removeAuthority(ActionEvent event) {
+		try {
+			if (selectedAuthority2 != null && !selectedAuthority2.isEmpty()) {
+				this.serviceLocator.getUserService().removeAuthority((User) this.staffMember, selectedAuthority2);
+			} else {
+				showError("Please select a role to remove.");
+			}
+		} catch (Exception exception) {
+			showExceptionAsError(exception);
+		}
+		loadAuthorities();
+	}
+
+	/*
+	 * Staff skill fuctions
+	 */
+
+	public void listAvailableStaffSkills() {
+		if (staffMember.getId() != null) {
+			availableSkills = serviceLocator.getReferenceItemService().listAvailableByStaff(staffMember.getId());
+		} else {
+			availableSkills = serviceLocator.getReferenceItemService().findItemsByCategory(EnumItemCategory.STAFF_SKILL,
+					"Active");
+		}
+		if (staffMember.getSkills() != null && !staffMember.getSkills().isEmpty() && availableSkills != null
+				&& !availableSkills.isEmpty()) {
+			List<ReferenceItem> list = new ArrayList<ReferenceItem>();
+			for (ReferenceItem ri : availableSkills) {
+				for (StaffSkill sk : staffMember.getSkills()) {
+					if (ri.getId().equals(sk.getSkill().getId())) {
+						list.add(ri);
+						break;
+					}
+				}
+			}
+			availableSkills.removeAll(list);
+		}
+		if (availableSkills == null || availableSkills.isEmpty()) {
+			showError("There are no skills available for this staff member");
+		} else {
+			selectedSkill = null;
+			addSkillPopup();
+		}
+	}
+
+	public void selectSkill(ClickActionEvent re) {
+		if (selectedSkill != null)
+			selectedSkill.setUi_selected(false);
+		selectedSkill = (ReferenceItem) re.getComponent().getAttributes().get("skill");
+	}
+
+	public void saveSelectedSkills() {
+		StaffSkill staffSkill = new StaffSkill();
+		staffSkill.setSkill(selectedSkill);
+		staffSkill.setLevel(skillLevel);
+		staffSkill.setStaffMember(staffMember);
+		staffMember.getSkills().add(staffSkill);
+		addSkillPopup();
+	}
+
+	public void deleteSkill(ActionEvent ae) {
+		staffMember.getSkills().remove(ae.getComponent().getAttributes().get("skill"));
+	}
+
+	public void addSkillPopup() {
+		if (this.visibleSkills)
+			this.visibleSkills = false;
+		else
+			this.visibleSkills = true;
+	}
+
+	/*
+	 * Leave Functions
+	 */
+
+	public void addLeaveType() {
+		availableLeaveTypes = new ArrayList<EnumLeaveType>();
+		if (staffMember.getLeaveCategories() != null && !staffMember.getLeaveCategories().isEmpty()) {
+			for (EnumLeaveType type : EnumLeaveType.values()) {
+				boolean found = false;
+				for (LeaveCategory leave : staffMember.getLeaveCategories()) {
+					if (leave.getLeaveType().equals(type)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found && !type.equals(EnumLeaveType.NOPAY)) {
+					availableLeaveTypes.add(type);
+				}
+			}
+		} else {
+			for (EnumLeaveType type : EnumLeaveType.values()) {
+				if (!type.equals(EnumLeaveType.NOPAY)) {
+					availableLeaveTypes.add(type);
+				}
+			}
+		}
+		if (availableLeaveTypes.isEmpty()) {
+			showError("No more leave types to be added..");
+		} else {
+			leaveCat = new LeaveCategory();
+			// leaveCat.setLeaveType(" ");
+			leaveCat.setEarnedHours(0);
+			leaveCat.setUsedHours(0);
+			leaveCat.setStaffMember(staffMember);
+			addLeavePopup();
+		}
+	}
+
+	public void addLeaveCategory() {
+		if (leaveCat.getLeaveType() == null) {
+			showError("Select Leave Type..");
+			return;
+		}
+		if (leaveCat.getId() == null) {
+			staffMember.getLeaveCategories().add(leaveCat);
+		}
+		serviceLocator.getStaffMemberService().update(staffMember);
+		showInfo("Leave type saved successfully..");
+		addLeavePopup();
+	}
+
+	public void editLeaveCategory(ActionEvent ae) {
+		leaveCat = (LeaveCategory) ae.getComponent().getAttributes().get("leave");
+		addLeavePopup();
+	}
+
+	public void removeLeaveCategory(ActionEvent ae) {
+		leaveCat = (LeaveCategory) ae.getComponent().getAttributes().get("leave");
+		/*
+		 * for(LeaveCategory cat:staffMember.getLeaveCategories()){
+		 * if(cat.equals(leaveCat) && leaveCat.getUsedHours() == 0){
+		 * staffMember.getLeaveCategories().remove(leaveCat); } }
+		 */
+		for (Leave leave : staffMember.getLeaves()) {
+			if (leave.getLeaveType().equals(leaveCat.getLeaveType())) {
+				showError("Operation now allowed. Leaves exist with this type.");
+				return;
+			}
+		}
+		serviceLocator.getLeaveCategoryService().delete(leaveCat.getId());
+		staffMember.getLeaveCategories().remove(leaveCat);
+		// serviceLocator.getStaffMemberService().update(staffMember);
+		showInfo("Leave type removed successfully..");
+	}
+
+	public void createLeave() {
+		/*
+		 * if (staffMember.getLeavePolicy().getStatus().equals("Inactive")) {
+		 * showError(
+		 * "Selected leave policy is 'Inactive'. Please select an active pollicy to add leaves.."
+		 * ); return; }
+		 */
+		/*
+		 * if (staffMember.getLeavePolicy().getDetails() == null ||
+		 * staffMember.getLeavePolicy().getDetails().isEmpty()) { showError(
+		 * "No leave types available within the selected leave policy." );
+		 * return; }
+		 */
+		tempLeave = new Leave();
+		leave = new Leave();
+		leave.setStaffMember(staffMember);
+		loadLeaveTypes();
+		leavePopup();
+		// showInfo("All weekends, unavailable dates and holidays within the
+		// date range will be ignored..");
+	}
+
+	public void editLeave(ActionEvent event) {
+		tempLeave = (Leave) event.getComponent().getAttributes().get("leave");
+		if (tempLeave == null)
+			return;
+		leave = serviceLocator.getLeaveService().retrieve(tempLeave.getId());
+		/*
+		 * if (!staffMember.getLeavePolicy().getStatus().equals("Active"))
+		 * showInfo (
+		 * "Selected leave policy is 'Inactive'. Only can edit remarks..");
+		 */
+		loadLeaveTypes();
+		leavePopup();
+	}
+
+	public void saveLeave() {
+		if (validateLeave()) {
+			if (leave.getDays() > 0) {
+				if (leave.getLeaveType().equals(EnumLeaveType.NOPAY)) {
+					if (tempLeave.getLeaveType() != null && !tempLeave.getLeaveType().equals(EnumLeaveType.NOPAY)) {
+						for (LeaveCategory cat : staffMember.getLeaveCategories()) {
+							if (cat.getLeaveType().equals(tempLeave.getLeaveType())) {
+								double tmpLeaveHours = (tempLeave.getDays() * 6) - tempLeave.getNopayHours();
+								cat.setUsedHours(cat.getUsedHours() - tmpLeaveHours);
+								serviceLocator.getLeaveCategoryService().update(cat);
+								break;
+							}
+						}
+					}
+					leave.setNopayHours(leave.getDays() * 6);
+				} else {
+					for (LeaveCategory cat : staffMember.getLeaveCategories()) {
+						if (cat.getLeaveType().equals(leave.getLeaveType())) {
+							double tmpLeaveHours = (tempLeave.getDays() * 6) - tempLeave.getNopayHours();
+							double remainingHours = cat.getEarnedHours() - cat.getUsedHours() - tmpLeaveHours;
+							double leaveHours = leave.getDays() * 6;
+							if (remainingHours >= leaveHours) {
+								cat.setUsedHours(cat.getUsedHours() - tmpLeaveHours + leaveHours);
+								leave.setNopayHours(0);
+							} else {
+								double noPay = leaveHours - remainingHours;
+								cat.setUsedHours(cat.getUsedHours() + leaveHours - noPay);
+								leave.setNopayHours(noPay);
+							}
+							serviceLocator.getLeaveCategoryService().update(cat);
+							break;
+						}
+					}
+				}
+				if (leave.getId() == null) {
+					leave = serviceLocator.getLeaveService().create(leave);
+					leave.setUi_selected(true);
+					if (staffMember.getLeaves() == null)
+						staffMember.setLeaves(new ArrayList<Leave>());
+					staffMember.getLeaves().add(leave);
+					showInfo("Leave created successfully.");
+				} else {
+					leave = serviceLocator.getLeaveService().update(leave);
+					staffMember.getLeaves().set(staffMember.getLeaves().indexOf(tempLeave), leave);
+					showInfo("Leave updated successfully.");
+				}
+				visibleLeave = false;
+			} else {
+				showError("There are no available dates to create leaves..");
+			}
+		}
+	}
+
+	public void deleteLeave(ActionEvent event) {
+		try {
+			leave = (Leave) event.getComponent().getAttributes().get("leave");
+			serviceLocator.getLeaveService().delete(leave.getId());
+			staffMember.getLeaves().remove(leave);
+			showInfo("Leave deleted succesfully");
+			for (LeaveCategory cat : staffMember.getLeaveCategories()) {
+				if (cat.getLeaveType().equals(leave.getLeaveType())) {
+					cat.setUsedHours(cat.getUsedHours() - ((leave.getDays() * 6) - leave.getNopayHours()));
+					serviceLocator.getLeaveCategoryService().update(cat);
+					break;
+				}
+			}
+			leave = null;
+			// loadLeaveCount();
+		} catch (DataIntegrityViolationException d) {
+			showError(Util.getMessage("error.integrity"));
+		}
+	}
+
+	private boolean validateLeave() {
+		List<String> componentIds = new ArrayList<String>();
+		clearInputs();
+		if (leave.getLeaveType() == null) {
+			showError("Please select a leave type..");
+			componentIds.add("select_OneLeaveType");
+			highlightInputs(componentIds);
+			return false;
+		}
+		Date startDate = leave.getStartDate();
+		Date endDate = leave.getEndDate();
+		if (startDate == null) {
+			showError("Start date can not be empty..");
+			componentIds.add("input_LeaveStartDate");
+			highlightInputs(componentIds);
+			return false;
+		}
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(startDate);
+		/*
+		 * if (cal.get(Calendar.DAY_OF_WEEK) == 1 ||
+		 * cal.get(Calendar.DAY_OF_WEEK) == 7) { showError(
+		 * "Please select dates otherthan weekends.."); return false; }
+		 */
+		if (endDate == null) {
+			endDate = startDate;
+			leave.setEndDate(endDate);
+		}
+		if (endDate.before(startDate)) {
+			showError("Start date should be before the end date..");
+			return false;
+		}
+		cal = new GregorianCalendar();
+		cal.setTime(endDate);
+		/*
+		 * if (cal.get(Calendar.DAY_OF_WEEK) == 1 ||
+		 * cal.get(Calendar.DAY_OF_WEEK) == 7) { showError(
+		 * "Please select dates otherthan weekends.."); return false; }
+		 */
+		if (!validateString(leave.getReason())) {
+			showError("Reason can not be empty..");
+			componentIds.add("input_LeaveReason");
+			highlightInputs(componentIds);
+			return false;
+		}
+		if (!serviceLocator.getLeaveService().isFinalized(leave)) {
+			showError("Existing leaves found within the given date range..");
+			return false;
+		}
+		return true;
+	}
+
+	@SuppressWarnings("unused")
+	private void loadLeavePolicies() {
+		List<LeavePolicy> policies = serviceLocator.getLeavePolicyService().listActivePolicies();
+		if (staffMember.getId() != null) {
+			LeavePolicy leavePolicy = staffMember.getLeavePolicy();
+			if (leavePolicy.getStatus().equals("Inactive")) {
+				policies.add(leavePolicy);
+			}
+		}
+		leavePolicySelectItems = new ArrayList<SelectItem>();
+		if (policies != null && !policies.isEmpty()) {
+			for (LeavePolicy policy : policies) {
+				leavePolicySelectItems.add(new SelectItem(policy.getId(), policy.getName()));
+			}
+		} else {
+			leavePolicySelectItems.add(new SelectItem(0, "Not Available"));
+		}
+	}
+
+	private void loadLeaveTypes() {
+		leaveTypes = new ArrayList<SelectItem>();
+		leaveTypes.add(new SelectItem(EnumLeaveType.NOPAY, EnumLeaveType.NOPAY.getId()));
+		// List<LeavePolicyDetail> details =
+		// staffMember.getLeavePolicy().getDetails();
+		if (staffMember.getLeaveCategories() != null && !staffMember.getLeaveCategories().isEmpty()) {
+			for (LeaveCategory cat : staffMember.getLeaveCategories()) {
+				leaveTypes.add(new SelectItem(cat.getLeaveType(), cat.getLeaveType().getId()));
+			}
+		}
+		/*
+		 * if (details != null && !details.isEmpty()) { // leaveTypes.add(new
+		 * SelectItem("invalid", "Select One")); for (LeavePolicyDetail detail :
+		 * details) { leaveTypes.add(new SelectItem(detail.getLeaveType(),
+		 * detail .getLeaveType().getId())); } } else { // leaveTypes.add(new
+		 * SelectItem(null, "Not Available")); }
+		 */
+	}
+
+	private void loadLeaveCount() {
+		leaveCount = new HashMap<String, Integer>();
+		if (staffMember.getId() != null) {
+			/*
+			 * for (LeavePolicyDetail detail : staffMember.getLeavePolicy()
+			 * .getDetails())
+			 */
+			for (LeaveCategory cat : staffMember.getLeaveCategories()) {
+				leaveCount.put(cat.getLeaveType().getId(), serviceLocator.getLeaveService()
+						.getTotalNumberOfLeaveDays(staffMember.getId(), cat.getLeaveType()));
+			}
+		}
+	}
+
+	public void leavePopup() {
+		if (visibleLeave) {
+			visibleLeave = false;
+			if (leave.getId() != null)
+				staffMember.setLeaves(serviceLocator.getLeaveService().listByStaffId(staffMember.getId()));
+		} else
+			visibleLeave = true;
+	}
+
+	public void addLeavePopup() {
+		if (visibleAddLeave) {
+			visibleAddLeave = false;
+		} else {
+			visibleAddLeave = true;
+		}
+	}
+
+	/*
+	 * getters and setters
+	 */
+
+	public StaffMember getStaffMember() {
+		return staffMember;
+	}
+
+	public void setStaffMember(StaffMember staffMember) {
+		this.staffMember = staffMember;
+	}
+
+	public List<StaffMember> getStaffMembers() {
+		return staffMembers;
+	}
+
+	public List<SelectItem> getStaffTypeSelectItems() {
+		return staffTypeSelectItems;
+	}
+
+	public void setConfirmPass(String confirmPass) {
+		this.confirmPass = confirmPass;
+	}
+
+	public String getConfirmPass() {
+		return confirmPass;
+	}
+
+	public List<SelectItem> getStaffAuthorities() {
+		return staffAuthorities;
+	}
+
+	public void setSelectedAuthority1(String selectedAuthority1) {
+		this.selectedAuthority1 = selectedAuthority1;
+	}
+
+	public String getSelectedAuthority1() {
+		return selectedAuthority1;
+	}
+
+	public void setSelectedAuthority2(String selectedAuthority2) {
+		this.selectedAuthority2 = selectedAuthority2;
+	}
+
+	public String getSelectedAuthority2() {
+		return selectedAuthority2;
+	}
+
+	public String getSearchStaffText() {
+		return searchStaffText;
+	}
+
+	public void setSearchStaffText(String searchStaffText) {
+		this.searchStaffText = searchStaffText;
+	}
+
+	public void setSearchValue(String searchValue) {
+		this.searchValue = searchValue;
+	}
+
+	public String getSearchValue() {
+		return searchValue;
+	}
+
+	public void setAvailableSkills(List<ReferenceItem> availableSkills) {
+		this.availableSkills = availableSkills;
+	}
+
+	public List<ReferenceItem> getAvailableSkills() {
+		return availableSkills;
+	}
+
+	public boolean isVisibleSkills() {
+		return visibleSkills;
+	}
+
+	public EnumSkillLevel getSkillLevel() {
+		return skillLevel;
+	}
+
+	public void setSkillLevel(EnumSkillLevel skillLevel) {
+		this.skillLevel = skillLevel;
+	}
+
+	public void setSelectedLeaveId(Long selectedLeaveId) {
+		this.selectedLeaveId = selectedLeaveId;
+	}
+
+	public Long getSelectedLeaveId() {
+		return selectedLeaveId;
+	}
+
+	public List<SelectItem> getLeavePolicySelectItems() {
+		return leavePolicySelectItems;
+	}
+
+	public void setLeave(Leave leave) {
+		this.leave = leave;
+	}
+
+	public Leave getLeave() {
+		return leave;
+	}
+
+	public void setLeavePolicyId(Long leavePolicyId) {
+		this.leavePolicyId = leavePolicyId;
+	}
+
+	public Long getLeavePolicyId() {
+		return leavePolicyId;
+	}
+
+	public void setSelectedSkill(ReferenceItem selectedSkill) {
+		this.selectedSkill = selectedSkill;
+	}
+
+	public ReferenceItem getSelectedSkill() {
+		return selectedSkill;
+	}
+
+	public boolean isDefaultAddress() {
+		return defaultAddress;
+	}
+
+	public void setDefaultAddress(boolean defaultAddress) {
+		this.defaultAddress = defaultAddress;
+	}
+
+	public void setSelectedTabIndex(int selectedTabIndex) {
+		this.selectedTabIndex = selectedTabIndex;
+	}
+
+	public int getSelectedTabIndex() {
+		return selectedTabIndex;
+	}
+
+	public boolean isVisibleLeave() {
+		return visibleLeave;
+	}
+
+	public int getPhotoH() {
+		return photoH;
+	}
+
+	public int getPhotoW() {
+		return photoW;
+	}
+
+	public List<CheckRecord> getCheckRecords() {
+		return checkRecords;
+	}
+
+	public List<SelectItem> getLeaveTypes() {
+		return leaveTypes;
+	}
+
+	public boolean isVisibleConfirmation() {
+		return visibleConfirmation;
+	}
+
+	public void setLeaveCount(HashMap<String, Integer> leaveCount) {
+		this.leaveCount = leaveCount;
+	}
+
+	public int getLeaveCount(String key) {
+		if (leaveCount.containsKey(key))
+			return leaveCount.get(key);
+		else
+			return 0;
+	}
+
+	public void setStaffTypeId(Long staffTypeId) {
+		this.staffTypeId = staffTypeId;
+	}
+
+	public Long getStaffTypeId() {
+		return staffTypeId;
+	}
+
+	public void setSelectedWeekDayIds(List<String> selectedWeekDayIds) {
+		this.selectedWeekDayIds = selectedWeekDayIds;
+	}
+
+	public List<String> getSelectedWeekDayIds() {
+		return selectedWeekDayIds;
+	}
+
+	public void setWeekDays(List<WeekDay> weekDays) {
+		this.weekDays = weekDays;
+	}
+
+	public List<WeekDay> getWeekDays() {
+		return weekDays;
+	}
+
+	public void setVisibleAddLeave(boolean visibleAddLeave) {
+		this.visibleAddLeave = visibleAddLeave;
+	}
+
+	public boolean isVisibleAddLeave() {
+		return visibleAddLeave;
+	}
+
+	public void setLeaveCat(LeaveCategory leaveCat) {
+		this.leaveCat = leaveCat;
+	}
+
+	public LeaveCategory getLeaveCat() {
+		return leaveCat;
+	}
+
+	public void setAvailableLeaveTypes(List<EnumLeaveType> availableLeaveTypes) {
+		this.availableLeaveTypes = availableLeaveTypes;
+	}
+
+	public List<EnumLeaveType> getAvailableLeaveTypes() {
+		return availableLeaveTypes;
+	}
+
+	public void setTempLeave(Leave tempLeave) {
+		this.tempLeave = tempLeave;
+	}
+
+	public Leave getTempLeave() {
+		return tempLeave;
+	}
+
+	public List<Program> getActPrograms() {
+		return actPrograms;
+	}
+
+	public List<ProgramEvent> getActProEvents() {
+		return actProEvents;
+	}
+
+	public List<GroupedStaff> getActGroupedStaff() {
+		return actGroupedStaff;
+	}
+
+	public boolean isVisibleActRecs() {
+		return visibleActRecs;
+	}
+
+	public List<StaffEvent> getActStaffEvents() {
+		return actStaffEvents;
+	}
+
+	public String getNxtBtnTxt() {
+		return nxtBtnTxt;
+	}
+
+	public int getWizardPage() {
+		return wizardPage;
+	}
+
+	public List<Integer> getWizPages() {
+		return wizPages;
+	}
+
+	public void setSrchStatus(String srchStatus) {
+		this.srchStatus = srchStatus;
+	}
+
+	public String getSrchStatus() {
+		return srchStatus;
+	}
+
+	public InternalOrganization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(InternalOrganization organization) {
+		this.organization = organization;
+	}
+
+}

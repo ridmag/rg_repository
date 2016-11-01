@@ -1,0 +1,3 @@
+<Context path="/NDIS" reloadable="false" crossContext="true">
+		<Resource auth="Container" debug="1" driverClassName="org.postgresql.Driver" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/ndis" password="pass" type="javax.sql.DataSource" url="jdbc:postgresql://localhost:5432/ndis" username="postgres" validationQuery="select count(*) from users"/>
+</Context>

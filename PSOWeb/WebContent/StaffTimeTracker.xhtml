@@ -1,0 +1,417 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="STTRACK"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Staff Time Tracker</ui:define>
+		<ui:define name="pageDescription">Search staff events by selecting a staff member and a day of the fortnight and update them with <br /> actual start/end times and lunch minutes.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formTimeTracker">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Search staff member(s) by" />
+						<ice:selectOneRadio value="#{timeTrackerModel.searchKey}"
+							style="border:none;margin-top:-13px;margin-bottom:-20px;margin-left:-15px;margin-right:-15px">
+							<f:selectItem itemValue="name" itemLabel="Name" />
+							<f:selectItem itemValue="id" itemLabel="StaffId" />
+						</ice:selectOneRadio>
+						<ice:inputText id="inputTextStaSearch"
+							action="#{timeTrackerModel.searchStaff}"
+							value="#{timeTrackerModel.searchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonStaMainSearch"
+							action="#{timeTrackerModel.searchStaff}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<ice:dataTable scrollable="true" scrollHeight="150px"
+					value="#{timeTrackerModel.staffMembers}" var="sta"
+					id="tableStaffMembers"
+					columnWidths="75px,250px,80px,60px,100px,280px,90px,80px,70px">
+					<ice:column id="columnStaffId">
+						<f:facet name="header">
+							<ice:outputText value="Staff ID" />
+						</f:facet>
+						<ice:outputText value="#{sta.staffId}" />
+					</ice:column>
+					<ice:column id="columnStaffName" style="padding:0">
+						<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+							<ice:rowSelector id="rowselectStaff"
+								clickListener="#{timeTrackerModel.selectStaff}"
+								value="#{sta.ui_selected}">
+								<f:attribute name="staff" value="#{sta}" />
+							</ice:rowSelector>
+						</ice:setEventPhase>
+						<f:facet name="header">
+							<ice:outputText value="Staff Name" />
+						</f:facet>
+						<ice:panelGrid columns="2" cellpadding="2" cellspacing="0">
+							<ice:panelGroup style="width:230px;height:1.4em;overflow:hidden">
+								<ice:outputText value="#{sta.contact.name}"
+									title="#{sta.contact.name}" />
+							</ice:panelGroup>
+							<ice:graphicImage
+								style="border:none; float:right;margin-right:5px"
+								title="This person is entitled with an inactive Leave Policy."
+								rendered="#{sta.status != 'Exited' and sta.leavePolicy.status == 'Inactive'}"
+								url="images/icons/warning_s.png" />
+							<ice:panelGroup style="width:20px"
+								rendered="#{!(sta.status != 'Exited' and sta.leavePolicy.status == 'Inactive')}" />
+						</ice:panelGrid>
+					</ice:column>
+					<ice:column id="columnStaffDob" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Date of Birth" />
+						</f:facet>
+						<ice:outputText value="#{sta.dob}" converter="dateConverter" />
+					</ice:column>
+					<ice:column id="columnStaffGender" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Gender" />
+						</f:facet>
+						<ice:outputText value="#{sta.gender}" />
+					</ice:column>
+					<ice:column id="columnStaffContactNo" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Contact Number" />
+						</f:facet>
+						<ice:outputText value="#{sta.contact.contactNumber}" />
+					</ice:column>
+					<ice:column id="columnStaffAddress">
+						<f:facet name="header">
+							<ice:outputText value="Address" />
+						</f:facet>
+						<ice:outputText value="#{sta.contact.address}" />
+					</ice:column>
+					<ice:column id="columnStaffType" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Staff Type" />
+						</f:facet>
+						<ice:outputText value="#{sta.type.name}" />
+					</ice:column>
+					<ice:column id="columnEmpType" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Emp Type" />
+						</f:facet>
+						<ice:outputText value="#{sta.employmentType.id}"
+							rendered="#{sta.employmentType != null}" />
+						<ice:outputText rendered="#{sta.employmentType == null}"
+							value="Not Available" />
+					</ice:column>
+					<ice:column id="columnStaffStatus" style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Status" />
+						</f:facet>
+						<ice:outputText value="#{sta.status}" />
+					</ice:column>
+				</ice:dataTable>
+				<ice:panelGrid styleClass="borderBox" width="100%"
+					style="margin-top:10px">
+					<ice:panelGrid columns="8">
+						<ice:outputText value="Select a date of the fortnight: " />
+						<ice:selectInputDate id="selectedDate"
+							renderMonthAsDropdown="true" renderAsPopup="true"
+							renderYearAsDropdown="true"
+							value="#{timeTrackerModel.selectedDate}"
+							valueChangeListener="#{timeTrackerModel.selectDate}"
+							label="Date of the fortnight "
+							converter="dateConverter" style="margin-right:30px" />
+						<ice:outputLabel value="Fortnight Start date: " />
+						<ice:outputText value="#{timeTrackerModel.fortnightStart}"
+							converter="dateConverter" style="margin-right:20px" />
+						<ice:outputLabel value="End date: " />
+						<ice:outputText value="#{timeTrackerModel.fortnightEnd}"
+							converter="dateConverter" style="margin-right:20px" />
+						<ice:commandButton id="commandSearchEvents" value="Search Events"
+							action="#{timeTrackerModel.searchStaffEvents}"
+							styleClass="CommandButton" style="width:110px"
+							disabled="#{timeTrackerModel.staffMember == null || timeTrackerModel.selectedDate == null}" />
+						<ice:commandButton id="commandDownloadMsExcel"
+							rendered="#{not empty(timeTrackerModel.staffEvents)}"
+							value="Export Excel sheet" styleClass="CommandButton"
+							action="#{timeTrackerModel.downloadExcelSheet}">
+							<f:ajax disabled="true" />
+						</ice:commandButton>
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<fieldset style="margin-top: 10px;">
+					<legend>
+						<ice:outputLabel value="List of events" />
+					</legend>
+					<ice:panelGroup style="margin-top:10px"
+						rendered="#{empty(timeTrackerModel.staffEvents)}">
+						<ice:outputText
+							value="Please search for events by selecting a staff member and a date.." />
+					</ice:panelGroup>
+					<ice:dataTable id="tableStaffEvents"
+						value="#{timeTrackerModel.staffEvents}" var="se"
+						rendered="#{not empty(timeTrackerModel.staffEvents)}"
+						scrollable="true"
+						columnWidths="80px,100px,280px,150px,150px,50px,100px,50px"
+						scrollHeight="200px">
+						<ice:column style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Program Type" />
+							</f:facet>
+							<ice:outputText value="#{se.programEvent.program.type.name}" />
+						</ice:column>
+						<ice:column style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Event Date" />
+							</f:facet>
+							<ice:outputText value="#{se.programEvent.eventDate}"
+								converter="dateConverter" />
+						</ice:column>
+						<ice:column>
+							<f:facet name="header">
+								<ice:outputText value="Program" />
+							</f:facet>
+							<ice:outputText value="#{se.programEvent.group.name}" />
+						</ice:column>
+						<ice:column>
+							<f:facet name="header">
+								<ice:outputText value="Rostered Start/End Time" />
+							</f:facet>
+							<center>
+								<ice:panelGrid columns="3">
+									<ice:outputText rendered="#{se.rosterStartTime != null}"
+										value="#{se.rosterStartTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText rendered="#{se.rosterStartTime == null}"
+										value="#{se.programEvent.startTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value=" - " />
+									<ice:outputText rendered="#{se.rosterEndTime!= null}"
+										value="#{se.rosterEndTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText rendered="#{se.rosterEndTime== null}"
+										value="#{se.programEvent.endTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+								</ice:panelGrid>
+							</center>
+						</ice:column>
+						<ice:column>
+							<f:facet name="header">
+								<ice:outputText value="Actual Start/End Time" />
+							</f:facet>
+							<center>
+								<ice:panelGrid columns="3">
+									<ice:outputText value="#{se.startTime}"
+										rendered="#{se.startTime != null and se.endTime != null}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText value=" - " />
+									<ice:outputText value="#{se.endTime}"
+										rendered="#{se.startTime != null and se.endTime != null}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+								</ice:panelGrid>
+							</center>
+							<!-- <center>
+								<ice:commandLink id="commandSetActualTimes">
+									<ice:panelGrid columns="3" title="Click to Edit"
+										rendered="#{se.startTime != null and se.endTime != null}">
+										<ice:outputText value="#{se.startTime}">
+											<f:convertDateTime type="time" timeStyle="short"
+												timeZone="#{timeTrackerModel.timeZone}" />
+										</ice:outputText>
+										<ice:outputText value=" - " />
+										<ice:outputText value="#{se.endTime}">
+											<f:convertDateTime type="time" timeStyle="short"
+												timeZone="#{timeTrackerModel.timeZone}" />
+										</ice:outputText>
+									</ice:panelGrid>
+									<ice:outputText value="Set" title="Set actual times"
+										rendered="#{se.startTime == null || se.endTime == null}"
+										style="color:teal" />
+								</ice:commandLink>
+							</center> -->
+						</ice:column>
+						<ice:column style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Lunch Included" />
+							</f:facet>
+							<ice:outputText value="-"
+								rendered="#{se.programEvent.program.type.name != 'Staff'}" />
+							<ice:selectBooleanCheckbox disabled="true"
+								rendered="#{se.programEvent.program.type.name == 'Staff'}"
+								value="#{se.programEvent.lunchIncluded}" />
+						</ice:column>
+						<ice:column style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Lunch Minutes" />
+							</f:facet>
+							<ice:outputText value="Not selected"
+								rendered="#{se.programEvent.lunchIncluded and se.lunchMinutes == 0}" />
+							<ice:outputText value="#{se.lunchMinutes} Mins"
+								rendered="#{se.programEvent.lunchIncluded and se.lunchMinutes != 0}" />
+							<ice:outputText value="-"
+								rendered="#{!se.programEvent.lunchIncluded}" />
+						</ice:column>
+						<ice:column style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Edit" />
+							</f:facet>
+							<ice:commandLink style="border:none"
+								actionListener="#{timeTrackerModel.editStaffEvent}"
+								title="Edit actual worked times">
+								<ice:graphicImage style="border:none" id="graphicEditSE"
+									url="images/icons/edit.png" />
+								<f:attribute name="event" value="#{se}" />
+							</ice:commandLink>
+						</ice:column>
+					</ice:dataTable>
+				</fieldset>
+
+				<ice:panelPopup autoCentre="true" modal="true"
+					styleClass="icePnlPop" draggable="true"
+					rendered="#{timeTrackerModel.visibleActualTimes}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Set actual start/end times of the event."
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeSkillButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{timeTrackerModel.actualTimesPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px;margin-bottom:30px">
+							<ice:messages />
+							<ice:panelGrid columns="2" cellpadding="5">
+								<ice:outputLabel value="Program Name : " />
+								<ice:outputText
+									value="#{timeTrackerModel.staffEvent.programEvent.group.name}" />
+							</ice:panelGrid>
+							<ice:panelGrid columns="2" style="margin-bottom:10px"
+								rowClasses="topAlignedTableCell">
+								<ice:panelGrid columns="3" width="250">
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0">
+										<ice:outputLabel value="Staff member status" />
+									</ice:panelGrid>
+									<ice:outputLabel value=":" />
+									<ice:outputText value="#{timeTrackerModel.status}"
+										rendered="#{timeTrackerModel.status != 'OK'}"
+										title="#{timeTrackerModel.information}" style="color:red" />
+									<ice:outputText value="#{timeTrackerModel.status}"
+										rendered="#{timeTrackerModel.status == 'OK'}"
+										title="#{timeTrackerModel.information}" />
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0">
+										<ice:outputLabel value="Employment Type" />
+									</ice:panelGrid>
+									<ice:outputLabel value=":" />
+									<ice:outputText
+										value="#{timeTrackerModel.staffEvent.staffMember.employmentType.id}" />
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0">
+										<ice:outputLabel value="Rostered Start Time" />
+									</ice:panelGrid>
+									<ice:outputLabel value=":" />
+									<ice:outputText
+										rendered="#{timeTrackerModel.staffEvent.rosterStartTime!=null}"
+										value="#{timeTrackerModel.staffEvent.rosterStartTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText
+										rendered="#{timeTrackerModel.staffEvent.rosterStartTime==null}"
+										value="#{timeTrackerModel.staffEvent.programEvent.startTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0">
+										<ice:outputLabel value="Rostered End Time" />
+									</ice:panelGrid>
+									<ice:outputLabel value=":" />
+									<ice:outputText
+										rendered="#{timeTrackerModel.staffEvent.rosterEndTime !=null}"
+										value="#{timeTrackerModel.staffEvent.rosterEndTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:outputText
+										rendered="#{timeTrackerModel.staffEvent.rosterEndTime ==null}"
+										value="#{timeTrackerModel.staffEvent.programEvent.endTime}">
+										<f:convertDateTime type="time" timeStyle="short"
+											timeZone="#{timeTrackerModel.timeZone}" />
+									</ice:outputText>
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0"
+										rendered="#{timeTrackerModel.staffEvent.programEvent.program.type.name == 'Staff'}">
+										<ice:outputLabel value="Lunch Included" />
+									</ice:panelGrid>
+									<ice:outputLabel value=":"
+										rendered="#{timeTrackerModel.staffEvent.programEvent.program.type.name == 'Staff'}" />
+									<ice:selectBooleanCheckbox disabled="true"
+										rendered="#{timeTrackerModel.staffEvent.programEvent.program.type.name == 'Staff'}"
+										value="#{timeTrackerModel.staffEvent.programEvent.lunchIncluded}" />
+								</ice:panelGrid>
+								<ice:panelGrid columns="2" width="320" style="margin-left:20px">
+									<ice:panelGrid style="height:30px" cellpadding="0"
+										cellspacing="0">
+										<ice:outputLabel value="Set Actual Times" />
+									</ice:panelGrid>
+									<ice:panelGroup style="width:190px">
+										<ice:selectBooleanCheckbox id="setActualTimes"
+											value="#{timeTrackerModel.flag}" partialSubmit="true" />
+									</ice:panelGroup>
+									<ice:outputLabel value="Actual Start Time"
+										rendered="#{timeTrackerModel.flag}" />
+									<comp:timeControl value="#{timeTrackerModel.startTime}"
+										rendered="#{timeTrackerModel.flag}" />
+									<ice:outputLabel value="Actual End Time"
+										rendered="#{timeTrackerModel.flag}" />
+									<comp:timeControl value="#{timeTrackerModel.endTime}"
+										rendered="#{timeTrackerModel.flag}" />
+									<ice:outputLabel value="Lunch Minutes"
+										rendered="#{timeTrackerModel.staffEvent.programEvent.program.type.name == 'Staff' and timeTrackerModel.staffEvent.programEvent.lunchIncluded and timeTrackerModel.flag}" />
+									<ice:selectOneMenu id="selectLunchMinutes" style="width:188px"
+										rendered="#{timeTrackerModel.staffEvent.programEvent.program.type.name == 'Staff' and timeTrackerModel.staffEvent.programEvent.lunchIncluded and timeTrackerModel.flag}"
+										value="#{timeTrackerModel.staffEvent.lunchMinutes}">
+										<f:selectItems value="#{lookupListProvider.lunchMinutes}" />
+									</ice:selectOneMenu>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:commandButton id="commandCancelSE" value="Cancel"
+								action="#{timeTrackerModel.actualTimesPopup}"
+								styleClass="CommandButton"
+								style="width:60px;float:right;margin-right:12px" />
+							<ice:commandButton id="commandSaveSE" value="Save"
+								action="#{timeTrackerModel.saveStaffEvent}"
+								styleClass="CommandButton"
+								style="width:60px;float:right;margin-right:5px" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

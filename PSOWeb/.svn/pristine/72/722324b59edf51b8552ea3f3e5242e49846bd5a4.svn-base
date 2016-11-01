@@ -1,0 +1,35 @@
+package com.itelasoft.pso.dao;
+
+import java.util.List;
+
+import com.itelasoft.pso.beans.Student;
+import com.itelasoft.pso.beans.StudentFundingSource;
+
+public interface IStudentDao extends IGenericDao<Student, Long> {
+
+	public List<Student> listByName(String studentName, boolean includeInactive);
+
+	public List<Student> listAvailableByGroup(Long groupId, String studentName);
+
+	public Student retrieveAvailableByGroup(Long groupId, Long studentId);
+	
+	public List<Student> listByCommunication(Long communicationId);
+
+	public List<Student> listNotInCommunication(Long communicationId);
+
+	public StudentFundingSource getActiveFundingSource(Long studentId);
+
+	public List<Student> listStudentsWithTxs(int month, int year);
+
+	public List<Long> listStudentsWithNotBankedEvents(int month, int year);
+
+	public List<Long> listStudentsMissingLastMonthInvoice(int month, int year);
+
+	public List<Student> listStudentsByStatus(String status);
+	
+	public List<Student> listActiveStudents();
+	
+	public List<Student> listActiveStudentswithNdisnumber();
+	
+	public List<Student> listAll();
+}

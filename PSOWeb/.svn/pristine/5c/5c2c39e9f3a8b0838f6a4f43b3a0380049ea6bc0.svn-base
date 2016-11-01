@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+
+	<composite:attribute name="params">
+	</composite:attribute>
+	<composite:attribute name="reportName"
+		default="absenteeReportIndividual">
+	</composite:attribute>
+</composite:interface>
+<composite:implementation>
+	<ice:panelGroup>
+		<h:outputScript library="js" name="jquery.min.js" target="this" />
+		<h:inputHidden id="result" value="#{cc.attrs.params}" />
+		<h:commandButton id="#{cc.attrs.reportName}" value="Generate Report"
+			styleClass="CommandButton" style="width:120px">
+			<f:ajax event="click" render="result"
+				listener="#{rosterManagerModel.generateReport}" onevent="test">
+			</f:ajax>
+		</h:commandButton>
+		<h:outputScript>
+            function test(e) {
+        		if (e.status == 'success') {
+	       		//alert("hello");
+	       		
+	            //alert('hello'+document.getElementById('#{cc.clientId}:result').value);
+	            window.open('ReportServlet?name=#{cc.attrs.reportName}&amp;params='+document.getElementById('#{cc.clientId}:result').value);
+	            }
+            }
+        </h:outputScript>
+	</ice:panelGroup>
+</composite:implementation>
+</html>

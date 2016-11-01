@@ -1,0 +1,793 @@
+package com.itelasoft.pso.web.reports;
+
+import static net.sf.dynamicreports.report.builder.DynamicReports.cmp;
+import static net.sf.dynamicreports.report.builder.DynamicReports.col;
+import static net.sf.dynamicreports.report.builder.DynamicReports.concatenatedReport;
+import static net.sf.dynamicreports.report.builder.DynamicReports.grid;
+import static net.sf.dynamicreports.report.builder.DynamicReports.report;
+import static net.sf.dynamicreports.report.builder.DynamicReports.stl;
+import static net.sf.dynamicreports.report.builder.DynamicReports.type;
+
+import java.awt.Color;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+
+import com.itelasoft.pso.beans.EnumEmploymentType;
+import com.itelasoft.pso.beans.EnumLeaveType;
+import com.itelasoft.pso.beans.Holiday;
+import com.itelasoft.pso.beans.Leave;
+import com.itelasoft.pso.beans.ProgramType;
+import com.itelasoft.pso.beans.ReferenceItem;
+import com.itelasoft.pso.beans.StaffEvent;
+import com.itelasoft.pso.beans.StaffMember;
+import com.itelasoft.pso.beans.StaffSkill;
+import com.itelasoft.pso.beans.StudentGroup;
+import com.itelasoft.pso.web.RosterManagerModel;
+import com.itelasoft.pso.web.UIModel;
+import com.itelasoft.pso.web.Util;
+
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
+import net.sf.dynamicreports.report.builder.component.HorizontalListBuilder;
+import net.sf.dynamicreports.report.builder.component.VerticalListBuilder;
+import net.sf.dynamicreports.report.builder.style.StyleBuilder;
+import net.sf.dynamicreports.report.constant.HorizontalAlignment;
+import net.sf.dynamicreports.report.constant.PageOrientation;
+import net.sf.dynamicreports.report.constant.PageType;
+import net.sf.dynamicreports.report.constant.SplitType;
+import net.sf.dynamicreports.report.constant.VerticalAlignment;
+import net.sf.dynamicreports.report.definition.ReportParameters;
+import net.sf.dynamicreports.report.definition.expression.DRIValueFormatter;
+import net.sf.dynamicreports.report.exception.DRException;
+import net.sf.jasperreports.engine.JRDataSource;
+
+public class TimeSheet extends UIModel {
+
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private HashMap<String, List<StaffEvent>> eventsMap;
+	private Date startDate, endDate;
+	private Calendar cal = new GregorianCalendar();
+	private StaffMember staffMember;
+	private HashMap<String, BigDecimal> rosteredHoursMap;
+	private List<ProgramType> programTypes;
+	// private int firstAidCount;
+	public String flag;
+	public List<StaffEvent> events_list;
+
+	public void build(ServletOutputStream outputStream, String startDate, String endDate, String staffId)
+			throws ParseException {
+		flag = RosterManagerModel.flag;
+		events_list = new ArrayList<StaffEvent>();
+		programTypes = serviceLocator.getProgramTypeService().findAll();
+		this.startDate = conevertDate(startDate);
+		this.endDate = Util.getDayEndTime(conevertDate(endDate));
+		try {
+			if (staffId.equals("All")) {
+				List<StaffMember> members = serviceLocator.getStaffMemberService().findAll();
+				if (members != null) {
+					List<JasperReportBuilder> list = new ArrayList<JasperReportBuilder>();
+					for (StaffMember staff : members) {
+						staffMember = staff;
+						JasperReportBuilder tmpReport = createReport(staff);
+						if (tmpReport != null) {
+							list.add(tmpReport);
+						}
+					}
+					if (list == null || list.size() == 0) {
+						createEmptyReport().toPdf(outputStream);
+					} else {
+						JasperReportBuilder[] reports = new JasperReportBuilder[list.size()];
+						for (int i = 0; i < list.size(); i++) {
+							reports[i] = list.get(i);
+						}
+						concatenatedReport().concatenate(reports).toPdf(outputStream);
+					}
+				} else {
+					createEmptyReport().toPdf(outputStream);
+				}
+			} else {
+				staffMember = serviceLocator.getStaffMemberService().searchByStaffId(staffId);
+				if (flag.equals("Draft")) {
+					createReport(staffMember).toPdf(outputStream);
+				} else if (flag.equals("Final")) {
+					events_list = serviceLocator.getStaffEventService()
+							.listByStaffNDatesWithAttended(staffMember.getStaffId(), this.startDate, this.endDate);
+					if (events_list.size() != 0) {
+						createReport(staffMember).toPdf(outputStream);
+					} else {
+						createEmptyReport().toPdf(outputStream);
+					}
+				}
+			}
+		} catch (DRException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private JasperReportBuilder createReport(StaffMember staffMember) throws ParseException {
+		List<StaffEvent> events = new ArrayList<StaffEvent>();
+		Calendar startDateCal = new GregorianCalendar();
+		startDateCal.setTime(startDate);
+		startDateCal.add(Calendar.DATE, -1);
+		if (flag.equals("Draft")) {
+			events = serviceLocator.getStaffEventService().listByStaffNDates(staffMember.getStaffId(),
+					startDateCal.getTime(), endDate);
+		} else if (flag.equals("Final")) {
+			events = serviceLocator.getStaffEventService().listByStaffNDatesWithAttended(staffMember.getStaffId(),
+					startDate, endDate);
+		}
+
+		if (events != null && !events.isEmpty()) {
+			rosteredHoursMap = new HashMap<String, BigDecimal>();
+			if (programTypes != null) {
+				for (ProgramType type : programTypes) {
+					rosteredHoursMap.put(type.getName(), new BigDecimal(0));
+				}
+			}
+			rosteredHoursMap.put("Leaves", new BigDecimal(0));
+			rosteredHoursMap.put("Firstaid", new BigDecimal(0));
+			boolean check = false;
+			for (StaffSkill staffSkill : staffMember.getSkills()) {
+				if (staffSkill.getSkill().getItemValue().equals(Util.getMessage("staffskill.firstaid.name")))
+					check = true;
+			}
+			eventsMap = new HashMap<String, List<StaffEvent>>();
+			cal.setTime(this.startDate);
+			while (cal.getTime().before(this.endDate) || cal.getTime().equals(this.endDate)) {
+				/*
+				 * if (cal.get(Calendar.DAY_OF_WEEK) == 1 ||
+				 * cal.get(Calendar.DAY_OF_WEEK) == 7) { cal.add(Calendar.DATE,
+				 * 1); continue; }
+				 */
+				eventsMap.put(dateFormat.format(cal.getTime()), new ArrayList<StaffEvent>());
+				cal.add(Calendar.DATE, 1);
+			}
+			for (StaffEvent event : events) {
+				if (eventsMap.containsKey(dateFormat.format(event.getProgramEvent().getEndTime())))
+					eventsMap.get(dateFormat.format(event.getProgramEvent().getEndTime())).add(event);
+			}
+			JRDataSource dataSource = createDataSource();
+
+			// StyleBuilder bold = stl.style().setFontSize(8);
+			StyleBuilder headerStyle = stl.style().setFontSize(7).bold().setVerticalAlignment(VerticalAlignment.MIDDLE)
+					.setHorizontalAlignment(HorizontalAlignment.CENTER).setBackgroundColor(Color.LIGHT_GRAY)
+					.setBorder(stl.pen1Point());
+
+			TextColumnBuilder<String> date = col.column("DATE", "date", type.stringType()).setTitleStyle(headerStyle)
+					.setFixedWidth(50)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8)
+							// .setPadding(2)
+							.setLeftPadding(4));
+
+			TextColumnBuilder<String> day = col.column("DAY", "day", type.stringType()).setTitleStyle(headerStyle)
+					.setFixedWidth(50)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8).setLeftPadding(4));
+
+			TextColumnBuilder<String> start = col.column("START", "start", type.stringType()).setTitleStyle(headerStyle)
+					.setWidth(50).setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> finish = col.column("FINISH", "finish", type.stringType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> run = col.column("RUN#", "run", type.stringType()).setTitleStyle(headerStyle)
+					.setWidth(50).setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> description = col
+					.column("ACTIVITY, PROGRAM OR PARTICIPANT NAME", "description", type.stringType())
+					.setTitleStyle(headerStyle).setMinWidth(130)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8).setLeftPadding(5));
+
+			TextColumnBuilder<String> hours = col.column("ROSTERED HOURS", "hours", type.stringType())
+					.setTitleStyle(headerStyle).setHeight(1)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.LEFT).setFontSize(8));
+
+			TextColumnBuilder<String> publicholiday = col.column("PH", "publicholiday", type.stringType())
+					.setTitleStyle(headerStyle).setMinWidth(40)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> overnight = col.column("O/N", "overnight", type.stringType())
+					.setTitleStyle(headerStyle).setMinWidth(40)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> pettycash = col.column("PETTY CASH", "pettycash", type.stringType())
+					.setTitleStyle(headerStyle).setMinWidth(40)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> klms = col.column("KLMS OWN CAR", "klms", type.stringType())
+					.setTitleStyle(headerStyle).setWidth(40)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			TextColumnBuilder<String> leavedtl = col.column("LEAVE", "leavedtl", type.stringType())
+					.setTitleStyle(headerStyle).setHeight(1).setStyle(stl.style().setFontSize(8));
+
+			TextColumnBuilder<String> types = col.column("TYPE", "types", type.stringType()).setTitleStyle(headerStyle)
+					.setWidth(50).setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			DRIValueFormatter<String, BigDecimal> valueFormatter = new DRIValueFormatter<String, BigDecimal>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public String format(BigDecimal timeDiff, ReportParameters arg1) {
+					if (!timeDiff.toString().equals("0")) {
+						String hours = "0";
+						String minutes = "0";
+						BigDecimal[] diff = timeDiff.divideAndRemainder(new BigDecimal(60));
+						if (diff[0].intValue() < 10) {
+							hours = hours + diff[0];
+						} else {
+							hours = diff[0].toString();
+						}
+						if (diff[1].intValue() < 10) {
+							minutes = minutes + diff[1];
+						} else {
+							minutes = diff[1].toString();
+						}
+						return hours + ":" + minutes;
+					} else
+						return "-";
+				}
+
+				@Override
+				public Class<String> getValueClass() {
+					return String.class;
+				}
+			};
+
+			/*
+			 * TextColumnBuilder<BigDecimal> pso = col .column("PSO Program",
+			 * "pso", type.bigDecimalType()) .setTitleStyle(headerStyle)
+			 * .setHeight(1) .setStyle( stl.style() .setHorizontalAlignment(
+			 * HorizontalAlignment.CENTER) .setFontSize(8))
+			 * .setValueFormatter(valueFormatter);
+			 * 
+			 * TextColumnBuilder<BigDecimal> slf = col .column("SLF", "slf",
+			 * type.bigDecimalType()) .setTitleStyle(headerStyle) .setHeight(1)
+			 * .setStyle( stl.style() .setHorizontalAlignment(
+			 * HorizontalAlignment.CENTER) .setFontSize(8))
+			 * .setValueFormatter(valueFormatter);
+			 */
+			TextColumnBuilder<BigDecimal> individualHrs = col.column("INDIVIDUAL", "individual", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.CENTER).setBorder(stl.pen1Point())
+							.setFontSize(8));
+
+			TextColumnBuilder<BigDecimal> programHrs = col.column("PROGRAM", "program", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.CENTER).setBorder(stl.pen1Point())
+							.setFontSize(8));
+
+			TextColumnBuilder<BigDecimal> transportHrs = col.column("TRANSPORT", "transport", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.CENTER).setBorder(stl.pen1Point())
+							.setFontSize(8));
+
+			TextColumnBuilder<BigDecimal> staffHrs = col.column("ADMIN", "staff", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.CENTER).setBorder(stl.pen1Point())
+							.setFontSize(8));
+
+			TextColumnBuilder<BigDecimal> leaveHrs = col.column("LEAVE", "leave", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setWidth(50)
+					.setStyle(stl.style().setHorizontalAlignment(HorizontalAlignment.CENTER).setBorder(stl.pen1Point())
+							.setFontSize(8));
+
+			TextColumnBuilder<BigDecimal> firstaid = col.column("FIRST AID ALLOW", "firstaid", type.bigDecimalType())
+					.setTitleStyle(headerStyle).setMinWidth(40)
+					.setStyle(stl.style().setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP)
+							.setBorder(stl.pen1Point()).setFontSize(8));
+
+			HorizontalListBuilder hoursList = cmp.horizontalList(getHoursSubtotal());
+			StyleBuilder titleStyle = stl.style().setFontSize(10);
+			VerticalListBuilder verticalSummaryList = cmp.verticalList(hoursList,
+					cmp.text("\n" + "\n" + "                    ....................................................."
+							+ "                                                                                                                          "
+							+ "....................................................."
+							+ "\n                         (Staff Member Signature)"
+							+ "                                                                                    "
+							+ "                                                      (Coordinator Signature)"));
+
+			HorizontalListBuilder title1 = cmp
+					.horizontalList(
+							cmp.text("Employment Type : " + staffMember.getEmploymentType().getId())
+									.setStyle(titleStyle),
+							cmp.text("                         First - Aid  Current      :").setStyle(titleStyle),
+							cmp.text(check ? "Yes" : "No").setStyle(titleStyle), cmp.text("").setStyle(titleStyle))
+					.setStyle(stl.style().setTopPadding(5).setBottomPadding(5));
+
+			HorizontalListBuilder title = cmp
+					.horizontalList(cmp.text("OPTIONS STAFF TIMESHEET - " + flag + " Version").setStyle(titleStyle),
+							cmp.text("STAFF NAME: " + staffMember.getContact().getName()).setStyle(titleStyle),
+							cmp.text("PAY PERIOD: " + dateFormat.format(startDate) + " - " + dateFormat.format(endDate))
+									.setStyle(titleStyle))
+					.setStyle(stl.style().setBottomBorder(stl.pen1Point()).setBottomPadding(5));
+
+			return report().setPageFormat(PageType.A4, PageOrientation.LANDSCAPE).setTemplate(Templates.reportTemplate)
+					.title(title).title(title1)
+					.columns(day, date, start, finish, run, description, hours, individualHrs, programHrs, transportHrs,
+							staffHrs, publicholiday, overnight, firstaid, pettycash, klms, leavedtl, leaveHrs, types)
+					.columnGrid(day, date, start, finish, run, description,
+							grid.verticalColumnGridList(hours,
+									grid.horizontalColumnGridList(individualHrs, programHrs, transportHrs, staffHrs)),
+							publicholiday, overnight, firstaid, pettycash, klms,
+							grid.verticalColumnGridList(leavedtl, grid.horizontalColumnGridList(leaveHrs, types)))
+
+					.setHighlightDetailOddRows(false).setHighlightDetailEvenRows(false).addSummary(verticalSummaryList)
+					.setSummarySplitType(SplitType.PREVENT).setSummaryWithPageHeaderAndFooter(true)
+					.pageFooter(Templates.footerComponent).setDataSource(dataSource);
+		}
+		return null;
+	}
+
+	private HorizontalListBuilder[] getHoursSubtotal() {
+		/*
+		 * StyleBuilder fontSize = stl.style().setFontSize(8)
+		 * .setVerticalAlignment(VerticalAlignment.TOP);
+		 */
+		StyleBuilder border = stl.style().setBottomBorder(stl.pen1Point()).setTopBorder(stl.pen1Point()).setFontSize(8)
+				.setTopPadding(5).setBottomPadding(10).setAlignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP);
+
+		HorizontalListBuilder[] list = new HorizontalListBuilder[12];
+		String programHours = getHoursInString(rosteredHoursMap.get("Student"));
+		String transportHours = getHoursInString(rosteredHoursMap.get("Transport"));
+		String individualHours = getHoursInString(rosteredHoursMap.get("Individual"));
+		String staffHours = getHoursInString(rosteredHoursMap.get("Staff"));
+		String leaveHours = getHoursInString(rosteredHoursMap.get("Leaves"));
+		String firstaidHours = getHoursInString(rosteredHoursMap.get("Firstaid"));
+		String ph = "";
+		String on = "";
+
+		list[0] = cmp.horizontalList(cmp
+				.text("                                                                                                  Total Hours  : "
+						+ "\n"
+						+ "                                                                                              Altered Hours :  ")
+				.setWidth(400));
+
+		list[1] = cmp.horizontalList(
+				cmp.text(individualHours.equals("00:00") ? "" : individualHours).setStyle(border).setWidth(50));
+		list[2] = cmp.horizontalList(
+				cmp.text(programHours.equals("00:00") ? "" : programHours).setStyle(border).setWidth(50));
+		list[3] = cmp.horizontalList(
+				cmp.text(transportHours.equals("00:00") ? "" : transportHours).setStyle(border).setWidth(50));
+		list[4] = cmp
+				.horizontalList(cmp.text(staffHours.equals("00:00") ? "" : staffHours).setStyle(border).setWidth(50));
+		list[5] = cmp.horizontalList(cmp.text(ph.equals("") ? "" : ph).setWidth(40)).setStyle(border);
+		list[6] = cmp.horizontalList(cmp.text(on.equals("") ? "" : on).setWidth(40)).setStyle(border);
+		list[7] = cmp.horizontalList(
+				cmp.text(firstaidHours.equals("00:00") ? "" : firstaidHours).setStyle(border).setWidth(50));
+		list[8] = cmp.horizontalList(cmp.text("").setWidth(40)).setStyle(border);
+		list[9] = cmp.horizontalList(cmp.text("").setWidth(40)).setStyle(border);
+		list[10] = cmp
+				.horizontalList(cmp.text(leaveHours.equals("00:00") ? "" : leaveHours).setStyle(border).setWidth(50));
+		list[11] = cmp.horizontalList(cmp.text("").setWidth(50));
+
+		return list;
+	}
+
+	private JRDataSource createDataSource() throws ParseException {
+		// firstAidCount = 0;
+		BigDecimal bd = new BigDecimal(60.0);
+		SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+		DataSource dataSource = new DataSource("day", "date", "start", "finish", "run", "description", "program",
+				"transport", "individual", "staff", "publicholiday", "overnight", "firstaid", "leave", "types");
+		cal.setTime(startDate);
+		while (cal.getTime().before(endDate) || cal.getTime().equals(endDate)) {
+			String day = dayFormat.format(cal.getTime());
+			String date = dateFormat.format(cal.getTime());
+			Date start1 = null;
+			Date finish1 = null;
+			String start = "";
+			String finish = "";
+			String run = "";
+			String programType = "";
+			String programTypes = "";
+			String description = "";
+			String types = "";
+			String publicholiday = "";
+			String overnight = "";
+			Date newStart = null;
+			Date newFinish = null;
+			BigDecimal leaves = null, program = null, transport = null, individual = null, staff = null,
+					firstaid = null, temp_transport = null, temp_leave = null;
+			DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
+			String time4St = "08:00:00 PM";
+			Date time4Dt = formatter.parse(time4St);
+			long time4Lt = time4Dt.getTime();
+			String time5St = "11:59:00 PM";
+			Date time5Dt = formatter.parse(time5St);
+			long time5Lt = time5Dt.getTime();
+			boolean isFirstaid;
+
+			Leave leave = serviceLocator.getLeaveService().getByStaffIdAndDate(staffMember.getId(), cal.getTime());
+			List<StaffEvent> eventslist = eventsMap.get(dateFormat.format(cal.getTime()));
+			/*
+			 * BigDecimal regularRosterMinutes = new BigDecimal(
+			 * (serviceLocator.getBusinessRulesService().getRegularRosterMinutes
+			 * (staffMember))); BigDecimal regularRosterHours =
+			 * regularRosterMinutes.divide(bd, 2, RoundingMode.HALF_UP);
+			 */
+			Holiday holiday = serviceLocator.getHolidayService().retrieveByCriteria(cal.getTime(), new Long(1));
+			List<StaffEvent> transevents = new ArrayList<StaffEvent>();
+			List<StaffEvent> stuevents = new ArrayList<StaffEvent>();
+			List<StaffEvent> events = new ArrayList<StaffEvent>();
+			for (StaffEvent stevent : eventslist) {
+				programTypes = stevent.getProgramEvent().getProgram().getType().getName();
+				if (programTypes.equals("Student") || programTypes.equals("Individual")
+						|| programTypes.equals("Staff")) {
+					stuevents.add(stevent);
+					events.add(stevent);
+				} else if (programTypes.equals("Transport")) {
+					transevents.add(stevent);
+					events.add(stevent);
+				}
+			}
+			if (events != null && !events.isEmpty()) {
+				if (stuevents != null && !stuevents.isEmpty()) {
+					for (StaffEvent eventstd : stuevents) {
+
+						// check if firstaid is payable
+						isFirstaid = false;
+						StudentGroup studentgroupEager = serviceLocator.getStudentGroupService()
+								.retrieveEager(eventstd.getProgramEvent().getGroup().getId());
+						for (ReferenceItem refItem : studentgroupEager.getStaffSkills()) {
+							if (refItem.getItemValue().equals(Util.getMessage("staffskill.firstaid.name"))) {
+								for (StaffSkill staffskill : eventstd.getStaffMember().getSkills()) {
+									if (staffskill.getSkill().getItemValue()
+											.equals(Util.getMessage("staffskill.firstaid.name"))) {
+										isFirstaid = true;
+									}
+								}
+							}
+						}
+
+						Date startL = null;
+						Date finishL = null;
+						programType = eventstd.getProgramEvent().getProgram().getType().getName();
+						if (flag.equals("Draft")) {
+							start = getTime(eventstd.getRosterStartTime());
+							finish = getTime(eventstd.getRosterEndTime());
+							startL = eventstd.getRosterStartTime();
+							finishL = eventstd.getRosterEndTime();
+						} else if (flag.equals("Final")) {
+							if (eventstd.getStartTime() != null) {
+								start = getTime(eventstd.getStartTime());
+								startL = eventstd.getStartTime();
+							} else if (eventstd.getRosterStartTime() != null) {
+								start = getTime(eventstd.getRosterStartTime());
+								startL = eventstd.getRosterStartTime();
+							}
+							if (eventstd.getEndTime() != null) {
+								finish = getTime(eventstd.getEndTime());
+								finishL = eventstd.getEndTime();
+							} else if (eventstd.getRosterEndTime() != null) {
+								finish = getTime(eventstd.getRosterEndTime());
+								finishL = eventstd.getRosterEndTime();
+							}
+						}
+						if (holiday != null) {
+							publicholiday = "PH";
+							description = eventstd.getProgramEvent().getGroup().getName();
+							if (eventstd.getStaffMember().getEmploymentType().equals(EnumEmploymentType.CASUAL)) {
+								program = individual = staff = firstaid = null;
+								// if (firstAidCount < 10)
+								// firstAidCount++;
+							} else {
+								if (programType.equals("Student")) {
+									program = calculateDifference(startL, finishL);
+									if (isFirstaid)
+										firstaid = program;
+									// if (firstAidCount < 10)
+									// firstAidCount++;
+								} else if (programType.equals("Individual")) {
+									Date endtime = finishL;
+									DateFormat time = new SimpleDateFormat("hh:mm:ss a");
+									String endTime1 = time.format(endtime);
+									Date endTime2 = formatter.parse(endTime1);
+									long currentEndTime = endTime2.getTime();
+									if (time4Lt < currentEndTime && currentEndTime <= time5Lt
+											&& eventstd.getProgramEvent().getGroup().isInactiveovernight()) {
+										overnight = "1";
+									}
+									individual = calculateDifference(startL, finishL);
+									if (isFirstaid)
+										firstaid = individual;
+									// if (firstAidCount < 10)
+									// firstAidCount++;
+								} else if (programType.equals("Staff")) {
+									staff = calculateDifference(startL, finishL);
+									if (eventstd.getProgramEvent().getGroup().isLunchIncluded()) {
+										BigDecimal lunch = new BigDecimal(
+												eventstd.getProgramEvent().getGroup().getLunchTime());
+										staff = staff.subtract(lunch);
+									}
+								} else {
+									continue;
+								}
+							}
+						} else {
+							description = eventstd.getProgramEvent().getGroup().getName();
+							if (leave != null) {
+								if (!staffMember.getEmploymentType().equals(EnumEmploymentType.CASUAL)
+										&& !leave.getLeaveType().equals(EnumLeaveType.NOPAY)) {
+									leaves = calculateDifference(startL, finishL);
+									types = leave.getLeaveType().getId();
+									rosteredHoursMap.put("Leaves", rosteredHoursMap.get("Leaves").add(leaves));
+								} else {
+									program = individual = staff = firstaid = null;
+									types = leave.getLeaveType().getId();
+								}
+							} else {
+								if (programType.equals("Student")) {
+									program = calculateDifference(startL, finishL);
+									if (isFirstaid)
+										firstaid = program;
+									// if (firstAidCount < 10)
+									// firstAidCount++;
+								} else if (programType.equals("Individual")) {
+									Date endtime = finishL;
+									DateFormat time = new SimpleDateFormat("hh:mm:ss a");
+									String endTime1 = time.format(endtime);
+									Date endTime2 = formatter.parse(endTime1);
+									long currentEndTime = endTime2.getTime();
+									if (time4Lt < currentEndTime && currentEndTime <= time5Lt
+											&& eventstd.getProgramEvent().getGroup().isInactiveovernight()) {
+										overnight = "1";
+									}
+									individual = calculateDifference(startL, finishL);
+									if (isFirstaid)
+										firstaid = individual;
+									// if (firstAidCount < 10)
+									// firstAidCount++;
+								} else if (programType.equals("Staff")) {
+									staff = calculateDifference(startL, finishL);
+									if (eventstd.getProgramEvent().getGroup().isLunchIncluded()) {
+										BigDecimal lunch = new BigDecimal(
+												eventstd.getProgramEvent().getGroup().getLunchTime());
+										staff = staff.subtract(lunch);
+									}
+								} else {
+									continue;
+								}
+							}
+						}
+						if (program != null) {
+							rosteredHoursMap.put(programType, rosteredHoursMap.get(programType).add(program));
+							program = program.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						if (individual != null) {
+							rosteredHoursMap.put(programType, rosteredHoursMap.get(programType).add(individual));
+							individual = individual.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						if (staff != null) {
+							rosteredHoursMap.put(programType, rosteredHoursMap.get(programType).add(staff));
+							staff = staff.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						if (leaves != null) {
+							rosteredHoursMap.put("Leaves", rosteredHoursMap.get("Leaves").add(leaves));
+							leaves = leaves.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						if ((programType.equals("Student") || programType.equals("Individual")) && (firstaid != null)) {
+							rosteredHoursMap.put("Firstaid", rosteredHoursMap.get("Firstaid").add(firstaid));
+							firstaid = firstaid.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						dataSource.add(day, date, start, finish, run, description, program, transport, individual,
+								staff, publicholiday, overnight, firstaid, leaves, types);
+						program = individual = staff = firstaid = leaves = null;
+						start = finish = null;
+						day = date = "";
+					}
+				}
+				if (transevents != null && !transevents.isEmpty()) {
+					run = "";
+					for (StaffEvent eventtrans : transevents) {
+
+						temp_transport = null;
+						description = "Transport";
+						if (run == "") {
+							run = eventtrans.getProgramEvent().getProgram().getName();
+						}
+						if (flag.equals("Draft")) {
+							newStart = eventtrans.getRosterStartTime();
+							newFinish = eventtrans.getRosterEndTime();
+						} else if (flag.equals("Final")) {
+							if (eventtrans.getStartTime() != null && eventtrans.getEndTime() != null) {
+								newStart = eventtrans.getStartTime();
+								newFinish = eventtrans.getEndTime();
+							} else if (eventtrans.getRosterStartTime() != null
+									&& eventtrans.getRosterEndTime() != null) {
+								newStart = eventtrans.getRosterStartTime();
+								newFinish = eventtrans.getRosterEndTime();
+							}
+						}
+						// check if firstaid is payable
+						isFirstaid = false;
+						StudentGroup transportgroupEager = serviceLocator.getStudentGroupService()
+								.retrieveEager(eventtrans.getProgramEvent().getGroup().getId());
+						for (ReferenceItem refItem : transportgroupEager.getStaffSkills()) {
+							if (refItem.getItemValue().equals(Util.getMessage("staffskill.firstaid.name"))) {
+								for (StaffSkill staffskill : eventtrans.getStaffMember().getSkills()) {
+									if (staffskill.getSkill().getItemValue()
+											.equals(Util.getMessage("staffskill.firstaid.name"))) {
+										isFirstaid = true;
+									}
+								}
+							}
+						}
+						if (holiday != null) {
+							publicholiday = "PH";
+							if (eventtrans.getStaffMember().getEmploymentType().equals(EnumEmploymentType.CASUAL)) {
+								transport = firstaid = null;
+							} else {
+								if (transport == null) {
+									transport = new BigDecimal(0);
+									temp_transport = new BigDecimal(0);
+								}
+								temp_transport = calculateDifference(newStart, newFinish);
+								transport = transport.add(temp_transport);
+							}
+						} else {
+							if (leave != null) {
+								if (!staffMember.getEmploymentType().equals(EnumEmploymentType.CASUAL)
+										&& !leave.getLeaveType().equals(EnumLeaveType.NOPAY)) {
+										if (temp_leave == null) {
+											temp_leave = calculateDifference(newStart, newFinish);
+											firstaid = null;
+										} else {
+											temp_leave = temp_leave.add(calculateDifference(newStart, newFinish));
+											firstaid = null;
+										}
+									leaves = temp_leave;
+									types = leave.getLeaveType().getId();
+								} else {
+									transport = firstaid = null;
+									types = leave.getLeaveType().getId();
+								}
+							} else {
+								if (transport == null) {
+									transport = new BigDecimal(0);
+									temp_transport = new BigDecimal(0);
+								}
+								temp_transport = calculateDifference(newStart, newFinish);
+								transport = transport.add(temp_transport);
+							}
+
+						}
+						if (isFirstaid) {
+							if (firstaid == null) {
+								firstaid = temp_transport;
+							} else {
+								firstaid = firstaid.add(temp_transport);
+							}
+						}
+						if (start1 == null && finish1 == null) {
+							start1 = newStart;
+							finish1 = newFinish;
+						}
+
+						int res1 = newStart.compareTo(start1);
+						int res2 = newFinish.compareTo(finish1);
+
+						if (res1 <= 0) {
+							start1 = newStart;
+						}
+						if (res2 >= 0) {
+							finish1 = newFinish;
+						}
+					}
+					if (leave != null) {
+						//leaves = transport;
+						if (leaves != null) {
+							rosteredHoursMap.put("Leaves", rosteredHoursMap.get("Leaves").add(leaves));
+							leaves = leaves.divide(bd, 2, RoundingMode.HALF_UP);
+							transport = null;
+						}
+					} else {
+						if (transport != null) {
+							rosteredHoursMap.put("Transport", rosteredHoursMap.get("Transport").add(transport));
+							transport = transport.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+						if (firstaid != null) {
+							rosteredHoursMap.put("Firstaid", rosteredHoursMap.get("Firstaid").add(firstaid));
+							firstaid = firstaid.divide(bd, 2, RoundingMode.HALF_UP);
+						}
+
+					}
+					start = getTime(start1);
+					finish = getTime(finish1);
+					dataSource.add(day, date, start, finish, run, description, program, transport, individual, staff,
+							publicholiday, overnight, firstaid, leaves, types);
+					transport = firstaid = leaves = null;
+					publicholiday = types = "";
+				}
+			} /*
+				 * else { programType = ""; if (leave != null) { types =
+				 * leave.getLeaveType().getId(); if
+				 * (!staffMember.getEmploymentType().equals(EnumEmploymentType.
+				 * CASUAL) && !leave.getLeaveType().equals(EnumLeaveType.NOPAY))
+				 * { leaves = regularRosterHours; if (leaves != null) {
+				 * rosteredHoursMap.put("Leaves",
+				 * rosteredHoursMap.get("Leaves").add(regularRosterMinutes)); }
+				 * } else { types = leave.getLeaveType().getId(); } } }
+				 */
+			if ((events.isEmpty())) {
+				dataSource.add(day, date, start, finish, run, description, program, transport, individual, staff,
+						publicholiday, overnight, firstaid, leaves, types);
+			}
+			cal.add(Calendar.DATE, 1);
+		}
+		return dataSource;
+	}
+
+	private String getHoursInString(BigDecimal minutes) {
+		BigDecimal min = new BigDecimal(60.0);
+		BigDecimal diffr = minutes.divide(min, 2, RoundingMode.HALF_UP);
+		String bigDecimalString = String.valueOf(diffr.doubleValue());
+
+		if (diffr.compareTo(BigDecimal.ZERO) != 0) {
+			return bigDecimalString;
+		} else {
+			return "";
+		}
+
+	}
+
+	private String getTime(Date date) {
+		if (date != null) {
+			SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+			return timeFormat.format(date);
+		}
+		return "";
+	}
+
+	private BigDecimal calculateDifference(Date startTime, Date endTime) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(startTime);
+		long millisecondsStart = calendar.getTimeInMillis();
+		calendar.setTime(endTime);
+		long millisecondsEnd = calendar.getTimeInMillis();
+		long diff = millisecondsEnd - millisecondsStart;
+		long diffMins = diff / (60 * 1000);
+		return new BigDecimal(diffMins);
+	}
+
+	private Date conevertDate(String dateString) {
+		Date date = null;
+		try {
+			if (dateString != null && !dateString.isEmpty())
+				date = dateFormat.parse(dateString);
+			else
+				date = null;
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		return date;
+	}
+
+	private JasperReportBuilder createEmptyReport() {
+		return report().setPageFormat(PageType.A4, PageOrientation.LANDSCAPE).setTemplate(Templates.reportTemplate)
+				.title(Templates.createTitleComponent("No Records Found.."));
+	}
+
+}

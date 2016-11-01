@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="name" />
+	<composite:attribute name="params" />
+</composite:interface>
+<composite:implementation>
+	<ice:panelGroup>
+		<iframe style="z-index:-1;"
+			src="ReportServlet?name=#{cc.attrs.name}&amp;params=#{cc.attrs.params}"
+			width="100%" height="500" />
+	</ice:panelGroup>
+</composite:implementation>
+</html>

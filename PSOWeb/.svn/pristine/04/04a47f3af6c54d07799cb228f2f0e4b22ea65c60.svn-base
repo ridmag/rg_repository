@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{programManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFIGRI"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Reference Items Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each reference item.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formRefernceId">
+				<ice:panelGrid columns="2" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Select Category :" />
+						<ice:setEventPhase events="ValueChangeEvent"
+							phase="INVOKE_APPLICATION">
+							<ice:selectOneMenu id="categoryMainSelectItems"
+								value="#{referenceItemManagerModel.categoryName}"
+								valueChangeListener="#{referenceItemManagerModel.findItems}"
+								partialSubmit="true">
+								<f:selectItems value="#{referenceItemManagerModel.categories}" />
+							</ice:selectOneMenu>
+						</ice:setEventPhase>
+						<ice:commandButton id="commandItemAdd" value="Add Reference Item"
+							style="margin-left:5px" styleClass="CommandButton"
+							action="#{referenceItemManagerModel.addNewItem}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+					style="margin-top:10px">
+					<ice:panelGroup>
+						<fieldset style="width: 680px; height: 140px">
+							<legend>
+								<ice:outputLabel value="Reference Items" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{empty(referenceItemManagerModel.items)}">
+								<ice:outputText value="No reference items available.." />
+							</ice:panelGroup>
+							<ice:dataTable scrollable="true" scrollHeight="80px"
+								value="#{referenceItemManagerModel.items}" var="item"
+								id="tableItems" columnWidths="120px,325px,200px"
+								rendered="#{not empty(referenceItemManagerModel.items)}">
+								<ice:column id="columnItemId" style="text-align:center">
+									<ice:rowSelector id="rowselectItems" multiple="false"
+										immediate="false" value="#{item.ui_selected}"
+										clickListener="#{referenceItemManagerModel.selectItem}">
+										<f:attribute name="item" value="#{item}" />
+									</ice:rowSelector>
+									<f:facet name="header">
+										<ice:outputText value="Item ID" />
+									</f:facet>
+									<ice:outputText value="#{item.id}" />
+								</ice:column>
+								<ice:column id="columnItemName" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Reference Name" />
+									</f:facet>
+									<ice:outputText value="#{item.itemValue}" />
+								</ice:column>
+								<ice:column id="columnItemStatus" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Status" />
+									</f:facet>
+									<ice:outputText value="#{item.status}" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 450px; height: 140px; margin-right: -5px">
+							<legend>
+								<ice:outputLabel value="Reference Item Details" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{referenceItemManagerModel.item == null}">
+								<ice:outputText
+									value="Please select a reference item to view deatils.." />
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{referenceItemManagerModel.item != null}">
+								<ice:panelGrid columns="2" cellspacing="10">
+									<ice:outputText value="Reference Name" />
+									<ice:inputText id="inputItemName" tabindex="1"
+										style="margin-left:100px;width:200px"
+										value="#{referenceItemManagerModel.item.itemValue}" />
+									<ice:outputText value="Item Status" />
+									<ice:selectOneMenu tabindex="2" id="selectReferenceStatus"
+										style="margin-left:100px;width:208px"
+										value="#{referenceItemManagerModel.item.status}">
+										<f:selectItems value="#{lookupListProvider.staffSkillStatus}" />
+									</ice:selectOneMenu>
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="float:right"
+								rendered="#{referenceItemManagerModel.item != null}">
+								<ice:commandButton id="commandSneedDelete" value="Delete"
+									tabindex="4" style="margin-right:5px;width:80px"
+									rendered="#{referenceItemManagerModel.item.id != null}"
+									styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									action="#{referenceItemManagerModel.deleteItem}" />
+								<ice:commandButton id="commandSneedSave" tabindex="3"
+									value="Save" style="margin-right:18px;width:80px"
+									styleClass="CommandButton"
+									action="#{referenceItemManagerModel.saveItem}" />
+							</ice:panelGroup>
+
+							<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+								cancelLabel="No" draggable="true" title="Confirm"
+								message="Are you sure you want to perform this action?" />
+
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

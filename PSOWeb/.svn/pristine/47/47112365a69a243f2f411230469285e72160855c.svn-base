@@ -1,0 +1,35 @@
+html, body, #wrapper {
+	height:100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	text-align: center;
+}
+
+body {
+	background:#0D2744 repeat-x  center top;
+	font-family:Arial; 
+}
+   
+#wrapper {
+	margin: 0 auto;
+	text-align: left;
+	vertical-align: middle;
+	width: 400px;
+}
+
+.Dialog{
+	background:white;
+}
+
+.DialogTitle {
+	height:29px;
+	font-weight:bold; 
+	font-size:14px; 
+	color:#333333; 
+	background:url(../images/bgMenu.jpg) repeat-x center top;
+}
+
+Input {color: #555555; border:CadetBlue 1px solid}
+table {font-size:10pt;}
+.CommandButton{ background:url(../images/btn_bg.jpg) repeat-x; padding:3px; border:1px solid #4D565E; color:#FFFFFF; cursor:pointer}

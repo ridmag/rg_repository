@@ -1,0 +1,2170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{transportManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="TPROG"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Transport Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each transport cost center.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formTransProgram">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Search cost centers by name or ID :" />
+						<ice:inputText id="inputTextTransProSearch" style="width:14em"
+							action="#{transportManagerModel.searchPrograms}"
+							value="#{transportManagerModel.searchProgramText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonProSearch"
+							action="#{transportManagerModel.searchPrograms}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandProgramAdd"
+							value="Add New Cost Center" styleClass="CommandButton"
+							disabled="#{transportManagerModel.programType == null}"
+							action="#{transportManagerModel.addNewTransport}" />
+						<!-- <ice:panelGroup style="float:right; margin-left:30px">
+							<comp:printPopup label="Print Attendance sheet"
+								resource="#{printModel.pdfTransport}" fileName="Transport"
+								printType="transportAttendance"
+								rendered="#{not empty(transportManagerModel.proEvent.studentEvents)}" />
+						</ice:panelGroup> -->
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div style="width: 1280px">
+					<ice:dataTable scrollable="true" scrollHeight="135px"
+						value="#{transportManagerModel.transportPrograms}" var="pro"
+						id="tablePrograms"
+						columnWidths="50px,320px,100px,100px,300px,220px,100px">
+						<ice:column style="text-align:right">
+							<f:facet name="header">
+								<ice:outputText value="Id" />
+							</f:facet>
+							<ice:outputText value="#{pro.id}" />
+						</ice:column>
+						<ice:column id="columnProgramName">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectTransProgram"
+									value="#{pro.ui_selected}"
+									clickListener="#{transportManagerModel.selectTransport}">
+									<f:attribute name="transport" value="#{pro}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Cost Center Name" />
+							</f:facet>
+							<ice:outputText value="#{pro.name}" />
+						</ice:column>
+						<ice:column id="columnTransProgramStart" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Start Date" />
+							</f:facet>
+							<ice:outputText value="#{pro.startDate}"
+								converter="dateConverter" />
+						</ice:column>
+						<ice:column id="columnTransProgramEnd" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="End Date" />
+							</f:facet>
+							<ice:outputText value="#{pro.endDate}" converter="dateConverter" />
+						</ice:column>
+						<ice:column id="columnTransProgramCoordinator">
+							<f:facet name="header">
+								<ice:outputText value="Coordinator" />
+							</f:facet>
+							<ice:outputText value="#{pro.coordinator.contact.name}" />
+							<ice:outputText value="Not Assigned"
+								rendered="#{empty(pro.coordinator.contact.name)}" />
+						</ice:column>
+						<ice:column id="columnTransVehicle">
+							<f:facet name="header">
+								<ice:outputText value="Vehicle" />
+							</f:facet>
+							<ice:outputText value="#{pro.vehicle.name}"
+								rendered="#{pro.vehicle != null}" />
+							<ice:outputText value="Not Assigned"
+								rendered="#{pro.vehicle == null}" />
+						</ice:column>
+						<ice:column id="columnTransProgramStatus"
+							style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Status" />
+							</f:facet>
+							<ice:outputText value="#{pro.status}" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelGroup styleClass="tabSideBox"
+						rendered="#{transportManagerModel.transportPro != null}">
+						<ice:panelGrid columns="2" style="margin-left:400px">
+							<ice:outputText value="Selected Transport :" />
+							<ice:outputText value="#{sessionContext.activeStringDetails}"
+								effect="#{sessionContext.effectDetails}"
+								styleClass="ReportSectionHeader" />
+						</ice:panelGrid>
+					</ice:panelGroup>
+					<!-- <ice:panelGroup
+						style="width:100%;height:50px;margin-bottom:-40px;border:1px solid white">
+						<ice:panelGrid columns="2" styleClass="borderBox"
+							rendered="#{transportManagerModel.transportPro != null}"
+							style="height:25px;margin-top:15px;margin-left:465px">
+							<ice:outputText value="Selected Program :"
+								style="margin-left:20px" />
+							<ice:panelGroup style="width:575px">
+								<ice:outputText value="#{sessionContext.activeStringDetails}"
+									effect="#{sessionContext.effectDetails}"
+									styleClass="ReportSectionHeader" />
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</ice:panelGroup> -->
+
+					<ice:panelTabSet id="tabSetTransportProgram"
+						selectedIndex="#{transportManagerModel.selectedTabIndex}"
+						tabChangeListener="#{transportManagerModel.tabChangeListner}">
+						<ice:panelTab label="Cost Center Details">
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="width:660px">
+									<fieldset style="height: 200px">
+										<legend>
+											<ice:outputLabel value="Cost Center Details" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.transportPro == null}">
+											<ice:outputText
+												value="Please select a transport cost center to view details." />
+										</ice:panelGroup>
+										<ice:panelGrid columns="4" style="margin-top:10px"
+											cellpadding="2" width="100%"
+											rendered="#{transportManagerModel.transportPro != null}">
+											<ice:outputText value="Cost Center Name" />
+											<ice:inputText id="input_TrosportProgramName"
+												maxlength="#{msgs['program.name.size']}"
+												value="#{transportManagerModel.transportPro.name}" />
+											<ice:outputText value="Charge Amount" />
+											<ice:inputText id="input_ProgramAmount"
+												value="#{transportManagerModel.transportPro.chargeAmount}"
+												label="Charge Amount">
+												<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+											</ice:inputText>
+											<ice:outputText value="Start Date" />
+											<ice:panelGroup id="input_ProgramStartDate">
+												<ice:selectInputDate
+													value="#{transportManagerModel.transportPro.startDate}"
+													renderAsPopup="true" renderMonthAsDropdown="true"
+													renderYearAsDropdown="true" converter="dateConverter"
+													label="Start Date">
+												</ice:selectInputDate>
+											</ice:panelGroup>
+											<ice:outputText value="End Date" />
+											<ice:panelGroup id="input_ProgramEndDate">
+												<ice:selectInputDate
+													value="#{transportManagerModel.transportPro.endDate}"
+													renderAsPopup="true" renderMonthAsDropdown="true"
+													renderYearAsDropdown="true" converter="dateConverter"
+													label="End Date">
+												</ice:selectInputDate>
+											</ice:panelGroup>
+											<ice:outputText value="Coordinator" />
+											<ice:selectOneMenu id="select_OneCoordinator"
+												styleClass="SelectOneMenu"
+												value="#{transportManagerModel.selectedCoordinatorId}">
+												<f:selectItems
+													value="#{transportManagerModel.coordinatorSelectItems}" />
+											</ice:selectOneMenu>
+											<ice:outputText value="Vehicle" />
+											<ice:selectOneMenu id="select_TransportVehicle"
+												value="#{transportManagerModel.selectedVehicleId}"
+												valueChangeListener="#{transportManagerModel.selectVehicle}"
+												partialSubmit="true">
+												<f:selectItems
+													value="#{transportManagerModel.vehicleSelectItems}" />
+												<f:attribute name="ref" value="program" />
+											</ice:selectOneMenu>
+											<ice:outputText value="Status" style="margin-right:45px" />
+											<ice:selectOneMenu id="selectOneProgramStatus"
+												styleClass="SelectOneMenu"
+												value="#{transportManagerModel.transportPro.status}">
+												<f:selectItems
+													value="#{lookupListProvider.proStatusSelectItems}" />
+											</ice:selectOneMenu>
+										</ice:panelGrid>
+										<ice:commandButton id="commandTransportSave"
+											value="Save Cost Center"
+											style="float:right; margin-right:2px"
+											rendered="#{transportManagerModel.transportPro != null}"
+											styleClass="CommandButton"
+											actionListener="#{transportManagerModel.saveTransport}" />
+										<ice:commandButton id="commandTransportDelete"
+											value="Delete Cost Center"
+											style="float:right; margin-right:5px"
+											rendered="#{transportManagerModel.transportPro.id != null}"
+											styleClass="CommandButton"
+											panelConfirmation="deleteConfirmation"
+											action="#{transportManagerModel.deleteTransport}" />
+										<ice:commandButton id="commandPurgeTransport"
+											value="Purge Cost Center"
+											style="float:right; margin-right:5px"
+											rendered="#{transportManagerModel.transportPro.id != null}"
+											styleClass="CommandButton"
+											panelConfirmation="deleteConfirmation"
+											renderedOnUserRole="ROLE_SUPERUSER"
+											action="#{transportManagerModel.purgeTransport}" />
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="width: 490px;margin-right:-15px">
+									<fieldset style="height: 200px">
+										<legend>
+											<ice:outputLabel value="Vehicle Details" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.transportPro == null}">
+											<ice:outputText
+												value="Please select a transport program to view details." />
+										</ice:panelGroup>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.transportPro != null and transportManagerModel.transportPro.vehicle == null}">
+											<ice:outputText value="No vehicle selected.." />
+										</ice:panelGroup>
+										<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+											width="100%" cellspacing="5"
+											rendered="#{transportManagerModel.transportPro.vehicle != null }">
+											<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+												<ice:panelGroup style="margin-bottom:10px;width:90px">
+													<ice:outputText value="Vehicle Name" />
+												</ice:panelGroup>
+												<ice:outputText value=":" />
+												<ice:panelGroup style="margin-bottom:10px;width:170px">
+													<ice:outputText
+														value="#{transportManagerModel.transportPro.vehicle.name}" />
+												</ice:panelGroup>
+												<ice:panelGroup style="margin-bottom:10px">
+													<ice:outputText value="Registration Id" />
+												</ice:panelGroup>
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.transportPro.vehicle.registrationId}" />
+												<ice:panelGroup style="margin-bottom:10px">
+													<ice:outputText value="Passengers" />
+												</ice:panelGroup>
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.transportPro.vehicle.passengers}" />
+												<ice:outputText value="Wheel Chairs" />
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.transportPro.vehicle.wheelChairs}" />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:170px;height:120px;text-align:center">
+												<ice:graphicImage url="images/no_logo.jpg" id="imgVehice"
+													rendered="#{transportManagerModel.transportPro.vehicle.photo == null}"
+													style="height:100px;width:150px">
+												</ice:graphicImage>
+												<ice:graphicImage
+													value="/imageDownload?p=#{transportManagerModel.transportPro.vehicle.photo.id}"
+													id="imgVehicle1"
+													rendered="#{transportManagerModel.transportPro.vehicle.photo != null}"
+													style="width:230px;height:auto">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+
+						<ice:panelTab id="tabTransportStudents" label="Transport Programs"
+							disabled="#{transportManagerModel.transportPro.id == null}"
+							rendered="#{transportManagerModel.transportPro != null}">
+							<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+								<ice:panelGroup>
+									<fieldset style="width: 195px; height: 395px">
+										<legend>
+											<ice:outputLabel value="#{msgs['student_label']} Programs" />
+										</legend>
+										<ice:commandButton id="commandAddGroup" value="Add Program"
+											action="#{transportManagerModel.addNewGroup}"
+											style="width:100px;margin-left:2px"
+											styleClass="CommandButton" />
+										<!-- <ice:commandButton id="commandEditGroup" value="Edit"
+										action="#{transportManagerModel.studentGroupPopup}"
+										style="width:60px;margin-left:5px"
+										disabled="#{transportManagerModel.studentGroup == null || transportManagerModel.studentGroup.id == null}"
+										styleClass="CommandButton" />
+									<ice:commandButton id="commandDeleteGroup" value="Delete"
+										action="#{transportManagerModel.deleteStudentGroup}"
+										style="width:60px;margin-left:5px"
+										disabled="#{transportManagerModel.studentGroup == null || transportManagerModel.studentGroup.id == null}"
+										styleClass="CommandButton"
+										panelConfirmation="deleteConfirmation" /> -->
+
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListStudents" size="15"
+												value="#{transportManagerModel.selectedGroupId}"
+												partialSubmit="true"
+												style="width:190px;height:330px;margin-top:10px"
+												valueChangeListener="#{transportManagerModel.selectStudentGroup}">
+												<f:selectItems
+													value="#{transportManagerModel.groupSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelTabSet id="tabSetStudentGroup"
+									selectedIndex="#{transportManagerModel.groupTabIndex}"
+									style="margin-top:7px;margin-right:-10px;">
+									<ice:panelTab id="tabEditGroup" label="Program Profile">
+										<ice:panelGroup
+											style="width:980px;min-height:325px;margin-right:-5px">
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+												rowClasses="topAlignedTableCell">
+												<ice:panelGroup>
+													<fieldset style="width: 670px; height: 330px">
+														<legend>
+															<ice:outputLabel value="Program Details" />
+														</legend>
+														<ice:panelGroup style="margin-top:10px"
+															rendered="#{transportManagerModel.studentGroup == null}">
+															<ice:outputText
+																value="Please select a #{msgs['student_label'].toLowerCase()} program to view details." />
+														</ice:panelGroup>
+														<ice:panelGroup style="height:260px"
+															rendered="#{transportManagerModel.studentGroup != null}">
+															<ice:panelGrid columns="4" width="100%">
+																<ice:outputText value="Program Name"
+																	style="font-size:12px" />
+																<ice:inputText
+																	value="#{transportManagerModel.studentGroup.name}"
+																	id="input_textStudentGroupName" style="width:180px"
+																	maxlength="#{msgs['group.name.size']}"
+																	action="#{transportManagerModel.saveStudentGroup}"
+																	tabindex="0" />
+																<ice:outputText value="Charge Amount"
+																	style="font-size:12px" />
+																<ice:inputText id="inputGroupAmount"
+																	label="Charge Amount"
+																	value="#{transportManagerModel.studentGroup.chargeAmount}"
+																	tabindex="2" style="width:180px">
+																	<f:convertNumber type="number" maxFractionDigits="2"
+																		minFractionDigits="2" />
+																</ice:inputText>
+																<ice:outputText value="Start Date"
+																	style="font-size:12px" />
+																<ice:selectInputDate id="input_groupStartDate"
+																	renderAsPopup="true" renderMonthAsDropdown="true"
+																	renderYearAsDropdown="true" tabindex="3"
+																	converter="dateConverter" label="Start Date"
+																	value="#{transportManagerModel.studentGroup.startDate}" />
+																<ice:outputText value="End Date" style="font-size:12px" />
+																<ice:selectInputDate id="input_groupEndDate"
+																	renderAsPopup="true" renderMonthAsDropdown="true"
+																	renderYearAsDropdown="true" tabindex="4"
+																	converter="dateConverter" label="End Date"
+																	value="#{transportManagerModel.studentGroup.endDate}" />
+																<ice:outputText value="Start Time"
+																	style="font-size:12px" />
+																<comp:timeControl id="grpStartTime"
+																	value="#{transportManagerModel.startTime}" />
+																<ice:outputText value="End Time" style="font-size:12px" />
+																<comp:timeControl id="grpEndTime"
+																	value="#{transportManagerModel.endTime}" />
+																<ice:outputText value="Return" style="font-size:12px" />
+																<ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+																	<ice:selectBooleanCheckbox id="selectReturn"
+																		partialSubmit="true"
+																		value="#{transportManagerModel.studentGroup.returnAvailable}" />
+																</ice:setEventPhase>
+																<ice:panelGroup />
+																<ice:panelGroup />
+																<ice:outputText value="Start Time"
+																	style="font-size:12px"
+																	rendered="#{transportManagerModel.studentGroup.returnAvailable}" />
+																<comp:timeControl id="grpReturnStartTime"
+																	rendered="#{transportManagerModel.studentGroup.returnAvailable}"
+																	value="#{transportManagerModel.returnStartTime}" />
+																<ice:outputText value="End Time" style="font-size:12px"
+																	rendered="#{transportManagerModel.studentGroup.returnAvailable}" />
+																<comp:timeControl id="grpReturnEndTime"
+																	value="#{transportManagerModel.returnEndTime}"
+																	rendered="#{transportManagerModel.studentGroup.returnAvailable}" />
+																<ice:outputText value="Vehicle" style="font-size:12px" />
+																<ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+																	<ice:selectOneMenu id="select_TransportGrpVehicle"
+																		value="#{transportManagerModel.selectedVehicleId}"
+																		valueChangeListener="#{transportManagerModel.selectVehicle}"
+																		partialSubmit="true" style="width:188px">
+																		<f:selectItems
+																			value="#{transportManagerModel.vehicleSelectItems}" />
+																		<f:attribute name="ref" value="group" />
+																	</ice:selectOneMenu>
+																</ice:setEventPhase>
+																<ice:outputText value="NDIS Support Cluster" />
+																<ice:setEventPhase events="ValueChangeEvent"
+																	phase="INVOKE_APPLICATION">
+																	<ice:selectOneMenu id="select_NDISitemTran"
+																		style="width:188px"
+																		value="#{transportManagerModel.selectedNdisItemId}"
+																		valueChangeListener="#{transportManagerModel.selectNdisItem}"
+																		partialSubmit="true">
+																		<f:selectItems
+																			value="#{transportManagerModel.NDISSelectItems}" />
+																	</ice:selectOneMenu>
+																</ice:setEventPhase>
+																<ice:panelGroup style="margin-top:5px">
+																	<ice:outputText value="Recurrence Type"
+																		style="font-size:12px" />
+																</ice:panelGroup>
+																<ice:selectOneRadio id="groupRecursiveType"
+																	style="height:20px;border:none;margin-top:-10px;margin-left:-20px;font-size:12px"
+																	value="#{transportManagerModel.recurrenceType}"
+																	partialSubmit="true">
+																	<f:selectItems
+																		value="#{lookupListProvider.recurrenceType}" />
+																</ice:selectOneRadio>
+																<ice:outputText value="Holiday Run" />
+																<ice:selectBooleanCheckbox id="selectRunHoliday"
+																	value="#{transportManagerModel.studentGroup.allowProgramtorunonaholiday}" />
+															</ice:panelGrid>
+															<ice:panelGrid
+																rendered="#{transportManagerModel.recurrenceType == 'Weekly'}">
+																<ice:outputText value="Scheduled Day(s) :" />
+																<div />
+																<ice:selectManyCheckbox id="selectGroupDays"
+																	value="#{transportManagerModel.selectedWeekDayIds}"
+																	partialSubmit="true" style="width:30px">
+																	<f:selectItems value="#{lookupListProvider.weekDays}"
+																		var="day" itemLabel="#{day.name}"
+																		itemValue="#{day.id}" />
+																</ice:selectManyCheckbox>
+															</ice:panelGrid>
+														</ice:panelGroup>
+														<ice:panelGroup style="margin-top:5px;float:right"
+															rendered="#{transportManagerModel.studentGroup != null}">
+															<ice:commandButton value="Add Program"
+																id="commandAddGroup"
+																rendered="#{transportManagerModel.studentGroup.id == null}"
+																action="#{transportManagerModel.saveStudentGroup}"
+																style="margin-right:5px" styleClass="CommandButton" />
+															<ice:commandButton id="commandDeleteGroup"
+																value="Delete Program"
+																action="#{transportManagerModel.deleteStudentGroup}"
+																style="margin-right:5px; margin-top:20px"
+																panelConfirmation="deleteConfirmation"
+																rendered="#{(transportManagerModel.studentGroup != null) and (transportManagerModel.studentGroup.id != null)}"
+																styleClass="CommandButton" />
+															<ice:commandButton value="Save Program"
+																id="commandSaveGroup"
+																rendered="#{transportManagerModel.studentGroup.id != null}"
+																action="#{transportManagerModel.saveStudentGroup}"
+																style="margin-right:5px;margin-top:20px"
+																styleClass="CommandButton" />
+														</ice:panelGroup>
+													</fieldset>
+													<ice:panelConfirmation id="deleteConfirmation"
+														acceptLabel="Yes" cancelLabel="No" draggable="true"
+														title="Confirm"
+														message="Are you sure you want to perform this action?" />
+												</ice:panelGroup>
+												<ice:panelGroup>
+													<fieldset style="height: 330px; width: 250px">
+														<legend>
+															<ice:outputLabel value="Vehicle Details" />
+														</legend>
+														<ice:panelGroup style="margin-top:10px"
+															rendered="#{transportManagerModel.studentGroup == null}">
+															<ice:outputText
+																value="Please select a #{msgs['student_label'].toLowerCase()} group to view details." />
+														</ice:panelGroup>
+														<ice:panelGroup style="margin-top:10px"
+															rendered="#{transportManagerModel.studentGroup != null and transportManagerModel.selectedVehicleId == 0}">
+															<ice:outputText
+																value="Please select a vehicle to view details.." />
+														</ice:panelGroup>
+														<ice:panelGroup style="margin-top:20px"
+															rendered="#{transportManagerModel.studentGroup != null and transportManagerModel.selectedVehicleId != 0}">
+															<center>
+																<ice:panelGrid
+																	style="border:thick double grey;width:170px;height:120px;text-align:center">
+																	<ice:graphicImage url="images/no_logo.jpg"
+																		id="imgVehice2"
+																		rendered="#{transportManagerModel.studentGroup.vehicle.photo == null}"
+																		style="height:100px;width:150px">
+																	</ice:graphicImage>
+																	<ice:graphicImage
+																		value="/imageDownload?p=#{transportManagerModel.transportPro.vehicle.photo.id}"
+																		id="imgVehicle3"
+																		rendered="#{transportManagerModel.studentGroup.vehicle.photo != null}">
+																	</ice:graphicImage>
+																</ice:panelGrid>
+															</center>
+															<ice:panelGrid columns="3"
+																style="margin-top:5px;margin-left:25px"
+																rowClasses="topAlignedTableCell" cellspacing="15">
+																<ice:outputText value="Type" />
+																<ice:outputText value=":" />
+																<ice:outputText
+																	value="#{transportManagerModel.studentGroup.vehicle.type}" />
+																<ice:outputText value="Passengers" />
+																<ice:outputText value=":" />
+																<ice:outputText
+																	value="#{transportManagerModel.studentGroup.vehicle.passengers}" />
+																<ice:outputText value="Wheel Chairs" />
+																<ice:outputText value=":" />
+																<ice:outputText
+																	value="#{transportManagerModel.studentGroup.vehicle.wheelChairs}" />
+															</ice:panelGrid>
+														</ice:panelGroup>
+													</fieldset>
+												</ice:panelGroup>
+											</ice:panelGrid>
+										</ice:panelGroup>
+									</ice:panelTab>
+									<ice:panelTab id="tabGroupStudents"
+										label="Enrolled #{msgs['students_label']}"
+										disabled="#{transportManagerModel.studentGroup.id == null || (transportManagerModel.studentGroup.returnAvailable and transportManagerModel.returnGroup == null)}">
+										<ice:panelGroup
+											style="width:980px;min-height:325px;margin-right:-5px">
+											<ice:commandButton id="commandAddStd"
+												value="Enroll New #{msgs['student_label']}(s)"
+												action="#{transportManagerModel.enrollNewStudents}"
+												rendered="#{transportManagerModel.studentGroup != null}"
+												styleClass="CommandButton" style="margin-bottom:15px" />
+											<ice:outputText
+												value="No #{msgs['student_label']}(s) Found.."
+												style="margin-left:10px"
+												rendered="#{transportManagerModel.studentGroup != null and empty(transportManagerModel.studentGroup.students)}" />
+											<ace:dataTable value="#{transportManagerModel.studentList}"
+												var="stu" id="tableTransportStudents" scrollable="true"
+												scrollHeight="240" varStatus="status"
+												rendered="#{not empty(transportManagerModel.studentGroup.students)}">
+												<ace:columnGroup id="columnGroup" type="header">
+													<ace:row>
+
+														<ace:column headerText="ID" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Participant Name" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Special Needs" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Main Event" colspan="5"
+															style="font-size:12px" />
+														<ace:column headerText="Return Event" colspan="5"
+															style="font-size:12px" />
+														<ace:column headerText="Manage Events" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Edit" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Remove" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+													</ace:row>
+													<ace:row>
+														<ace:column headerText="#" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Pick-Up"
+															style="font-size:11px;vertical-align:middle" />
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Drop-Off" />
+														</ace:column>
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Charge" />
+														</ace:column>
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Exclude" />
+														</ace:column>
+														<ace:column headerText="#" rowspan="2"
+															style="font-size:12px;vertical-align:middle" />
+														<ace:column headerText="Pick-Up"
+															style="font-size:11px;vertical-align:middle" />
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Drop-Off" />
+														</ace:column>
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Charge" />
+														</ace:column>
+														<ace:column style="font-size:11px;vertical-align:middle">
+															<ice:outputText value="Exclude" />
+														</ace:column>
+													</ace:row>
+												</ace:columnGroup>
+
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px">
+													<ice:outputText value="#{stu.mainStd.student.id}" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px">
+													<ice:outputText value="#{stu.mainStd.student.contact.name}"
+														title="#{stu.mainStd.student.contact.name}"
+														style="height:15px;overflow:hidden" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:middle;padding:5px">
+													<ui:repeat value="#{stu.mainStd.student.specialNeeds}"
+														var="sneed" varStatus="status">
+														<ice:graphicImage
+															value="/imageDownload?p=#{sneed.icon.id}" height="25"
+															width="25" title="#{sneed.name}" style="margin-left:5px"
+															rendered="#{sneed.icon != null}" />
+														<!-- <ice:outputText value="#{sneed.name}"
+															style="float:left;color:grey" title="#{sneed.name}"
+															rendered="#{sneed.icon == null and stu.ui_selected}">
+															<f:converter converterId="truncateConverter" />
+														</ice:outputText>
+														<ice:outputText value=",&nbsp;"
+															style="float:left;color:grey"
+															rendered="#{sneed.icon == null and stu.student.specialNeeds.size() > 1 and status.index != stu.student.specialNeeds.size() - 1 and stu.ui_selected}" /> -->
+														<ice:outputText value="#{sneed.name}" style="float:left"
+															title="#{sneed.name}" rendered="#{sneed.icon == null}">
+															<f:converter converterId="truncateConverter" />
+														</ice:outputText>
+														<ice:outputText value=",&nbsp;" style="float:left"
+															rendered="#{sneed.icon == null and stu.mainStd.student.specialNeeds.size() > 1 and status.index != stu.mainStd.student.specialNeeds.size() - 1}" />
+													</ui:repeat>
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColBg">
+													<ice:outputText value="#{stu.mainStd.sequence}"
+														title="Return sequence : #{stu.mainStd.tmpString}" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColBg">
+													<ice:outputText value="#{stu.mainStd.pickup.name}"
+														title="#{stu.mainStd.pickup.name}"
+														style="overflow:hidden;height:1em" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColBg">
+													<ice:outputText value="#{stu.mainStd.dropoff.name}"
+														title="#{stu.mainStd.dropoff.name}"
+														style="overflow:hidden;height:1em" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:right;padding:5px"
+													styleClass="tableColBg">
+													<ice:outputText value="#{stu.mainStd.chargeAmount}">
+														<f:convertNumber minFractionDigits="2" />
+													</ice:outputText>
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:middle;padding:5px"
+													styleClass="tableColBg">
+													<ice:selectBooleanCheckbox id="booleanExcluded"
+														valueChangeListener="#{transportManagerModel.excludeStudent}"
+														value="#{stu.mainStd.ui_selected}" partialSubmit="true">
+														<f:attribute name="student" value="#{stu.mainStd}" />
+													</ice:selectBooleanCheckbox>
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColRightBg">
+													<ice:outputText value="#{stu.returnStd.sequence}"
+														title="Return sequence : #{stu.returnStd.tmpString}" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColRightBg">
+													<ice:outputText value="#{stu.returnStd.pickup.name}"
+														title="#{stu.returnStd.pickup.name}"
+														style="overflow:hidden;height:1em" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:left;padding:5px"
+													styleClass="tableColRightBg">
+													<ice:outputText value="#{stu.returnStd.dropoff.name}"
+														title="#{stu.returnStd.dropoff.name}"
+														style="overflow:hidden;height:1em" />
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:right;padding:5px"
+													styleClass="tableColRightBg">
+													<ice:outputText value="#{stu.returnStd.chargeAmount}">
+														<f:convertNumber minFractionDigits="2" />
+													</ice:outputText>
+												</ace:column>
+												<ace:column
+													style="font-size:12px;text-align:middle;padding:5px"
+													styleClass="tableColRightBg">
+													<ice:selectBooleanCheckbox id="booleanExcluded1"
+														valueChangeListener="#{transportManagerModel.excludeStudent}"
+														value="#{stu.returnStd.ui_selected}" partialSubmit="true"
+														rendered="#{stu.returnStd != null}">
+														<f:attribute name="student" value="#{stu.returnStd}" />
+													</ice:selectBooleanCheckbox>
+												</ace:column>
+												<ace:column style="text-align:middle;padding:5px">
+													<ice:commandLink style="border:none"
+														actionListener="#{transportManagerModel.addRemoveFromEvents}"
+														id="commandManageEvents">
+														<ice:graphicImage style="border:none"
+															title="Add to existing events" id="graphicAddEvent"
+															rendered="#{!stu.mainStd.ui_selected}"
+															url="images/icons/configure_s.png" width="15" height="15" />
+														<ice:graphicImage style="border:none"
+															id="graphicRemoveEvents"
+															title="Remove from existing events"
+															rendered="#{stu.mainStd.ui_selected}"
+															url="images/icons/configure_s.png" width="15" height="15" />
+														<f:attribute name="student" value="#{stu.mainStd}" />
+													</ice:commandLink>
+												</ace:column>
+												<ace:column style="text-align:middle;padding:5px">
+													<ice:commandLink
+														actionListener="#{transportManagerModel.editStudent}"
+														title="editStudent" id="commandlinkEdit">
+														<ice:graphicImage style="border:none"
+															url="images/icons/edit.png" width="15" height="15" />
+														<f:attribute name="student" value="#{stu.mainStd}" />
+													</ice:commandLink>
+												</ace:column>
+												<ace:column style="text-align:middle;padding:5px">
+													<ice:commandLink style="border:none"
+														actionListener="#{transportManagerModel.removeStudent}"
+														title="deleteStudent" id="commandlinkDelete"
+														panelConfirmation="deleteStudentConfirmation">
+														<ice:graphicImage style="border:none"
+															id="graphicDeleteStudent"
+															url="images/icons/delete-icon.png" width="15" height="15" />
+														<f:attribute name="student" value="#{stu.mainStd}" />
+													</ice:commandLink>
+													<ice:panelConfirmation id="deleteStudentConfirmation"
+														acceptLabel="Yes" cancelLabel="No" draggable="true"
+														title="Confirm"
+														message="Are you sure you want to perform this action?" />
+												</ace:column>
+											</ace:dataTable>
+										</ice:panelGroup>
+									</ice:panelTab>
+
+									<ice:panelTab id="tabGroupStaff" label="Staff Details"
+										disabled="#{transportManagerModel.studentGroup.id == null || (transportManagerModel.studentGroup.returnAvailable and transportManagerModel.returnGroup == null)}">
+										<ice:panelGroup
+											style="width:980px;min-height:325px;margin-right:-5px">
+											<ice:commandButton id="commandAddStaff"
+												value="Assign New Staff Member(s)"
+												action="#{transportManagerModel.enrollNewStaff}"
+												rendered="#{transportManagerModel.studentGroup != null}"
+												styleClass="CommandButton" />
+											<ice:outputText value="No Staff Members Found.."
+												style="margin-left:10px"
+												rendered="#{transportManagerModel.studentGroup != null and empty(transportManagerModel.studentGroup.staffMembers)}" />
+											<ice:dataTable
+												value="#{transportManagerModel.studentGroup.staffMembers}"
+												var="staff" id="tableStaffMembers"
+												columnWidths="50px,250px,70px,90px,110px,110px,110px,40px,55px"
+												scrollable="true" scrollHeight="250px"
+												rendered="#{not empty(transportManagerModel.studentGroup.staffMembers)}">
+												<ice:column id="columnStaffId" style="text-align:right">
+													<f:facet name="header">
+														<ice:outputText value="Id" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.staffId}" />
+												</ice:column>
+												<ice:column id="columnStaffName">
+													<f:facet name="header">
+														<ice:outputText value="Staff Name" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.contact.name}"
+														title="#{staff.staffMember.contact.name}"
+														style="height:15px;overflow:hidden" />
+												</ice:column>
+												<ice:column id="columnStaffStaffGender"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Gender" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.gender}" />
+												</ice:column>
+												<ice:column id="columnStaffDob" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Date of Birth" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.dob}"
+														converter="dateConverter" />
+												</ice:column>
+												<ice:column id="columnStaffMobile" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Contact Number" />
+													</f:facet>
+													<ice:outputText
+														value="#{staff.staffMember.contact.contactNumber}" />
+												</ice:column>
+												<ice:column id="columnStaffStaffEmploymentType"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Staff Type" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.type.name}" />
+												</ice:column>
+												<ice:column id="columnStaffStaffType"
+													style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Employment Type" />
+													</f:facet>
+													<ice:outputText value="#{staff.staffMember.employmentType}" />
+												</ice:column>
+												<ice:column id="columnStaffEdit" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Edit" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														actionListener="#{transportManagerModel.editStaff}"
+														title="Edit StaffMember" id="commandlinkEditStaff">
+														<ice:graphicImage style="border:none"
+															url="images/icons/edit.png" />
+														<f:attribute name="staff" value="#{staff}" />
+													</ice:commandLink>
+												</ice:column>
+												<ice:column id="columnStaffDelete" style="text-align:center">
+													<f:facet name="header">
+														<ice:outputText value="Remove" />
+													</f:facet>
+													<ice:commandLink style="border:none"
+														panelConfirmation="deleteStaffConfirmation"
+														actionListener="#{transportManagerModel.removeStaff}"
+														title="deleteStaffMember" id="commandlinkDeleteStaff">
+														<ice:graphicImage style="border:none"
+															id="graphicDeleteStaff"
+															url="images/icons/delete-icon.png" />
+														<f:attribute name="staff" value="#{staff}" />
+													</ice:commandLink>
+													<ice:panelConfirmation id="deleteStaffConfirmation"
+														acceptLabel="Yes" cancelLabel="No" draggable="true"
+														title="Confirm"
+														message="Are you sure you want to perform this action?" />
+												</ice:column>
+											</ice:dataTable>
+										</ice:panelGroup>
+									</ice:panelTab>
+								</ice:panelTabSet>
+							</ice:panelGrid>
+						</ice:panelTab>
+						<ice:panelTab label="Event Schedule" id="tabEventSchedules"
+							disabled="#{transportManagerModel.transportPro.id == null}"
+							rendered="true || #{transportManagerModel.transportPro != null}">
+							<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+								<ice:panelGroup style="width:220px">
+									<fieldset style="height: 520px">
+										<legend>
+											<ice:outputLabel value="#{msgs['student_label']} Programs" />
+										</legend>
+										<ice:commandButton id="addEditGrps"
+											value="Add/Edit #{msgs['student_label']} Programs"
+											styleClass="CommandButton"
+											action="#{transportManagerModel.addEditGroups}" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListStdGrp"
+												value="#{transportManagerModel.selectedGroupId}" size="15"
+												partialSubmit="true"
+												style="width:190px;margin-top:10px;height:465px"
+												valueChangeListener="#{transportManagerModel.selectEventGroup}">
+												<f:selectItems
+													value="#{transportManagerModel.groupSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="width:400px">
+									<fieldset style="height: 520px">
+										<legend>
+											<ice:outputLabel value="Program Events" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.selectedGroupId == null || transportManagerModel.selectedGroupId == 0}">
+											<ice:outputText
+												value="Please select a #{msgs['student_label'].toLowerCase()} group to view details." />
+										</ice:panelGroup>
+										<ice:commandButton value="Generate Events"
+											id="commandCreateProEvents"
+											rendered="#{transportManagerModel.selectedGroupId != null and transportManagerModel.selectedGroupId != 0}"
+											action="#{transportManagerModel.createEvents}"
+											styleClass="CommandButton"
+											style="margin-left:2px;width:110px" />
+										<ice:commandButton value="Add Event"
+											id="commandCreateProEvent"
+											rendered="#{transportManagerModel.selectedGroupId != null and transportManagerModel.selectedGroupId != 0}"
+											action="#{transportManagerModel.createProgramEvent}"
+											styleClass="CommandButton" style="margin-left:5px;width:70px" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											rendered="#{transportManagerModel.selectedGroupId != null and transportManagerModel.selectedGroupId != 0}"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListEvent1"
+												value="#{transportManagerModel.selectedProEventId}"
+												size="15" partialSubmit="true"
+												style="width:370px;margin-top:10px;height:465px"
+												valueChangeListener="#{transportManagerModel.selectProgramEvent}">
+												<f:selectItems
+													value="#{transportManagerModel.proEventSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="width:505px">
+									<fieldset style="margin-bottom: 10px; height: 340px">
+										<legend>
+											<ice:outputLabel value="Event Details" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.proEvent == null}">
+											<ice:outputText
+												value="Please select a program event to view details." />
+										</ice:panelGroup>
+										<ice:panelGrid columns="2" width="100%" cellpadding="2"
+											rendered="#{transportManagerModel.proEvent != null}"
+											style="margin-top:10px">
+											<ice:panelGroup style="width:170px">
+												<ice:outputText value="Event Date" />
+											</ice:panelGroup>
+											<ice:setEventPhase events="FacesEvent"
+												phase="UPDATE_MODEL_VALUES">
+												<ice:selectInputDate id="inputProgramEventDate"
+													value="#{transportManagerModel.proEvent.eventDate}"
+													renderAsPopup="true" renderYearAsDropdown="true"
+													partialSubmit="true" renderMonthAsDropdown="true"
+													converter="dateConverter" label="Event date"
+													disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}"
+													valueChangeListener="#{transportManagerModel.eventDateChanged}" />
+											</ice:setEventPhase>
+											<ice:outputText value="Roster Start Time" />
+											<comp:timeControl value="#{transportManagerModel.startTime}"
+												disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}" />
+											<ice:outputText value="Roster End Time" />
+											<comp:timeControl value="#{transportManagerModel.endTime}"
+												disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}" />
+											<ice:outputText value="Set Actual Event Times" />
+											<ice:setEventPhase events="FacesEvent"
+												phase="UPDATE_MODEL_VALUES">
+												<ice:selectBooleanCheckbox id="setActualTimes"
+													rendered="#{transportManagerModel.isExpired(transportManagerModel.proEvent.eventDate)}"
+													value="#{transportManagerModel.setActualEventTimes}"
+													partialSubmit="true"
+													disabled="#{transportManagerModel.eventStatus == 'finished'}"
+													valueChangeListener="#{transportManagerModel.setActualEventTimes}" />
+												<ice:selectBooleanCheckbox id="setActualTimesDisabled"
+													rendered="#{!transportManagerModel.isExpired(transportManagerModel.proEvent.eventDate)}"
+													value="#{transportManagerModel.setActualEventTimes}"
+													partialSubmit="true" disabled="true"
+													title="Not allowed for future events.."
+													valueChangeListener="#{transportManagerModel.setActualEventTimes}" />
+											</ice:setEventPhase>
+											<ice:outputText value="Actual Start Time"
+												rendered="#{transportManagerModel.setActualEventTimes}" />
+											<comp:timeControl
+												disabled="#{transportManagerModel.eventStatus == 'finished'}"
+												value="#{transportManagerModel.actualStartTime}"
+												rendered="#{transportManagerModel.setActualEventTimes}" />
+											<ice:outputText value="Actual End Time"
+												rendered="#{transportManagerModel.setActualEventTimes}" />
+											<comp:timeControl
+												value="#{transportManagerModel.actualEndTime}"
+												disabled="#{transportManagerModel.eventStatus == 'finished'}"
+												rendered="#{transportManagerModel.setActualEventTimes}" />
+											<ice:outputText value="Coordinator" />
+											<ice:selectOneMenu id="selectCoordinator" style="width:188px"
+												disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}"
+												value="#{transportManagerModel.selectedCoordinatorId}">
+												<f:selectItems
+													value="#{transportManagerModel.coordinatorSelectItems}" />
+											</ice:selectOneMenu>
+											<!-- <ice:selectOneMenu id="selectProStatus" style="width:188px"
+												value="#{transportManagerModel.proEvent.status}"
+												partialSubmit="true"
+												rendered="#{transportManagerModel.proEvent.id != null}"
+												disabled="#{transportManagerModel.eventStatus == 'finished'}">
+												<f:selectItems
+													value="#{lookupListProvider.proEventStatusSelectItems}" />
+											</ice:selectOneMenu>
+											<ice:outputText value="Funding Status"
+												rendered="#{transportManagerModel.proEvent.id != null and transportManagerModel.proEvent.status == 'finished'}" />
+											<ice:selectOneMenu id="selectOneProgramFundingStatus"
+												rendered="#{transportManagerModel.proEvent.id != null and transportManagerModel.proEvent.status == 'finished'}"
+												styleClass="SelectOneMenu" style="width:188px"
+												value="#{transportManagerModel.proEvent.fundingsStatus}">
+												<f:selectItems value="#{lookupListProvider.fundingStatus}" />
+											</ice:selectOneMenu> -->
+											<ice:outputText value="Charge Amount" />
+											<ice:inputText id="inputTextSingleChargeAmount"
+												style="width:180px"
+												disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}"
+												value="#{transportManagerModel.proEvent.chargeAmount}">
+												<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+											</ice:inputText>
+											<ice:outputText value="Status"
+												rendered="#{transportManagerModel.proEvent.id != null}" />
+											<ice:selectOneRadio id="selectProEventStatus"
+												styleClass="radio"
+												value="#{transportManagerModel.proEvent.status}"
+												rendered="#{transportManagerModel.proEvent.id != null}">
+												<f:selectItem itemLabel="Generated" itemValue="pending"
+													itemDisabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}" />
+												<f:selectItem itemLabel="Completed" itemValue="finished"
+													itemDisabled="#{transportManagerModel.eventStatus == 'banked'}" />
+												<f:selectItem itemLabel="Banked" itemValue="banked" />
+											</ice:selectOneRadio>
+											<ice:outputText value="Vehicle" />
+											<ice:setEventPhase events="ValueChangeEvent"
+												phase="INVOKE_APPLICATION">
+												<ice:selectOneMenu id="selectTransportEventVehicle"
+													value="#{transportManagerModel.selectedVehicleId}"
+													valueChangeListener="#{transportManagerModel.selectVehicle}"
+													disabled="#{transportManagerModel.eventStatus == 'finished' || transportManagerModel.eventStatus == 'banked'}"
+													partialSubmit="true" style="width:188px">
+													<f:selectItems
+														value="#{transportManagerModel.vehicleSelectItems}" />
+													<f:attribute name="ref" value="event" />
+												</ice:selectOneMenu>
+											</ice:setEventPhase>
+										</ice:panelGrid>
+									</fieldset>
+									<fieldset
+										style="height: 157px; margin-top: 10px; margin-bottom: 10px">
+										<legend>
+											<ice:outputLabel value="Vehicle Details" />
+										</legend>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.proEvent == null}">
+											<ice:outputText
+												value="Please select a program event to view details." />
+										</ice:panelGroup>
+										<ice:panelGroup style="margin-top:10px"
+											rendered="#{transportManagerModel.proEvent != null and transportManagerModel.selectedVehicleId == 0}">
+											<ice:outputText
+												value="Please select a vehicle to view details.." />
+										</ice:panelGroup>
+										<ice:panelGrid columns="2" width="400px"
+											rowClasses="topAlignedTableCell"
+											rendered="#{transportManagerModel.proEvent != null and transportManagerModel.selectedVehicleId != 0}">
+											<ice:panelGrid columns="3" cellpadding="10" width="100%"
+												style="margin-top:5px" rowClasses="topAlignedTableCell">
+												<ice:panelGroup style="width:100px">
+													<ice:outputText value="Type" />
+												</ice:panelGroup>
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.proEvent.vehicle.type}" />
+												<ice:outputText value="Passengers" />
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.proEvent.vehicle.passengers}" />
+												<ice:outputText value="Wheel Chairs" />
+												<ice:outputText value=":" />
+												<ice:outputText
+													value="#{transportManagerModel.proEvent.vehicle.wheelChairs}" />
+											</ice:panelGrid>
+											<ice:panelGrid
+												style="border:thick double grey;width:170px;height:120px;text-align:center;margin-left:30px">
+												<ice:graphicImage url="images/no_logo.jpg" id="imgVehice2"
+													rendered="#{transportManagerModel.proEvent.vehicle.photo == null}"
+													style="height:100px;width:150px">
+												</ice:graphicImage>
+												<ice:graphicImage
+													value="/imageDownload?p=#{transportManagerModel.proEvent.vehicle.photo.id}"
+													id="imgVehicle3"
+													rendered="#{transportManagerModel.proEvent.vehicle.photo != null}">
+												</ice:graphicImage>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</fieldset>
+									<ice:commandButton value="Save Event"
+										styleClass="CommandButton"
+										style="margin-right:2px;width:85px;float:right"
+										rendered="#{transportManagerModel.proEvent != null}"
+										actionListener="#{transportManagerModel.saveProgramEvent}" />
+									<ice:commandButton value="Delete Event"
+										styleClass="CommandButton"
+										panelConfirmation="deleteConfirmation"
+										style="float:right;width:95px;margin-right:5px"
+										action="#{transportManagerModel.deleteProgramEvent}"
+										rendered="#{transportManagerModel.proEvent.id != null}" />
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelTab>
+
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+
+					</ice:panelTabSet>
+				</div>
+				<comp:confirmationPopup
+					rendered="#{transportManagerModel.visibleStatusConfirmation}"
+					actionListener="#{transportManagerModel.confirmationStatusAction}"
+					message="#{transportManagerModel.confirmationStatusMessage}" />
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.visibleEnrollStd}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png)">
+							<ice:outputText
+								value="Enroll new #{msgs['student_label'].toLowerCase()}(s) into #{transportManagerModel.transportPro.name}"
+								styleClass="popupHeaderText"
+								rendered="#{transportManagerModel.groupedStudent.id == null}" />
+							<ice:outputText
+								value="Edit #{msgs['student_label']}'s Program Enrollment"
+								styleClass="popupHeaderText"
+								rendered="#{transportManagerModel.groupedStudent.id != null}" />
+							<ice:commandButton id="closeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.enrollStudentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:800px;margin-top:10px">
+							<ice:panelGroup style="margin-left:-20px">
+								<ice:messages />
+							</ice:panelGroup>
+							<ice:panelGrid styleClass="borderBox" style="width:100%"
+								rendered="#{transportManagerModel.flag == 'new'}">
+								<ice:panelGrid columns="3">
+									<ice:outputText
+										value="Search #{msgs['students_label'].toLowerCase()} by id or name :" />
+									<ice:inputText id="inputTextSearch"
+										action="#{transportManagerModel.searchStudents}"
+										value="#{transportManagerModel.searchText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonSearch"
+										action="#{transportManagerModel.searchStudents}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:panelGroup rendered="#{transportManagerModel.flag == 'new'}">
+								<fieldset style="margin-top: 10px">
+									<legend>
+										<ice:outputLabel
+											value="List of #{msgs['students_label'].toLowerCase()}" />
+									</legend>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:dataTable id="tableStuds" scrollable="true"
+											columnWidths="40px,340px,130px,90px,90px,70px"
+											scrollHeight="130px"
+											value="#{transportManagerModel.availableStudents}" var="std">
+											<ice:column style="text-align:right">
+												<ice:rowSelector id="rowselectTransStudent"
+													value="#{std.ui_selected}"
+													clickListener="#{transportManagerModel.selectStudentTransport}">
+													<f:attribute name="transtu" value="#{std}" />
+												</ice:rowSelector>
+												<f:facet name="header">
+													<ice:outputText value="Id" />
+												</f:facet>
+												<ice:outputText value="#{std.id}" />
+											</ice:column>
+											<ice:column>
+												<f:facet name="header">
+													<ice:outputText value="#{msgs['student_label']} Name" />
+												</f:facet>
+												<ice:outputText value="#{std.contact.name}" />
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Date of Birth" />
+												</f:facet>
+												<ice:outputText value="#{std.dob}">
+													<f:convertDateTime
+														timeZone="#{transportManagerModel.timeZone}" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Gender" />
+												</f:facet>
+												<ice:outputText value="#{std.gender}" />
+											</ice:column>
+											<!-- 	<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Charge Amount" />
+												</f:facet>
+												<ice:inputText id="inputchrgamount" style="width : 45px"
+													value="#{std.chargeAmount}">
+												</ice:inputText>
+											</ice:column> -->
+											<ice:column style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Transport Requested" />
+												</f:facet>
+												<ice:selectBooleanCheckbox disabled="true"
+													value="#{std.transport}" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</fieldset>
+							</ice:panelGroup>
+							<fieldset style="margin-top: 10px;">
+								<legend>
+									<ice:outputLabel value="#{msgs['student_label']} Details" />
+								</legend>
+								<ice:panelGrid columns="3" style="margin-top:5px"
+									rendered="#{transportManagerModel.student != null}">
+									<ice:outputLabel value="Name" />
+									<ice:outputLabel value=":"
+										style="margin-left:20px;margin-right:10px" />
+									<ice:outputText
+										value="#{transportManagerModel.student.contact.name}" />
+								</ice:panelGrid>
+							</fieldset>
+							<fieldset style="margin-top: 10px; height: 165px">
+								<legend>
+									<ice:outputLabel value="Transport Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{transportManagerModel.student == null}">
+									<ice:outputText
+										value="Please select a student to view details.." />
+								</ice:panelGroup>
+								<!-- rowClasses="topAlignedTableCell" -->
+								<ice:panelGrid columns="5"
+									style="margin-top:5px;margin-right:-10px"
+									rendered="#{transportManagerModel.student != null}">
+									<ice:panelGroup style="width:75px">
+										<ice:outputText value="Sequence" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:240px">
+										<ice:outputText value="Pick-up Location"
+											style="margin-left:2px" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:240px">
+										<ice:outputText value="Drop-off Location"
+											style="margin-left:2px" />
+									</ice:panelGroup>
+									<ice:outputText value="Excluded" />
+									<ice:outputText value="Charge Amount" style="margin-left:25px" />
+									<ice:inputText id="gsSequence"
+										value="#{transportManagerModel.groupedStudent.sequence}"
+										style="width:50px;text-align:right" />
+									<ice:selectOneMenu id="selectPickup" style="width:220px"
+										value="#{transportManagerModel.mainPickupId}">
+										<f:selectItems
+											value="#{transportManagerModel.locationSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:selectOneMenu id="selectDropoff" style="width:220px"
+										value="#{transportManagerModel.mainDropoffId}">
+										<f:selectItems
+											value="#{transportManagerModel.locationSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:panelGroup style="width:55px;text-align:center">
+										<ice:selectBooleanCheckbox id="excludeMain"
+											value="#{transportManagerModel.groupedStudent.ui_selected}" />
+									</ice:panelGroup>
+									<ice:inputText id="inputchrgamount"
+										style="width : 45px ; margin-left:35px"
+										value="#{transportManagerModel.groupedStudent.chargeAmount}"
+										disabled="#{transportManagerModel.student == null}">
+									</ice:inputText>
+								</ice:panelGrid>
+								<ice:panelGrid columns="3"
+									rendered="#{transportManagerModel.student != null and transportManagerModel.returnGroup != null}"
+									style="margin-top:5px;margin-bottom:5px">
+									<ice:outputLabel value="Return" />
+									<ice:setEventPhase events="ValueChangeEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectBooleanCheckbox id="selectReturn"
+											style="margin-left:10px" partialSubmit="true"
+											value="#{transportManagerModel.returnGroup.returnAvailable}"
+											valueChangeListener="#{transportManagerModel.toggleReturnStudent}" />
+									</ice:setEventPhase>
+									<hr width="680px" />
+								</ice:panelGrid>
+								<ice:panelGrid width="100%"
+									style="height:50px;text-align:center;border:1px solid grey"
+									rendered="#{transportManagerModel.student != null and transportManagerModel.returnGroup != null and !transportManagerModel.returnGroup.returnAvailable}">
+									<ice:outputText value="Enable return to set locations." />
+								</ice:panelGrid>
+								<ice:panelGrid columns="5" style="margin-right:-10px"
+									rendered="#{transportManagerModel.student != null and transportManagerModel.returnGroup.returnAvailable}">
+									<ice:panelGroup style="width:75px">
+										<ice:outputText value="Sequence" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:240px">
+										<ice:outputText value="Pick-up Location"
+											style="margin-left:2px" />
+									</ice:panelGroup>
+									<ice:panelGroup style="width:240px">
+										<ice:outputText value="Drop-off Location"
+											style="margin-left:2px" />
+									</ice:panelGroup>
+									<ice:outputText value="Excluded" />
+									<ice:outputText value="Charge Amount" style="margin-left:25px" />
+									<ice:inputText id="rsSequence"
+										value="#{transportManagerModel.returnStudent.sequence}"
+										style="width:50px;text-align:right" />
+									<ice:selectOneMenu id="selectReturnPickup" style="width:220px"
+										value="#{transportManagerModel.returnPickupId}">
+										<f:selectItems
+											value="#{transportManagerModel.locationSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:selectOneMenu id="selectReturnDropoff" style="width:220px"
+										value="#{transportManagerModel.returnDropoffId}">
+										<f:selectItems
+											value="#{transportManagerModel.locationSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:panelGroup style="width:55px;text-align:center">
+										<ice:selectBooleanCheckbox id="excludeReturn"
+											value="#{transportManagerModel.returnStudent.ui_selected}" />
+									</ice:panelGroup>
+									<ice:inputText id="inputchrgamountReturn"
+										style="width : 45px ; margin-left:35px"
+										value="#{transportManagerModel.returnStudent.chargeAmount}"
+										disabled="#{transportManagerModel.student == null}">
+									</ice:inputText>
+								</ice:panelGrid>
+								<!-- <ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									rendered="#{transportManagerModel.student != null}"
+									width="100%">
+									<ice:panelGrid columns="3" width="300" cellspacing="10">
+										<ice:outputLabel value="Pick-up Location" />
+										<ice:outputText value=":" />
+										<ice:outputText
+											rendered="#{transportManagerModel.groupedStudent.pickup != null}"
+											value="#{transportManagerModel.groupedStudent.pickup.name}" />
+										<ice:outputText
+											rendered="#{transportManagerModel.groupedStudent.pickup == null}"
+											value="Not Selected" />
+										<ice:outputLabel value="Drop-off Location" />
+										<ice:outputText value=":" />
+										<ice:outputText
+											rendered="#{transportManagerModel.groupedStudent.dropoff != null}"
+											value="#{transportManagerModel.groupedStudent.dropoff.name}" />
+										<ice:outputText
+											rendered="#{transportManagerModel.groupedStudent.dropoff == null}"
+											value="Not Selected" />
+									</ice:panelGrid>
+									<ice:panelGroup style="margin-top:10px;width:230px">
+										<ice:outputLabel value="Available Locations" />
+										<ice:setEventPhase events="ValueChangeEvent"
+											phase="INVOKE_APPLICATION">
+											<ice:selectOneListbox id="selectListEvent" size="5"
+												value="#{transportManagerModel.selectedLocationId}"
+												partialSubmit="true"
+												style="width:195px;margin-top:5px;height:70px">
+												<f:selectItems
+													value="#{transportManagerModel.locationSelectItems}" />
+											</ice:selectOneListbox>
+										</ice:setEventPhase>
+										<ice:commandButton id="commandAddToPicup"
+											value="Set as Pick-up" styleClass="CommandButton"
+											style="margin-top:10px;margin-left:2px"
+											disabled="#{transportManagerModel.selectedLocationId == null || transportManagerModel.selectedLocationId == 0}"
+											action="#{transportManagerModel.addToPicup}" />
+										<ice:commandButton id="commandAddToDropoff"
+											value="Set as Drop-off" styleClass="CommandButton"
+											style="margin-top:10px;margin-left:5px"
+											disabled="#{transportManagerModel.selectedLocationId == null || transportManagerModel.selectedLocationId == 0}"
+											action="#{transportManagerModel.addToDropoff}" />
+									</ice:panelGroup>
+								</ice:panelGrid> -->
+							</fieldset>
+							<ice:commandButton id="commandAddStdNExit"
+								value="Enroll #{msgs['student_label']} &amp; Exit"
+								styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-left:5px"
+								disabled="#{transportManagerModel.student == null}"
+								rendered="#{transportManagerModel.flag == 'new'}"
+								action="#{transportManagerModel.enrollStudentNExit}" />
+							<ice:commandButton id="commandAddStd"
+								value="Enroll #{msgs['student_label']}"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{transportManagerModel.student == null}"
+								rendered="#{transportManagerModel.flag == 'new'}"
+								action="#{transportManagerModel.enrollStudent}" />
+							<ice:commandButton id="commandSaveStd"
+								value="Save #{msgs['student_label']}" styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-left:5px"
+								disabled="#{transportManagerModel.student == null}"
+								rendered="#{transportManagerModel.flag == 'edit'}"
+								action="#{transportManagerModel.enrollStudentNExit}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.visibleEnrollStaff}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Enroll new staff members into group: #{transportManagerModel.studentGroup.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeStaffButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.enrollStaffPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:800px;margin-top:10px">
+							<ice:panelGroup style="margin-left:-20px">
+								<ice:messages />
+							</ice:panelGroup>
+							<ice:panelGrid styleClass="borderBox"
+								style="width:750px;margin-left:20px"
+								rendered="#{transportManagerModel.flag == 'new'}">
+								<ice:panelGrid columns="4">
+									<ice:outputText style="margin-left:60px"
+										value="Search staff by :" />
+									<ice:selectOneRadio
+										value="#{transportManagerModel.searchValue}"
+										partialSubmit="true"
+										style="border:none;margin-top:-13px;margin-bottom:-20px">
+										<f:selectItem itemValue="name" itemLabel="Name" />
+										<f:selectItem itemValue="id" itemLabel="StaffId" />
+									</ice:selectOneRadio>
+									<ice:inputText id="inputTextStaffSearch"
+										action="#{transportManagerModel.searchStaff}"
+										value="#{transportManagerModel.searchText}">
+										<f:validateLength maximum="20" />
+									</ice:inputText>
+									<ice:commandButton id="commanButtonStaffSearch"
+										action="#{transportManagerModel.searchStaff}"
+										value="#{msgs['search.label']}" styleClass="CommandButton" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStaffs" scrollable="true"
+									rendered="#{transportManagerModel.flag == 'new'}"
+									columnWidths="60px,420px,130px,100px" scrollHeight="200px"
+									value="#{transportManagerModel.staffList}" var="staff"
+									style="margin-bottom:10px;margin-left:20px;margin-right:20px">
+									<!-- <ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectBooleanStaffAll"
+												partialSubmit="true"
+												value="#{transportManagerModel.selectAllStaff}"
+												valueChangeListener="#{transportManagerModel.selectAllStaff}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{staff.ui_selected}"
+											id="selectBooleanStaff" partialSubmit="true"
+											valueChangeListener="#{transportManagerModel.selectStaff}">
+											<f:attribute name="staff" value="#{staff}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column> -->
+									<ice:column style="text-align:right">
+										<ice:rowSelector id="rowselectStaff"
+											value="#{staff.ui_selected}"
+											clickListener="#{transportManagerModel.selectStaff}">
+											<f:attribute name="staff" value="#{staff}" />
+										</ice:rowSelector>
+										<f:facet name="header">
+											<ice:outputText value="Id" />
+										</f:facet>
+										<ice:outputText value="#{staff.staffId}" />
+									</ice:column>
+									<ice:column>
+										<f:facet name="header">
+											<ice:outputText value="Staff Name" />
+										</f:facet>
+										<ice:outputText value="#{staff.contact.name}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Joined Date" />
+										</f:facet>
+										<ice:outputText value="#{staff.joinedDate}"
+											converter="dateConverter">
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Gender" />
+										</f:facet>
+										<ice:outputText value="#{staff.gender}" />
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<fieldset
+								style="margin-top: 10px; height: 165px; width: 150px; margin-left: 20px">
+								<legend>
+									<ice:outputLabel value="Group Schedule" />
+								</legend>
+								<ice:panelGrid columns="2"
+									style="margin-top:5px;margin-bottom:5px"
+									rendered="#{transportManagerModel.staffMember != null}">
+									<ice:panelGroup>
+										<ice:outputText value="Selected StaffMember" />
+									</ice:panelGroup>
+									<ice:outputLabel style="margin-left:3px"
+										value=": #{transportManagerModel.staffMember.contact.name}" />
+								</ice:panelGrid>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{transportManagerModel.staffMember == null}">
+									<ice:outputText
+										value="Please select a StaffMember to view details." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2"
+									rendered="#{transportManagerModel.staffMember != null}">
+									<ice:outputText value="Scheduled Day(s)" />
+									<ice:selectManyCheckbox id="selectStaffDay"
+										style="border:none;width:30px" border="0"
+										value="#{transportManagerModel.selectedStaffDays}"
+										partialSubmit="true">
+										<f:selectItems value="#{transportManagerModel.weekDays}" />
+									</ice:selectManyCheckbox>
+								</ice:panelGrid>
+								<ice:panelGrid columns="3"
+									rendered="#{transportManagerModel.staffMember != null and transportManagerModel.returnGroup != null}">
+									<ice:outputLabel value="Return" />
+									<ice:setEventPhase events="ValueChangeEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectBooleanCheckbox id="selectReturnStaff"
+											style="margin-left:10px" partialSubmit="true"
+											value="#{transportManagerModel.returnGroup.returnAvailable}"
+											valueChangeListener="#{transportManagerModel.toggleReturnStaff}" />
+									</ice:setEventPhase>
+									<hr width="540px" />
+								</ice:panelGrid>
+								<ice:panelGrid width="100%"
+									style="text-align:center;border:1px solid grey;height:40px;margin-top:5px"
+									rendered="#{transportManagerModel.staffMember != null and transportManagerModel.returnGroup != null and !transportManagerModel.returnGroup.returnAvailable}">
+									<ice:outputText value="Enable return to set scheduled day(s)." />
+								</ice:panelGrid>
+								<ice:panelGrid columns="2"
+									rendered="#{transportManagerModel.staffMember != null and transportManagerModel.returnGroup != null and transportManagerModel.returnGroup.returnAvailable}">
+									<ice:outputText value="Scheduled Day(s)" />
+									<ice:selectManyCheckbox id="selectReturnDay"
+										style="border:none;width:30px" border="0"
+										value="#{transportManagerModel.selectedReturnDays}"
+										partialSubmit="true">
+										<f:selectItems value="#{transportManagerModel.weekDays}" />
+									</ice:selectManyCheckbox>
+								</ice:panelGrid>
+							</fieldset>
+							<!-- <ice:outputText
+								value="Number of Staff Member(s) selected : #{transportManagerModel.enrolledStaff.size()}" /> -->
+							<ice:commandButton id="commandUpdateStaff" value="Update"
+								rendered="#{transportManagerModel.flag == 'edit'}"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{transportManagerModel.staffMember == null}"
+								action="#{transportManagerModel.enrollStaffNExit}" />
+							<ice:commandButton id="commandAddStaff"
+								value="Enroll Staff &amp; Exit"
+								rendered="#{transportManagerModel.flag == 'new'}"
+								styleClass="CommandButton" style="float:right;margin-top:10px"
+								disabled="#{transportManagerModel.staffMember == null}"
+								action="#{transportManagerModel.enrollStaffNExit}" />
+							<ice:commandButton id="commandAddExitStaff" value="Enroll Staff"
+								rendered="#{transportManagerModel.flag == 'new'}"
+								styleClass="CommandButton"
+								style="float:right;margin-top:10px;margin-right:5px"
+								disabled="#{transportManagerModel.staffMember == null}"
+								action="#{transportManagerModel.enrollStaff}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<!-- <ice:panelPopup draggable="true" modal="true" styleClass="icePnlPop"
+					rendered="#{transportManagerModel.visibleStudentGroup}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add/Edit student groups"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButtonGroup"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.studentGroupPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:270px">
+							<ice:messages></ice:messages>
+							<ice:panelGrid columns="2" width="100%">
+								<ice:outputText value="Group Name :" />
+								<ice:inputText
+									value="#{transportManagerModel.studentGroup.name}"
+									id="textStudentGroupName" style="float:right"
+									maxlength="#{msgs['group.name.size']}"
+									action="#{transportManagerModel.saveStudentGroup}" tabindex="0" />
+							</ice:panelGrid>
+							<ice:commandButton value="Add Group" id="commandAddGroup"
+								rendered="#{transportManagerModel.studentGroup.id == null}"
+								action="#{transportManagerModel.saveStudentGroup}"
+								style="float:right;margin-right:5px" styleClass="CommandButton" />
+							<ice:commandButton value="Save Group" id="commandSaveGroup"
+								rendered="#{transportManagerModel.studentGroup.id != null}"
+								action="#{transportManagerModel.saveStudentGroup}"
+								style="float:right;margin-right:5px" styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup> -->
+
+				<!-- <ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.visibleProEvent}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add/Edit program event"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButtonProEvnt"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.proEventPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<fieldset>
+								<legend>
+									<ice:outputLabel value="Event Details" />
+								</legend>
+								<ice:panelGrid columns="2" width="100%" cellpadding="2"
+									rendered="#{transportManagerModel.proEvent != null}"
+									style="margin-top:10px;margin-bottom:10px">
+									<ice:panelGroup style="width:170px">
+										<ice:outputText value="Event Date" />
+									</ice:panelGroup>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectInputDate id="inputProgramEventDate"
+											value="#{transportManagerModel.proEvent.eventDate}"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											partialSubmit="true" renderMonthAsDropdown="true"
+											converter="dateConverter"
+											disabled="#{transportManagerModel.proEvent.status == 'finished'}"
+											valueChangeListener="#{transportManagerModel.eventDateChanged}" />
+									</ice:setEventPhase>
+									<ice:outputText value="Roster Start Time" />
+									<comp:timeControl value="#{transportManagerModel.startTime}"
+										disabled="#{transportManagerModel.proEvent.status == 'finished'}" />
+									<ice:outputText value="Roster End Time" />
+									<comp:timeControl value="#{transportManagerModel.endTime}"
+										disabled="#{transportManagerModel.proEvent.status == 'finished'}" />
+									<ice:outputText value="Set Actual Event Times" />
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES">
+										<ice:selectBooleanCheckbox id="setActualTimes"
+											rendered="#{transportManagerModel.isExpired(transportManagerModel.proEvent.eventDate)}"
+											value="#{transportManagerModel.setActualEventTimes}"
+											partialSubmit="true"
+											disabled="#{transportManagerModel.proEvent.status == 'finished'}"
+											valueChangeListener="#{transportManagerModel.setActualEventTimes}" />
+										<ice:selectBooleanCheckbox id="setActualTimesDisabled"
+											rendered="#{!transportManagerModel.isExpired(transportManagerModel.proEvent.eventDate)}"
+											value="#{transportManagerModel.setActualEventTimes}"
+											partialSubmit="true" disabled="true"
+											title="Not allowed for future events.."
+											valueChangeListener="#{transportManagerModel.setActualEventTimes}" />
+									</ice:setEventPhase>
+									<ice:outputText value="Actual Start Time"
+										rendered="#{transportManagerModel.setActualEventTimes}" />
+									<comp:timeControl
+										disabled="#{transportManagerModel.proEvent.status == 'finished'}"
+										value="#{transportManagerModel.actualStartTime}"
+										rendered="#{transportManagerModel.setActualEventTimes}" />
+									<ice:outputText value="Actual End Time"
+										rendered="#{transportManagerModel.setActualEventTimes}" />
+									<comp:timeControl
+										value="#{transportManagerModel.actualEndTime}"
+										disabled="#{transportManagerModel.proEvent.status == 'finished'}"
+										rendered="#{transportManagerModel.setActualEventTimes}" />
+									<ice:outputText value="Coordinator" />
+									<ice:selectOneMenu id="selectProEventStaff" style="width:188px"
+										value="#{transportManagerModel.selectedStaffId}">
+										<f:selectItems
+											value="#{transportManagerModel.coordinatorSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Status" />
+									<ice:selectOneMenu id="selectProStatus" style="width:188px"
+										value="#{transportManagerModel.proEvent.status}"
+										disabled="#{transportManagerModel.proEvent.status == 'finished'}">
+										<f:selectItems
+											value="#{lookupListProvider.proEventStatusSelectItems}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Funding Status" />
+									<ice:selectOneMenu id="selectOneProgramFundingStatus"
+										styleClass="SelectOneMenu" style="width:188px"
+										value="#{transportManagerModel.proEvent.fundingsStatus}">
+										<f:selectItems value="#{lookupListProvider.fundingStatus}" />
+									</ice:selectOneMenu>
+									<ice:outputText value="Vehicle" />
+									<ice:setEventPhase events="ValueChangeEvent"
+										phase="INVOKE_APPLICATION">
+										<ice:selectOneMenu id="selectTransportEventVehicle"
+											value="#{transportManagerModel.selectedVehicleId}"
+											valueChangeListener="#{transportManagerModel.selectEventVehicle}"
+											disabled="#{transportManagerModel.proEvent.status == 'finished'}"
+											partialSubmit="true" style="width:188px">
+											<f:selectItems
+												value="#{transportManagerModel.vehicleSelectItems}" />
+										</ice:selectOneMenu>
+									</ice:setEventPhase>
+								</ice:panelGrid>
+							</fieldset>
+							<fieldset
+								style="height: 155px; margin-top: 10px; margin-bottom: 10px">
+								<legend>
+									<ice:outputLabel value="Vehicle Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px">
+									<ice:outputText
+										value="Please select a vehicle to view details.."
+										rendered="#{transportManagerModel.selectedVehicleId == 0}" />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" width="400px"
+									rowClasses="topAlignedTableCell">
+									<ice:panelGrid columns="3" cellspacing="2" width="100%"
+										style="margin-top:5px" rowClasses="topAlignedTableCell"
+										rendered="#{transportManagerModel.selectedVehicleId != 0}">
+										<ice:panelGroup style="margin-bottom:10px">
+											<ice:outputText value="Type" />
+										</ice:panelGroup>
+										<ice:outputText value=":" />
+										<ice:panelGroup style="margin-bottom:10px;width:100px">
+											<ice:outputText
+												value="#{transportManagerModel.proEvent.vehicle.type}" />
+										</ice:panelGroup>
+										<ice:panelGroup style="margin-bottom:10px">
+											<ice:outputText value="Passengers" />
+										</ice:panelGroup>
+										<ice:outputText value=":" />
+										<ice:outputText
+											value="#{transportManagerModel.proEvent.vehicle.passengers}" />
+										<ice:panelGroup style="margin-bottom:10px">
+											<ice:outputText value="Wheel Chairs" />
+										</ice:panelGroup>
+										<ice:outputText value=":" />
+										<ice:outputText
+											value="#{transportManagerModel.proEvent.vehicle.wheelChairs}" />
+									</ice:panelGrid>
+									<ice:panelGrid
+										rendered="#{transportManagerModel.selectedVehicleId != 0}"
+										style="border:thick double grey;width:170px;height:120px;text-align:center">
+										<ice:graphicImage url="images/no_logo.jpg" id="imgVehice2"
+											rendered="#{transportManagerModel.proEvent.vehicle.photo == null}"
+											style="height:100px;width:150px">
+										</ice:graphicImage>
+										<ice:graphicImage
+											value="#{transportManagerModel.proEvent.vehicle.photo.thumbnail}"
+											id="imgVehicle3"
+											rendered="#{transportManagerModel.proEvent.vehicle.photo != null}"
+											width="#{transportManagerModel.photoW}"
+											height="#{transportManagerModel.photoH}">
+										</ice:graphicImage>
+									</ice:panelGrid>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:commandButton value="Save Event" styleClass="CommandButton"
+								style="margin-right:5px;width:85px;float:right"
+								rendered="#{transportManagerModel.proEvent != null}"
+								actionListener="#{transportManagerModel.saveProgramEvent}" />
+							<ice:commandButton value="Delete Event"
+								styleClass="CommandButton"
+								style="float:right;width:95px;margin-right:5px"
+								action="#{transportManagerModel.deleteProgramEvent}"
+								rendered="#{transportManagerModel.proEvent.id != null}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<comp:confirmationPopup
+					rendered="#{transportManagerModel.visibleConfirmation}"
+					actionListener="#{transportManagerModel.confirmationAction}" />
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{transportManagerModel.visiblePayment}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Make a new payment"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closePaymentButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.paymentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<ice:panelGrid columns="2" width="100%">
+								<ice:panelGrid columns="2">
+									<ice:outputLabel value="Amount Payable :" />
+									<ice:outputText
+										value="#{transportManagerModel.transportPro.chargeAmount - transportManagerModel.studentEvent.amountPaid}">
+										<f:convertNumber type="currency" currencySymbol="$" />
+									</ice:outputText>
+								</ice:panelGrid>
+								<ice:panelGrid columns="2">
+									<ice:outputLabel value="Amount Paid :" />
+									<ice:outputText
+										value="#{transportManagerModel.studentEvent.amountPaid}">
+										<f:convertNumber type="currency" currencySymbol="$" />
+									</ice:outputText>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:dataTable id="paymentTable" var="tx"
+								value="#{transportManagerModel.studentEvent.paymentTxs}"
+								style="margin-bottom:5px" columnWidths="100px, 50px, 150px">
+								<ice:column style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}">
+										<f:convertDateTime
+											timeZone="#{transportManagerModel.timeZone}" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:inputText id="inputTxAmt" value="#{tx.amount}"
+										style="width:48px;text-align:right"
+										rendered="#{tx.id == null}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText>
+									<ice:inputText id="inputTxAmt1" value="#{tx.amount}"
+										style="width:48px;text-align:right;border:none"
+										readonly="true" rendered="#{tx.id != null}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText>
+								</ice:column>
+								<ice:column style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Payment Type" />
+									</f:facet>
+									<ice:outputText rendered="#{tx.id != null}"
+										value="#{tx.paymentType}" />
+									<ice:selectOneMenu id="selectOnePaymentType"
+										styleClass="SelectOneMenu" rendered="#{tx.id == null}"
+										value="#{tx.paymentType}">
+										<f:selectItems value="#{lookupListProvider.paymentType}" />
+									</ice:selectOneMenu>
+								</ice:column>
+								<ice:column style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:inputText id="inputTxRmks" value="#{tx.remarks}"
+										style="width:148px" rendered="#{tx.id == null}"
+										maxlength="#{msgs['transaction.remarks.size']}" />
+									<ice:inputText id="inputTxRmks1" value="#{tx.remarks}"
+										style="width:148px;border:none" readonly="true"
+										rendered="#{tx.id != null}" title="#{tx.remarks}" />
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandTxCancel" value="Cancel"
+								action="#{transportManagerModel.paymentPopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandTxAdd" value="Ok"
+								action="#{transportManagerModel.addNewPayment}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup> -->
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.visibleCheckStudentEvents}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add to existing events"
+								rendered="#{transportManagerModel.groStu.status != 'Excluded'}"
+								styleClass="popupHeaderText" />
+							<ice:outputText value="Remove from existing events"
+								rendered="#{transportManagerModel.groStu.status == 'Excluded'}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeEventButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.enrollStudentEventsPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:710px;margin-top:10px">
+							<ice:panelGrid styleClass="borderBox" width="100%">
+								<ice:panelGrid columns="4">
+									<ice:outputLabel value="#{msgs['student_label']} Name :" />
+									<ice:outputText style="margin-right:20px"
+										value="#{transportManagerModel.groStu.student.contact.name}" />
+									<!-- <ice:outputLabel value="Status :" />
+									<ice:outputText value="Excluded"
+										rendered="#{transportManagerModel.groStu.status == 'Excluded'}" />
+									<ice:outputText value="Active"
+										rendered="#{transportManagerModel.groStu.status != 'Excluded'}" /> -->
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:dataTable id="tableStudEvents" scrollable="true"
+									columnWidths="30px,60px,300px,100px,80px,80px"
+									scrollHeight="200px"
+									value="#{transportManagerModel.availableEvents}" var="event"
+									style="margin-bottom:10px">
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:selectBooleanCheckbox id="selectEventBooleanAll"
+												partialSubmit="true"
+												disabled="#{transportManagerModel.availableEvents == null || empty(transportManagerModel.availableEvents)}"
+												value="#{transportManagerModel.selectAllEvents}"
+												valueChangeListener="#{transportManagerModel.selectAllEvents}" />
+										</f:facet>
+										<ice:selectBooleanCheckbox value="#{event.ui_selected}"
+											id="selectBooleanEvent" partialSubmit="true"
+											valueChangeListener="#{transportManagerModel.selectEvent}">
+											<f:attribute name="event" value="#{event}" />
+										</ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Operation" />
+										</f:facet>
+										<ice:outputText value="#{event.status}" />
+									</ice:column>
+									<ice:column style="text-align:left">
+										<f:facet name="header">
+											<ice:outputText value="Name" />
+										</f:facet>
+										<ice:outputText value="#{event.name}" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Event Date" />
+										</f:facet>
+										<ice:outputText value="#{event.eventDate}"
+											converter="dateConverter" />
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="Start Time" />
+										</f:facet>
+										<ice:outputText value="#{event.startTime}">
+											<f:convertDateTime type="time" timeStyle="short" />
+										</ice:outputText>
+									</ice:column>
+									<ice:column style="text-align:center">
+										<f:facet name="header">
+											<ice:outputText value="End Time" />
+										</f:facet>
+										<ice:outputText value="#{event.endTime}">
+											<f:convertDateTime type="time" timeStyle="short" />
+										</ice:outputText>
+									</ice:column>
+								</ice:dataTable>
+							</ice:setEventPhase>
+							<ice:outputText
+								value="Number of Event(s) selected : #{transportManagerModel.enrolledEvents.size()}" />
+							<ice:commandButton id="commandAddEvent" value="Update"
+								styleClass="CommandButton"
+								style="float:right;margin-top:-3px;width:100px"
+								disabled="#{empty(transportManagerModel.enrolledEvents)}"
+								action="#{transportManagerModel.saveEnrolledEvents}" />
+							<!-- <ice:commandButton id="commandRemoveEvent" value="Remove"
+								styleClass="CommandButton"
+								style="float:right;margin-top:-3px;width:100px"
+								disabled="#{empty(transportManagerModel.enrolledEvents)}"
+								rendered="#{transportManagerModel.groStu.status == 'Excluded'}"
+								action="#{transportManagerModel.deleteEnrolledEvents}" /> -->
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup draggable="true" modal="true" styleClass="icePnlPop"
+					rendered="#{transportManagerModel.visibleGenerateEvent}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Generate new events to #{transportManagerModel.transportPro.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeGenerateButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.genereteEventPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:messages />
+							<ice:panelGrid columns="4" cellspacing="10" width="100%">
+								<ice:outputText value="Program Start Date" />
+								<ice:panelGroup>
+									<ice:outputText value=": " />
+									<ice:outputLabel
+										value="#{transportManagerModel.transportPro.startDate}"
+										converter="dateConverter" />
+								</ice:panelGroup>
+								<ice:outputText value="Program End Date" />
+								<ice:panelGroup>
+									<ice:outputText value=": " />
+									<ice:outputLabel
+										value="#{transportManagerModel.transportPro.endDate}"
+										converter="dateConverter" />
+								</ice:panelGroup>
+								<ice:outputText value="Start Date" />
+								<ice:selectInputDate id="inputProgramFirstSearchDate"
+									value="#{transportManagerModel.firstDate}" renderAsPopup="true"
+									renderMonthAsDropdown="true" renderYearAsDropdown="true"
+									converter="dateConverter" label="Start Date">
+								</ice:selectInputDate>
+								<ice:outputText value="End Date" />
+								<ice:selectInputDate id="inputProgramSecondSearchDate"
+									value="#{transportManagerModel.secondDate}"
+									renderAsPopup="true" renderMonthAsDropdown="true"
+									renderYearAsDropdown="true" converter="dateConverter"
+									label="End Date">
+								</ice:selectInputDate>
+								<ice:outputText value="Start Time" />
+								<comp:timeControl value="#{transportManagerModel.startTime}"
+									id="startTime1" />
+								<ice:outputText value="End Time" />
+								<comp:timeControl value="#{transportManagerModel.endTime}"
+									id="endTime1" />
+								<!-- <ice:outputText value="Coordinator" />
+								<ice:selectOneMenu id="selectProEventGenStaff"
+									style="width:188px"
+									value="#{transportManagerModel.selectedStaffId}">
+									<f:selectItems
+										value="#{transportManagerModel.coordinatorSelectItems}" />
+								</ice:selectOneMenu> -->
+								<ice:outputText value="Vehicle" />
+								<ice:selectOneMenu id="selectTransportVehicle"
+									value="#{transportManagerModel.selectedVehicleId}"
+									partialSubmit="true" style="width:188px">
+									<f:selectItems
+										value="#{transportManagerModel.vehicleSelectItems}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Coordinator" />
+								<ice:selectOneMenu id="selectEvntCoordinator"
+									styleClass="SelectOneMenu"
+									value="#{transportManagerModel.selectedCoordinatorId}">
+									<f:selectItems
+										value="#{transportManagerModel.coordinatorSelectItems}" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Charge Amount" />
+								<ice:inputText id="inputTextChargeAmount" style="width:180px"
+									value="#{transportManagerModel.eventChargeAmount}">
+									<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+								</ice:inputText>
+								<ice:outputText value="Recurrence type" />
+								<ice:selectOneRadio
+									style="height:20px;border:none;margin-top:-15px"
+									value="#{transportManagerModel.recurrenceType}"
+									partialSubmit="true">
+									<f:selectItems value="#{lookupListProvider.recurrenceType}" />
+								</ice:selectOneRadio>
+							</ice:panelGrid>
+							<ice:panelGrid columns="2" cellpadding="2">
+								<ice:outputText value="Scheduled Day(s)"
+									style="margin-left:10px"
+									rendered="#{transportManagerModel.recurrenceType == 'Weekly'}" />
+								<ice:selectManyCheckbox id="selectTransportDay"
+									style="border:none;width:30px;margin-left:2px" border="0"
+									value="#{transportManagerModel.selectedWeekDayIds}"
+									partialSubmit="true"
+									rendered="#{transportManagerModel.recurrenceType == 'Weekly'}">
+									<f:selectItems value="#{lookupListProvider.weekDays}" var="day"
+										itemLabel="#{day.name}" itemValue="#{day.id}" />
+								</ice:selectManyCheckbox>
+							</ice:panelGrid>
+							<br />
+							<ice:commandButton value="Generate Program Events"
+								id="commandGenerateProEvent"
+								action="#{transportManagerModel.generateProgramEvent}"
+								style="margin-left:510px" styleClass="CommandButton" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.showExcludeStdPopup}"
+					style="height:110px">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Committed Events Records Wizard :  #{programManagerModel.excludedStd.student.contact.name} "
+								styleClass="popupHeaderText" />
+
+							<ice:commandButton id="closeCommittedEventStdPopup"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.hideExcludeStdPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:550px;margin-top:10px">
+							<ice:outputText
+								value="Do you wish to cancel NDIS claims for #{programManagerModel.excludedStd.student.contact.name} at #{programManagerModel.excludedStd.group.name} Program for?"></ice:outputText>
+							<ice:panelGroup style="margin-top:25px">
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px" value="No"
+									action="#{transportManagerModel.hideExcludeStdPopup}"></ice:commandButton>
+								<ice:outputText value=" "></ice:outputText>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:20px"
+									value="Yes"
+									action="#{transportManagerModel.updateCEventsWithExcludedStudents}"></ice:commandButton>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{transportManagerModel.showCommittedEvent}"
+					style="height:110px">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Committed Events Records Wizard :  #{transportManagerModel.studentGroup.name} "
+								styleClass="popupHeaderText" />
+
+							<ice:commandButton id="closeCommittedEventPopup"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{transportManagerModel.showCommittedEventPopUp}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width:550px;margin-top:10px">
+							<ice:outputText
+								value="This group has been included in NDIS committed events...do you want to update ?"></ice:outputText>
+							<ice:panelGroup style="margin-top:25px">
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:5px"
+									value="Cancel"
+									action="#{transportManagerModel.showCommittedEventPopUp}"></ice:commandButton>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:10px"
+									value="No" action="#{transportManagerModel.cancelUpdateCEvent}"></ice:commandButton>
+								<ice:outputText value=" "></ice:outputText>
+								<ice:commandButton styleClass="CommandButton"
+									style="float:right;margin-bottom:10px;width:80px;margin-right:10px"
+									value="Yes"
+									action="#{transportManagerModel.UpdateCommittedEvents}"></ice:commandButton>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

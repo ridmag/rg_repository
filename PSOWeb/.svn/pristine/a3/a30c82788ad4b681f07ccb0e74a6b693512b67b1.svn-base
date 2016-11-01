@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<f:loadBundle basename="com.itelasoft.pso.web.resources.messages_en"
+	var="msgs" />
+
+<h:head>
+	<title><ui:insert name="pageTitle">PSOWeb</ui:insert>
+	</title>
+	<ice:outputStyle href="#{sessionContext.iceFacesCSS}" />
+	<ice:outputStyle href="css/page_styles.css" />
+	<h:outputStylesheet library="org.icefaces.component.skins"
+		name="sam.css" />
+	<h:outputStylesheet library="org.icefaces.component.skins"
+		name="rime.css" />
+	<script src="js/schedule.js" type="text/javascript"></script>
+	<h:outputScript name="jsf.js" library="javax.faces" />
+	<ui:insert name="extraHeader"></ui:insert>
+</h:head>
+
+<h:body>
+	<ice:panelGroup id="mainWrapper">
+		<ice:panelGrid id="topheader" columns="2" width="100%">
+			<ice:panelGrid columns="4">
+				<ice:outputText value="Welcome #{sessionContext.currentUser}"
+					styleClass="rightHeader" />
+				<ice:outputLink value="login.jsp" styleClass="CommandLink">Switch User</ice:outputLink>
+				<ice:form id="formReminderArea">
+					<ice:panelGrid columns="2">
+						<ice:commandLink id="commandReminderView" style="margin-right:8px"
+							action="#{reminderManagerModel.reminderPopup}"
+							rendered="#{reminderManagerModel.reminders.size() > 0}"
+							title="#{reminderManagerModel.reminders.size()} Reminder(s) found (#{reminderManagerModel.unreadCount} New)">
+							<ice:panelGrid columns="3" cellpadding="0" cellspacing="0">
+								<ice:panelGrid columns="2" styleClass="alerts">
+									<ice:graphicImage style="border:none"
+										url="images/icons/warning_s.png" />
+									<ice:outputText value="Alerts" />
+								</ice:panelGrid>
+								<ice:panelGroup styleClass="bubble">
+									<ice:outputText value="#{reminderManagerModel.unreadCount}" />
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:commandLink>
+						<ice:commandButton
+							action="#{reminderManagerModel.refreshReminders}" value="refresh" />
+						<ice:commandButton
+							action="Home" value="Home" />
+					</ice:panelGrid>
+				</ice:form>
+			</ice:panelGrid>
+			<ice:outputText value="PSO Information System"
+				styleClass="rightHeader" style="float:right" />
+		</ice:panelGrid>
+
+		<ice:panelGrid id="bodyWrapper" width="100%" columns="2"
+			rowClasses="topAlignedTableCell" styleClass="borderBox"
+			columnClasses="menu-column body-column">
+			<ice:panelGrid id="menuWrapper">
+				<ui:include src="/MainMenu2.xhtml" />
+			</ice:panelGrid>
+			<ice:panelGrid cellpadding="5" width="100%"
+				rowClasses="topAlignedTableCell">
+				<ice:panelGroup styleClass="PageTitleWrapper">
+					<ice:panelGroup styleClass="PageTitleIcon">
+						<ui:insert name="PageTitleIcon">
+							<img src="images/icons/irc_protocol.png" />
+						</ui:insert>
+					</ice:panelGroup>
+					<ice:panelGroup styleClass="PageTitleRight">
+						<ice:panelGroup styleClass="PageTitle">
+							<ui:insert name="pageHeading">PAGE HEADING</ui:insert>
+						</ice:panelGroup>
+						<ice:panelGroup styleClass="PageTdescription">
+							<ui:insert name="pageDescription">Page Description</ui:insert>
+						</ice:panelGroup>
+					</ice:panelGroup>
+					<ice:panelGroup id="MessageContainer"
+						style="margin-left: 25px; float: left">
+						<ui:insert name="systemMessage">
+							<ice:messages tooltip="true" showDetail="true" showSummary="true">
+								<ice:message for="error" showDetail="true" showSummary="true" />
+							</ice:messages>
+						</ui:insert>
+					</ice:panelGroup>
+					<ice:outputConnectionStatus style="float:right"
+						showPopupOnDisconnect="true" displayHourglassWhenActive="true" />
+				</ice:panelGroup>
+				<div id="LeftContentArea">
+					<ui:insert name="pageContent">Page Contents</ui:insert>
+					<ice:form id="formReminder">
+						<comp:reminderPopup />
+					</ice:form>
+				</div>
+			</ice:panelGrid>
+		</ice:panelGrid>
+
+		<ice:outputText value="" />
+
+		<ice:form id="formLogout">
+			<div id="Footer">
+				&copy; 2015 iTelaSoft | <a href="#"> Frequently Asked Questions</a> | <a
+					href="#"> Help</a> | <a href="#"> Product Support</a> | <a
+					href="j_spring_security_logout"></a> |
+				<ice:commandLink action="#{sessionContext.logout}" value="Logout"></ice:commandLink>
+			</div>
+		</ice:form>
+
+		<ice:outputText value="" />
+
+	</ice:panelGroup>
+</h:body>
+</html>

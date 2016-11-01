@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<composite:interface>
+	<composite:attribute name="type" default="button" />
+	<composite:attribute name="fileEntryListener"
+		method-signature="void java.lang.String(org.icefaces.ace.component.fileentry.FileEntryEvent)" />
+</composite:interface>
+
+<composite:implementation>
+	<ice:panelGroup>
+		<ice:commandButton id="commandUpload" value="Upload Image"
+			action="#{imageUploadModel.imagePopup}"
+			rendered="#{cc.attrs.type == 'button'}" styleClass="CommandButton" />
+		<ice:commandLink id="commandLinkUpload" value="Upload Image"
+			action="#{imageUploadModel.imagePopup}"
+			rendered="#{cc.attrs.type == 'link'}" />
+		<ice:panelPopup autoCentre="true" modal="true" draggable="true"
+			styleClass="icePnlPop" id="popPicUpload" style="text-align:left"
+			rendered="#{imageUploadModel.visibleImageUpload}">
+			<f:facet name="header">
+				<ice:outputText value="Image Uploader" />
+			</f:facet>
+			<f:facet name="body">
+				<ice:panelGroup style="margin-left:10px">
+					<ice:panelGroup style="min-height:20px">
+						<ice:messages />
+					</ice:panelGroup>
+					<ice:outputLabel value="Please select an Image to be uploaded" />
+					<div style="height: 20px" />
+					<ice:panelGrid columns="2">
+						<ice:outputText value="File Name :&nbsp;&nbsp;&nbsp;&nbsp;" />
+						<ace:fileEntry id="fileEntryComp" label="Image Uploader"
+							fileEntryListener="#{cc.attrs.fileEntryListener}"
+							style="border:1px solid grey" />
+						<ice:panelBorder style="height:10px" />
+						<ice:panelBorder />
+						<ice:panelBorder />
+						<ice:panelGroup>
+							<ice:commandButton id="commandClose" value="Close"
+								style="float:right;width:60px"
+								action="#{imageUploadModel.imagePopup}"
+								styleClass="CommandButton" />
+							<h:commandButton id="fileUploadButton" styleClass="CommandButton"
+								value="Upload" style="float:right;margin-right:5px;width:60px" />
+						</ice:panelGroup>
+					</ice:panelGrid>
+				</ice:panelGroup>
+			</f:facet>
+		</ice:panelPopup>
+	</ice:panelGroup>
+</composite:implementation>
+</html>

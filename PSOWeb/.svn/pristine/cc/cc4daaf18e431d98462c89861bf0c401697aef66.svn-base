@@ -1,0 +1,88 @@
+package com.itelasoft.pso.services;
+
+import java.util.List;
+
+import org.hibernate.Hibernate;
+
+import com.itelasoft.pso.beans.Student;
+import com.itelasoft.pso.beans.StudentFundingSource;
+import com.itelasoft.pso.dao.IStudentDao;
+
+public class StudentService extends GenericService<Student, Long>implements IStudentService {
+
+	public List<Student> listByName(String studentName, boolean includeInactive) {
+		return ((IStudentDao) dao).listByName(studentName, includeInactive);
+	}
+
+	public List<Student> listByCommunication(Long communicationId) {
+		return ((IStudentDao) dao).listByCommunication(communicationId);
+	}
+
+	public List<Student> listNotInCommunication(Long communicationId) {
+		return ((IStudentDao) dao).listNotInCommunication(communicationId);
+	}
+
+	public List<Student> listAvailableByGroup(Long groupId, String studentName) {
+		return ((IStudentDao) dao).listAvailableByGroup(groupId, studentName);
+	}
+
+	public Student retrieveAvailableByGroup(Long groupId, Long studentId) {
+		return ((IStudentDao) dao).retrieveAvailableByGroup(groupId, studentId);
+	}
+
+	public StudentFundingSource getActiveFundingSource(Long studentId) {
+		return ((IStudentDao) dao).getActiveFundingSource(studentId);
+	}
+
+	public Student retrieveEager(Long studentId) {
+		Student student = dao.retrive(studentId);
+		// Long id = 0L;
+
+		if (student.getPhoto() != null)
+			Hibernate.initialize(student.getPhoto().getBlobFileData());
+		// System.out.println(student.getPhoto().getBlobFileData().getId());
+		// student.setFundingSrcs(serviceLocator.getStudentFundingSourceService()
+		// .listStudentFundingSourcesByStudent(studentId));
+		Hibernate.initialize(student.getFundingSrcs());
+		Hibernate.initialize(student.getGroups());
+		Hibernate.initialize(student.getGuardians());
+		/*
+		 * for (SpecialNeed need : student.getSpecialNeeds())
+		 * Hibernate.initialize(need.getIcon().getBlobFileData());
+		 */
+		// student.setGroups(serviceLocator.getGroupedStudentService()
+		// .listByStudent(student.getId()));
+		// student.setGuardians(serviceLocator.getGuardianService().listByStudent(
+		// student.getId()));
+		return student;
+	}
+
+	public List<Student> listStudentsWithTxs(int month, int year) {
+		return ((IStudentDao) dao).listStudentsWithTxs(month, year);
+	}
+
+	public List<Long> listStudentsWithNotBankedEvents(int month, int year) {
+		return ((IStudentDao) dao).listStudentsWithNotBankedEvents(month, year);
+	}
+
+	public List<Long> listStudentsMissingPreviousMonthsInvoice(int month, int year) {
+		return ((IStudentDao) dao).listStudentsMissingPreviousMonthsInvoice(month, year);
+	}
+
+	public List<Student> listByStatus(String status) {
+		return ((IStudentDao) dao).listStudentsByStatus(status);
+	}
+
+	public List<Student> listActiveStudents() {
+		return ((IStudentDao) dao).listActiveStudents();
+	}
+
+	public List<Student> listActiveStudentswithNdisnumber() {
+		return ((IStudentDao) dao).listActiveStudentswithNdisnumber();
+	}
+	
+	public List<Student> listAll() {
+		return ((IStudentDao) dao).listAll();
+	}
+
+}

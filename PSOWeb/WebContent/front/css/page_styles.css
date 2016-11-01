@@ -1,0 +1,539 @@
+
+.iceSelOneRb table tr td {
+	padding: 10px;
+	margin: 1px;
+}
+
+.icePnlPop {
+	border: solid 1px LightBlue;
+	background: url(../../images/dialogbg.png);
+	background-repeat: repeat-x;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.icePnlPopHdr {
+	background-image: url(../../images/dialogbg.png);
+	background-repeat: repeat-x;
+}
+
+.icePnlPopBody {
+	padding: 5px;
+	padding-top: 0px;
+}
+
+.iceOutLbl {
+	font-family: Helvetica, sans-serif;
+	font-weight: normal;
+}
+
+h1 {
+	font-weight: normal;
+	font-size: 18px;
+	color: #666666;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+h2 {
+	font-weight: bold;
+	font-size: 16px;
+	color: #666666;
+	font-family: Arial, Helvetica, sans-serif;
+	margin-top: 05px;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 14px;
+	color: #333333;
+	font-family: Arial, Helvetica, sans-serif
+}
+
+p {
+	color: #666666
+}
+
+table {
+	font-size: 10pt;
+}
+
+.myGutter {
+	display: none
+}
+
+.rightHeader {
+	font-size: 11pt;
+	color: #FFFFFF;
+}
+
+
+
+#bodyWrapper {
+	border-color: Gray;
+	border-style: solid;
+	border-width: 1px;
+	background-color: White
+}
+
+#menuWrapper {
+	border-color: Gray;
+	border-style: solid;
+	border-width: 1px;
+	background-color: #fff; #
+	background: url(../../images/menu_btn_bg.png) repeat-x;
+}
+
+.PageTitleWrapper {
+	height: 40px;
+	margin-bottom: 10px;
+}
+
+.PageTitleIcon {
+	width: 32px;
+	float: left;
+}
+
+.PageTitleRight {
+	float: left;
+	margin-left: 10px
+}
+
+.PageTitle {
+	font-size: 16px;
+	padding-bottom: 3px;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 5px;
+	font-family: ARIAL;
+	color: #666;
+	font-weight: bold
+}
+
+.PageTdescription {
+	font-size: 11px;
+	color: #666666;
+}
+
+#MessageContainer {
+	
+}
+
+.topAlignedTableCell {
+	vertical-align: top;
+	padding: 0px;
+}
+
+.TableBlockHighlight {
+	background-color: Lavender
+}
+
+#Footer {
+	font-size: 8pt;
+	text-align: center;
+	color: #FFFFFF
+}
+
+#Footer a {
+	color: #FFFFFF;
+	font-weight: none;
+	text-decoration: none;
+}
+
+#Footer a:hover {
+	text-decoration: none;
+	color: orange
+}
+
+/* COMPONENT STYLES */
+.TextBox {
+	border: 1px solid #CCCCCC;
+	padding: 5px;
+	margin-bottom: 10px
+}
+
+.TextBoxLarge {
+	border: 1px solid #CCCCCC;
+	height: 20px;
+	padding: 5px;
+	font-size: 12px;
+	color: #666666;
+	font-weight: bold;
+}
+
+.CommandButton,PrintButton {
+	background: url(../../images/btn_bg.jpg) repeat-x;
+	-moz-border-radius: 5px;
+	border-radius: 3px;
+	padding: 3px;
+	border: 1px solid #4D565E;
+	color: #FFFFFF;
+	cursor: pointer
+}
+
+.HeaderCaption {
+	font-weight: bold;
+	color: DarkOrange
+}
+
+.Caption {
+	font-weight: bold;
+	color: #555555
+}
+
+/* REPORT STYLES */
+.reportBackNavigation {
+	float: right;
+}
+
+.reportWrapper {
+	border-color: Silver;
+	border-style: solid;
+	border-width: 1px;
+	background-color: White
+}
+
+.ReportTitlestyle {
+	font-size: 18px;
+	font-weight: bold
+}
+
+.ReportSectionHeader {
+	font-weight: bold
+}
+
+.ReportTable {
+	border-style: solid;
+	border-color: Silver;
+	border-width: thin
+}
+
+/* DECORATION STYLES */
+.AppointmentStatusSCH {
+	border: 1px solid Gold;
+	background-color: LightYellow;
+}
+
+.AppointmentStatusVIS {
+	border: 1px solid LimeGreen;
+	background-color: PaleGreen;
+}
+
+.AppointmentStatusCAN {
+	border: 1px solid LightCoral;
+	background-color: LightPink;
+}
+
+.AppointmentStatusCLO {
+	border: 1px solid Silver;
+	background: url(../../images/apptClosed.png) repeat-x;
+}
+
+/* ICEFACES OVERRIDES */
+.icePnlGrd {
+	cellspacing: 0px;
+	cellpadding: 0px;
+}
+
+.iceInpTxt {
+	font-size: 10pt;
+	width: 144px;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpTxt:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceInpTxtArea {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpTxtArea:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceInpFileTxt {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.fileUploadText {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceInpFileTxt:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelOneMnu {
+	font-size: 10pt;
+	width: 152px;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelOneMnu:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelOneLb {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelOneLb:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceSelInpDateInput {
+	font-size: 10pt;
+	color: #555555;
+	border: CadetBlue 1px solid
+}
+
+.iceSelInpDateInput:focus {
+	background-color: LemonChiffon;
+	color: DarkCyan;
+	border: Coral 1px solid
+}
+
+.iceCmdLnk {
+	color: Teal
+}
+
+.iceCmdLnk:hover {
+	text-decoration: none;
+	color: DarkOrange
+}
+
+.iceMnuBar {
+	width: auto;
+}
+
+.iceMnuBarItem {
+	/*font-size: 10pt;*/
+	width: 85px;
+	height: auto;
+}
+
+.iceMnuBarItem a {
+	background-image: url(../../images/menu_btn_bg.png)
+}
+
+.iceMnuBarItem a:hover{
+	background-image: url(../../images/menu_btn_bg-hover.png)
+}
+.iceMnuBarSubMenu{
+	/*width:180px;*/
+}
+.iceMnuItm a{
+	/*font-size: 10pt;*/
+	background-color:lightblue;
+}
+.iceMsgsError {
+	color: red;
+}
+
+.iceMsgsInfo {
+	color: green
+}
+
+.iceRowSelSelected .iceOutTxt {
+	color: Crimson
+}
+
+.popupHeaderWrapper {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.popupHeaderText {
+	float: left;
+	color: red;
+}
+
+.popupHeaderImage {
+	float: right;
+	margin-top: 2px;
+	margin-right: 2px;
+}
+
+.fileUploadText {
+	width: 50px;
+}
+
+.borderPnlGroup { /*padding: 10px;*/
+	margin: 5px;
+}
+
+.borderPnlGroup .box {
+	margin-right: 20px;
+}
+
+.fieldPnlGrp {
+	margin: 5px;
+}
+
+.autocomplete input {
+	background: #FFFFFF url(../../images/icons/arrow_18.gif) no-repeat;
+	padding: 4px 4px 4px 14px;
+	background-position: 2px 2px;
+	margin-top: 2px;
+}
+
+.iceDatTbl {
+	border: solid 1px;
+	border-color: grey;
+}
+
+#formReservation\:panelTabSetBoarding\:0\:FacilityReservation .iceDatTblCol
+	{
+	padding: 0;
+}
+
+fieldset {
+	border: solid 1px lightgrey;
+}
+
+/*------- TESTING ------------*/ /*for schedule*/
+.columnClass { /*height:100px;*/
+	background: url(../../images/apptBg.png) repeat-y;
+}
+
+.freeReddish1 {
+	background-color: lightgrey;
+}
+
+.entryClass {
+	text-decoration: none;
+	color: black;
+	border: none;
+}
+
+.entryClass1 {
+	text-decoration: none;
+	color: black;
+	border: none;
+}
+
+.entryClass input {
+	margin: 5px;
+}
+
+.entryClass1 input {
+	margin: 5px;
+}
+
+.PrintButton {
+	background: url(../../images/icons/printer_s.png) no-repeat;
+	padding-left: 25px;
+}
+
+.apptDayHeader {
+	display: none;
+	height: 20px;
+}
+
+.detail {
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.detail img {
+	border: none;
+}
+
+.field-set {
+	padding: 10px;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-right: 15px;
+	border: none;
+	border-top: 1px solid;
+}
+
+/*
+.columnClass{
+height:100px;
+
+}
+
+.gutterClass{
+display: none;
+background: yellow;
+border: none;
+}
+
+.headerClass1{
+	display:none;
+
+
+}*/
+.borderBox {
+	background: url(../../images/borderBoxBg.png) repeat-x;
+	border: 1px solid lightblue;
+	height: 100%;
+}
+
+.icePnlGrdHdr { 
+	#background: url(../../images/dialogbg.png);
+	padding: 5px;
+	color: #484848;
+	font: 11px tahoma;
+	font-weight: bold;
+}
+
+.iceMenuBarItem {
+	border: 3px;
+}
+
+.borderBoxHeaderRow1 {
+	background-image: url(../../images/menu_btn_bg.png);
+}
+
+.iceOutLbl {
+	font-weight: bold;
+	color: black;
+}
+
+.PanelGridHeader {
+	height: 1em;
+	background-color: #fff;
+	border: 1px solid LightBlue;
+}
+
+.PanelGridHeight {
+	height: 1em;
+}
+
+.menutrueItem a {
+	background-image: url(../../images/menu_btn_bg_on1.png);
+}
+.menutrueItem span{
+	background:none;
+}
+
+.tableColBg{
+	font-size:12px;
+	background:#ccccff;
+}
+.tableColRightBg{
+	font-size:12px;
+	background:#cbffcb;
+}

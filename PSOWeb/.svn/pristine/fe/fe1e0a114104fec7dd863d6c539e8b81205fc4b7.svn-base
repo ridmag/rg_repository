@@ -1,0 +1,110 @@
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a[@id='formProgram:tabSetProgram:0.2']/div/table/tbody/tr/td</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[@id='formProgram:tabSetProgram:0.2']/div/table/tbody/tr/td</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:addEditGrps</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formProgram:tabSetProgram:0:selectListStdGrp</td>
+	<td>label=Group 3.1</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:commandCreateProEvents</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formProgram:tabSetProgram:0:commandCreateProEvents</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:inputProgramFirstSearchDate</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>formProgram:inputProgramFirstSearchDate</td>
+	<td>01/03/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>formProgram:inputProgramSecondSearchDate</td>
+	<td>05/03/2012</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formProgram:startTime1:hrs</td>
+	<td>label=09</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formProgram:endTime1:hrs</td>
+	<td>label=10</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formProgram:selectProEventGenLocation</td>
+	<td>label=Some Location</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formProgram:commandGenerateProEvent</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//option[@value='1']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>formProgram:tabSetProgram:0:selectListEvent</td>
+	<td>label=01/03/12-Thu : Group 3.1</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:cmdGenAttSheet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formProgram:tabSetProgram:0:cmdGenAttSheet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:tableStudentEvents:0:selectAttd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:tableStudentEvents:0:inputRemarks</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formProgram:tabSetProgram:0:tableStudentEvents:0:selectAttd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>formProgram:tabSetProgram:0:cmdSaveAttSheet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>formProgram:tabSetProgram:0:cmdSaveAttSheet</td>
+	<td></td>
+</tr>

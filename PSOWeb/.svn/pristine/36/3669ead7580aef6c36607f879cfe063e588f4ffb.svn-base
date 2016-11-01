@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="style" default="width:300px;" />
+	<composite:attribute name="rendered" required="true" />
+	<composite:attribute name="actionListener"
+		targets="buttonAccept buttonCancel" required="true" />
+	<composite:attribute name="message"
+		default="Are you sure you want to perform this action?" />
+</composite:interface>
+
+<composite:implementation>
+	<ice:panelPopup modal="true" draggable="true" id="eventDeletePopup"
+		rendered="#{cc.attrs.rendered}" autoCentre="true">
+		<f:facet name="header">
+			<ice:outputText value="Confirm" />
+		</f:facet>
+		<f:facet name="body">
+			<ice:panelGroup style="#{cc.attrs.style}">
+				<center>
+					<ice:panelGroup style="padding:10px">
+						<ice:outputText value="#{cc.attrs.message}" />
+					</ice:panelGroup>
+					<ice:panelGrid columns="2">
+						<ice:commandButton id="buttonAccept" value="Yes"
+							style="width:50px" tabindex="2">
+							<f:attribute name="confirmation" value="Yes" />
+						</ice:commandButton>
+						<ice:commandButton id="buttonCancel" value="No" style="width:50px"
+							tabindex="1">
+							<f:attribute name="confirmation" value="No" />
+						</ice:commandButton>
+					</ice:panelGrid>
+				</center>
+			</ice:panelGroup>
+		</f:facet>
+	</ice:panelPopup>
+</composite:implementation>
+
+</html>

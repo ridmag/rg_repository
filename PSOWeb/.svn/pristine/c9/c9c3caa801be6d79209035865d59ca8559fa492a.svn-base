@@ -1,0 +1,99 @@
+package com.itelasoft.pso.web;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.event.ValueChangeEvent;
+
+import com.icesoft.faces.component.paneltabset.TabChangeEvent;
+import com.itelasoft.pso.beans.Program;
+import com.itelasoft.pso.beans.ProgramType;
+
+@ManagedBean
+@SessionScoped
+public class DashboardModel extends UIModel {
+
+	private Date currentDate;
+	private List<Program> programs;
+	private int selectedTabIndex;
+
+	public DashboardModel() {
+		init();
+	}
+
+	public void init() {
+		selectedTabIndex = 0;
+		currentDate = new Date();
+		createDashboard();
+	}
+
+	public void selectTab(TabChangeEvent tce) {
+		selectedTabIndex = tce.getNewTabIndex();
+		createDashboard();
+	}
+
+	public void dateChanged(ValueChangeEvent vce) {
+		currentDate = (Date) vce.getNewValue();
+		if (currentDate == null)
+			currentDate = new Date();
+		createDashboard();
+	}
+
+	public void goToPrevious() {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(currentDate);
+		cal.add(Calendar.DATE, -1);
+		currentDate = cal.getTime();
+		createDashboard();
+	}
+
+	public void goToNext() {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(currentDate);
+		cal.add(Calendar.DATE, 1);
+		currentDate = cal.getTime();
+		createDashboard();
+	}
+
+	private void createDashboard() {
+		ProgramType proType = null;
+		if (selectedTabIndex == 0) {
+			proType = new ProgramType(new Long(3));
+		} else if (selectedTabIndex == 1) {
+			proType = new ProgramType(new Long(1));
+		} else if (selectedTabIndex == 2) {
+			proType = new ProgramType(new Long(4));
+		} else if (selectedTabIndex == 3) {
+			proType = new ProgramType(new Long(2));
+		}
+		// TODO: delete
+		// serviceLocator.getProgramService().getProgramsbyDate(currentDate);
+		programs = serviceLocator.getDashboardService().listProgramsWithData(Util.getDayStartTime(currentDate),
+				Util.getDayEndTime(currentDate), proType);
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
+	}
+
+	public List<Program> getPrograms() {
+		return programs;
+	}
+
+	public int getSelectedTabIndex() {
+		return selectedTabIndex;
+	}
+
+	public void setSelectedTabIndex(int selectedTabIndex) {
+		this.selectedTabIndex = selectedTabIndex;
+	}
+
+}

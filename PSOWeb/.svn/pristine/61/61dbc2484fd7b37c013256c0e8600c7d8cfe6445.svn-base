@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="USER"></ui:param>
+		<ui:define name="pageTitle">Staff</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Staff Manager</ui:define>
+		<ui:define name="pageDescription">Welcome to the PSO Management. Follow instructions below to get started.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formStaff">
+				<ice:panelTabSet id="panelTabSetUserManager" style="display: block;">
+					<ice:panelTab id="panelTabUserDetails" label="User Details">
+						<ice:panelGrid>
+							<ice:panelGrid border="0" columns="3"
+								rowClasses="topAlignedTableCell">
+								<ice:panelGrid border="0" columns="1"
+									styleClass="TableBlockHighlight"
+									renderedOnUserRole="ROLE_SUPERVISOR">
+									<ice:outputText value="Search User" styleClass="HeaderCaption" />
+									<ice:panelGrid columns="2" border="0" cellspacing="0"
+										cellpadding="0">
+										<ice:inputText id="inputTextSearchText"
+											value="#{userManagerModel.userSearchText}"
+											partialSubmit="true" style="width: 100px" />
+										<ice:commandLink id="commandLinkSearch" value="Search"
+											actionListener="#{userManagerModel.searchUsers}" />
+									</ice:panelGrid>
+									<ice:selectOneListbox id="selectOneListboxContacts" size="4"
+										partialSubmit="true"
+										value="#{userManagerModel.selectedUserName}"
+										style="width: 220px">
+										<f:selectItems id="selectItemsContact"
+											value="#{userManagerModel.userSearchResults}" />
+									</ice:selectOneListbox>
+									<div width="10px" height="10px" />
+									<ice:commandLink id="commandLinkPickUser"
+										value="Pick from Above List"
+										actionListener="#{userManagerModel.selectUser}"></ice:commandLink>
+								</ice:panelGrid>
+								<div style="width: 15px"></div>
+								<ice:panelGrid border="0" columns="1"
+									style="border-left-color: CadetBlue">
+									<ice:outputText value="User Information"
+										styleClass="HeaderCaption" />
+									<ice:panelGrid border="0" columns="2"
+										rendered="#{userManagerModel.userEditable}">
+										<ice:outputLabel value="First Name"></ice:outputLabel>
+										<ice:inputText id="inputTextFirstName"
+											value="#{userManagerModel.user.contact.firstName}"
+											partialSubmit="true" size="15"
+											maxlength="#{msgs['contact.firstName.size']}"></ice:inputText>
+										<ice:outputLabel value="Middle Names"></ice:outputLabel>
+										<ice:inputText id="inputTextMiddleNames"
+											value="#{userManagerModel.user.contact.middleNames}"
+											partialSubmit="true" size="30"
+											maxlength="#{msgs['contact.middleNames.size']}"></ice:inputText>
+										<ice:outputLabel value="Last Name"></ice:outputLabel>
+										<ice:inputText
+											value="#{userManagerModel.user.contact.lastName}"
+											partialSubmit="true" size="15"
+											maxlength="#{msgs['contact.lastName.size']}"></ice:inputText>
+										<ice:outputLabel value="User Name"></ice:outputLabel>
+										<ice:inputText id="inputTextUserName"
+											value="#{userManagerModel.user.userName}"
+											partialSubmit="true" size="15"
+											maxlength="#{msgs['user.username.size']}"></ice:inputText>
+										<ice:outputLabel value="Password"></ice:outputLabel>
+										<ice:inputSecret id="inputSecretPassword"
+											value="#{userManagerModel.user.password}"
+											partialSubmit="true" redisplay="true" size="15"
+											maxlength="#{msgs['user.password.size']}"></ice:inputSecret>
+										<ice:outputLabel value="User Type"></ice:outputLabel>
+										<ice:selectOneMenu id="selectOneMenuUserType"
+											partialSubmit="true"
+											value="#{userManagerModel.user.userType}">
+											<f:selectItems value="#{lookupListProvider.userTypes}" />
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Enabled"></ice:outputLabel>
+										<ice:selectBooleanCheckbox id="selectBooleanCheckboxEnabled"
+											value="#{userManagerModel.user.enabled}" partialSubmit="true"></ice:selectBooleanCheckbox>
+									</ice:panelGrid>
+									<hr></hr>
+									<ice:panelGrid border="0" columns="3">
+										<ice:panelGroup>
+											<ice:outputText value="Available Roles" />
+											<br />
+											<ice:selectOneListbox id="selectOneListboxAuthorityList"
+												size="4" partialSubmit="true"
+												value="#{userManagerModel.selectedAuthority1}"
+												style="width: 160px">
+												<f:selectItems value="#{lookupListProvider.authorities}" />
+											</ice:selectOneListbox>
+											<br />
+											<ice:commandLink value="Add Role ►"
+												actionListener="#{userManagerModel.addAuthority}"></ice:commandLink>
+										</ice:panelGroup>
+										<div style="width: 15px"></div>
+										<ice:panelGroup>
+											<ice:outputText value="User Assigned Roles"></ice:outputText>
+											<br />
+											<ice:selectOneListbox id="selectOneListboxAuthoritys"
+												size="4" partialSubmit="true"
+												value="#{userManagerModel.selectedAuthority2}"
+												style="width: 160px">
+												<f:selectItems value="#{userManagerModel.userAuthorities}" />
+											</ice:selectOneListbox>
+											<br />
+											<ice:commandLink value="Remove Role ▼"
+												actionListener="#{userManagerModel.removeAuthority}"></ice:commandLink>
+										</ice:panelGroup>
+									</ice:panelGrid>
+									<div style="height: 15px"></div>
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:panelGrid border="0" columns="7"
+								rendered="#{userManagerModel.userEditable}">
+								<ice:commandButton id="commandButtonNewUser" value="New User"
+									actionListener="#{userManagerModel.newUser}"
+									styleClass="CommandButton" />
+								<div style="width: 2px"></div>
+								<ice:commandButton id="commandButtonSaveUser" value="Save User"
+									actionListener="#{userManagerModel.saveUser}"
+									styleClass="CommandButton" />
+								<div style="width: 2px"></div>
+							</ice:panelGrid>
+						</ice:panelGrid>
+					</ice:panelTab>
+				</ice:panelTabSet>
+			</ice:form>
+		</ui:define>
+
+	</ui:composition>
+
+</h:body>
+</html>

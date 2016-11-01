@@ -1,0 +1,412 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:t="http://www.itelasoft.com/facescomponents"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:util="http://java.sun.com/jsf/composite/util">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{sampleModel.loadSample}" type="preRenderView"></f:event>
+	</f:metadata>
+	
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle">Sample</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">User Manager</ui:define>
+		<ui:define name="pageDescription">Select a program from the list to, go to the details of each program.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formSample">
+				<!-- <t:schedule	submitOnClick="true"	unevenClass="columnClass" freeClass="freeReddish" 
+								expandToFitEntries="true"  detailedRowHeight="80"
+								visibleEndHour="18" visibleStartHour="8" entryClass="entryClass"
+								workingEndHour="18" workingStartHour="8" readonly="false"
+								theme="default" tooltip="true"
+								value="#{sampleModel.model}"
+								actionListener="#{sampleModel.scheduleAction}"
+								mouseListener="#{appointmentViewModel.scheduleClicked}"
+								>
+							</t:schedule> -->
+
+				<!--<ace:fileEntry id="fileEntryComp" label="File Entry"
+					fileEntryListener="#{sampleModel.listener}" style="border:1px solid black; width:500px"/>
+				<h:commandButton id="fileUploadButton" value="Upload" />
+				-->
+				<!--<comp:FileUpload listener="#{sampleModel.uploadFile}" />
+				
+				-->
+				<ice:panelGrid columns="2">
+					<ice:outputText value="#{msgs['student_label']} File Name :&nbsp;&nbsp;&nbsp;&nbsp;" />
+					<ace:fileEntry id="fileEntryComp" label="File Uploader"
+						fileEntryListener="#{sampleModel.uploadFile}"
+						style="border:1px solid grey" />
+					<h:commandButton id="fileUploadButton" styleClass="CommandButton"
+						value="Upload" style="float:right;margin-right:5px;width:60px" />
+				</ice:panelGrid>
+
+				<ice:panelGrid columns="2">
+					<ice:outputText value="Staff File Name :&nbsp;&nbsp;&nbsp;&nbsp;" />
+					<ace:fileEntry id="staffFileEntry" label="File Uploader"
+						fileEntryListener="#{sampleModel.uploadStaffFile}"
+						style="border:1px solid grey" />
+					<h:commandButton id="staffFileUploadButton"
+						styleClass="CommandButton" value="Upload"
+						style="float:right;margin-right:5px;width:60px" />
+				</ice:panelGrid>
+				<ice:commandButton value="Clear Student Pics" actionListener="#{sampleModel.clearPics}"></ice:commandButton>
+				<ice:inputText value="#{sampleModel.testTime}"/>
+				<ice:commandButton value="Check User" actionListener="#{sampleModel.checkUserRole}"></ice:commandButton>
+				<!--<comp:ImageUpload listener="#{sampleModel.listener}" />
+				<ice:graphicImage value="#{sampleModel.file.thumbnail}"></ice:graphicImage>-->
+				<ice:graphicImage value="#{sampleModel.file.blobFileData.data}"></ice:graphicImage>
+				<ice:panelTabSet width="1100">
+					<ice:panelTab label="User Details">
+						<ice:commandButton actionListener="#{sampleModel.actionListener}"
+							value="List Users" styleClass="CommandButton"></ice:commandButton>
+						<ice:commandButton action="#{sampleModel.clearUsers}"
+							value="Clear Users" styleClass="CommandButton"
+							disabled="#{empty(sampleModel.users)}"></ice:commandButton>
+						<ice:commandButton action="#{sampleModel.addUser}"
+							value="Add User" styleClass="CommandButton"></ice:commandButton>
+						<ice:commandButton action="#{sampleModel.printTime}"
+							value="Print Time" styleClass="CommandButton"></ice:commandButton>
+						<ice:dataTable border="1" value="#{sampleModel.users}" var="row"
+							id="tableUsers">
+							<ice:column id="column1">
+								<f:facet name="header">
+									<ice:outputText value="id"></ice:outputText>
+								</f:facet>
+								<ice:outputText value="#{row.id}"></ice:outputText>
+							</ice:column>
+							<ice:column id="column2">
+								<f:facet name="header">
+									<ice:outputText value="userName"></ice:outputText>
+								</f:facet>
+								<ice:outputText value="#{row.userName}"></ice:outputText>
+							</ice:column>
+							<ice:column id="column3">
+								<ice:commandLink style="border:none"
+									actionListener="#{sampleModel.editUser}" title="edit">
+									<ice:graphicImage style="border:none"
+										url="images/icons/edit.png"></ice:graphicImage>
+									<f:attribute name="user" value="#{row}" />
+								</ice:commandLink>
+							</ice:column>
+							<ice:column id="column4">
+								<ice:commandLink style="border:none"
+									actionListener="#{sampleModel.deleteUser}" title="delete">
+									<ice:graphicImage style="border:none"
+										url="images/icons/delete-icon.png" />
+									<f:attribute name="user" value="#{row}" />
+								</ice:commandLink>
+							</ice:column>
+						</ice:dataTable>
+					</ice:panelTab>
+
+					<ice:panelTab label="Contact Details">
+						<ice:panelGroup>
+							<ice:commandButton id="commandContactList" value="Add Contacts"
+								styleClass="CommandButton" action="#{sampleModel.newContact}"></ice:commandButton>
+							<ice:commandButton actionListener="#{sampleModel.fetchListener}"
+								value="List Contacts" styleClass="CommandButton"></ice:commandButton>
+							<ice:panelGroup scrollWidth="1000px">
+								<ice:dataTable rows="5" border="1"
+									value="#{sampleModel.contacts}" var="con" id="tableContacts"
+									rendered="#{not empty(sampleModel.contacts)}" width="100%">
+									<ice:column id="columnTitle">
+										<f:facet name="header">
+											<ice:outputText value="Title"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.title}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnFirst">
+										<f:facet name="header">
+											<ice:outputText value="First Name"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.firstName}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnMiddle">
+										<f:facet name="header">
+											<ice:outputText value="Middle Name"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.middleNames}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnLast">
+										<f:facet name="header">
+											<ice:outputText value="Last Name"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.lastName}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnBusiness">
+										<f:facet name="header">
+											<ice:outputText value="Business"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.businessName}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnStreet">
+										<f:facet name="header">
+											<ice:outputText value="Street"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.streetAddress}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnCity">
+										<f:facet name="header">
+											<ice:outputText value="City"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.city}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnState">
+										<f:facet name="header">
+											<ice:outputText value="State"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.state}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnPost">
+										<f:facet name="header">
+											<ice:outputText value="Post Code"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.postCode}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnCountry">
+										<f:facet name="header">
+											<ice:outputText value="Country"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.country}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnGeo">
+										<f:facet name="header">
+											<ice:outputText value="Geo Code"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.geoCode}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnMobile">
+										<f:facet name="header">
+											<ice:outputText value="Mobile No"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.mobilePhone}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnHome">
+										<f:facet name="header">
+											<ice:outputText value="Home Phone"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.homePhone}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnOffice">
+										<f:facet name="header">
+											<ice:outputText value="Office Phone"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.officePhone}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnMail">
+										<f:facet name="header">
+											<ice:outputText value="E - Mail"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.email}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnType">
+										<f:facet name="header">
+											<ice:outputText value="Business Type"></ice:outputText>
+										</f:facet>
+										<ice:outputText value="#{con.businessType}"></ice:outputText>
+									</ice:column>
+									<ice:column id="columnNews">
+										<f:facet name="header">
+											<ice:outputText value="Send News Letter"></ice:outputText>
+										</f:facet>
+										<ice:selectBooleanCheckbox disabled="true"
+											value="#{con.sendNewsletter}"></ice:selectBooleanCheckbox>
+									</ice:column>
+									<ice:column id="columnDelete">
+										<ice:commandLink style="border:none"
+											actionListener="#{sampleModel.deleteContact}" title="delete">
+											<ice:graphicImage style="border:none"
+												url="images/icons/delete-icon.png" />
+											<f:attribute name="contact" value="#{con}" />
+										</ice:commandLink>
+									</ice:column>
+									<ice:column id="columnEdit">
+										<ice:commandLink style="border:none"
+											actionListener="#{sampleModel.editContacts}" title="edit">
+											<ice:graphicImage style="border:none"
+												url="images/icons/edit.png"></ice:graphicImage>
+											<f:attribute name="editContacts" value="#{con}" />
+										</ice:commandLink>
+									</ice:column>
+								</ice:dataTable>
+							</ice:panelGroup>
+							<ice:dataPaginator id="dataScroll_3" for="tableContacts"
+								paginator="true" fastStep="3" paginatorMaxPages="4"
+								rendered="#{not empty(sampleModel.contacts)}">
+								<f:facet name="first">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-first.gif"
+										style="border:none;" title="First Page" />
+								</f:facet>
+								<f:facet name="last">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-last.gif"
+										style="border:none;" title="Last Page" />
+								</f:facet>
+								<f:facet name="previous">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-previous.gif"
+										style="border:none;" title="Previous Page" />
+								</f:facet>
+								<f:facet name="next">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-next.gif"
+										style="border:none;" title="Next Page" />
+								</f:facet>
+								<f:facet name="fastforward">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-ff.gif"
+										style="border:none;" title="Fast Forward" />
+								</f:facet>
+								<f:facet name="fastrewind">
+									<ice:graphicImage
+										url="./xmlhttp/css/xp/css-images/arrow-fr.gif"
+										style="border:none;" title="Fast Backwards" />
+								</f:facet>
+							</ice:dataPaginator>
+							<ice:dataPaginator id="dataScroll_2" for="tableContacts"
+								rowsCountVar="rowsCount"
+								displayedRowsCountVar="displayedRowsCount"
+								firstRowIndexVar="firstRowIndex" lastRowIndexVar="lastRowIndex"
+								pageCountVar="pageCount" pageIndexVar="pageIndex"
+								rendered="#{not empty(sampleModel.contacts)}">
+								<ice:outputFormat
+									value="{0} Entries found, displaying {1} car(s), from {2} to {3}. Page {4} / {5}."
+									styleClass="standard">
+									<f:param value="#{rowsCount}" />
+									<f:param value="#{displayedRowsCount}" />
+									<f:param value="#{firstRowIndex}" />
+									<f:param value="#{lastRowIndex}" />
+									<f:param value="#{pageIndex}" />
+									<f:param value="#{pageCount}" />
+								</ice:outputFormat>
+							</ice:dataPaginator>
+						</ice:panelGroup>
+					</ice:panelTab>
+				</ice:panelTabSet>
+
+				<ice:panelPopup rendered="#{sampleModel.visiblePopup}" modal="true"
+					draggable="true" id="popupUser">
+					<f:facet name="header">
+						<ice:panelGroup>
+							<ice:outputLabel value="Popup title"></ice:outputLabel>
+							<ice:commandButton image="#{msgs['panelPopup.closeImage']}"
+								action="#{sampleModel.showPopup}" styleClass="popupHeaderImage"
+								title="Close Popup" id="commandClosePopup"></ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGrid columns="2">
+							<ice:outputLabel value="UserName"></ice:outputLabel>
+							<ice:inputText id="inputUserName" partialSubmit="true"
+								value="#{sampleModel.user.userName}"></ice:inputText>
+							<ice:outputLabel value="Password"></ice:outputLabel>
+							<ice:inputText id="inputPassword" partialSubmit="true"
+								value="#{sampleModel.user.password}"></ice:inputText>
+							<div />
+							<ice:commandButton id="commandSave" value="Save"
+								style="float:right" styleClass="CommandButton"
+								action="#{sampleModel.saveUser}"></ice:commandButton>
+						</ice:panelGrid>
+					</f:facet>
+				</ice:panelPopup>
+				<ace:tabSet clientSide="true">
+					<ace:tabPane label="tab1">
+						<h:outputText value="text in tabPane"></h:outputText>
+					</ace:tabPane>
+					<ace:tabPane label="tab2">
+						<h:outputText value="text in tabPane2"></h:outputText>
+					</ace:tabPane>
+				</ace:tabSet>
+
+				<ice:panelPopup rendered="#{sampleModel.conPopup}" modal="true"
+					id="popupContact">
+					<f:facet name="header">
+						<ice:panelGroup>
+							<ice:outputLabel value="Search Contact"></ice:outputLabel>
+							<ice:commandButton image="#{msgs['panelPopup.closeImage']}"
+								action="#{sampleModel.contactPopup}"
+								styleClass="popupHeaderImage" title="Close Popup"
+								id="commandContactClosePopup"></ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGrid columns="2">
+							<ice:outputLabel value="Title"></ice:outputLabel>
+							<ice:selectOneMenu value="#{sampleModel.contact.title}"
+								id="selectTitle">
+								<f:selectItem itemLabel="Mr." name="Mr" itemValue="Mr"></f:selectItem>
+								<f:selectItem itemLabel="Mrs." name="Mrs" itemValue="Mrs"></f:selectItem>
+								<f:selectItem itemLabel="Miss." name="Miss" itemValue="Miss"></f:selectItem>
+								<f:selectItem itemLabel="Rev." name="Rev" itemValue="Rev"></f:selectItem>
+							</ice:selectOneMenu>
+							<ice:outputLabel value="First Name"></ice:outputLabel>
+							<ice:inputText id="inputFirstName"
+								value="#{sampleModel.contact.firstName}"></ice:inputText>
+							<ice:outputLabel value="Middle Name"></ice:outputLabel>
+							<ice:inputText id="inputMiddleName"
+								value="#{sampleModel.contact.middleNames}"></ice:inputText>
+							<ice:outputLabel value="Last Name"></ice:outputLabel>
+							<ice:inputText id="inputLastName"
+								value="#{sampleModel.contact.lastName}"></ice:inputText>
+							<ice:outputLabel value="Business Name"></ice:outputLabel>
+							<ice:inputText id="inputBusinessName"
+								value="#{sampleModel.contact.businessName}"></ice:inputText>
+							<ice:outputLabel value="Street Address"></ice:outputLabel>
+							<ice:inputText id="inputStreet"
+								value="#{sampleModel.contact.streetAddress}"></ice:inputText>
+							<ice:outputLabel value="City"></ice:outputLabel>
+							<ice:inputText id="inputCity" value="#{sampleModel.contact.city}"></ice:inputText>
+							<ice:outputLabel value="State"></ice:outputLabel>
+							<ice:inputText id="inputState"
+								value="#{sampleModel.contact.state}"></ice:inputText>
+							<ice:outputLabel value="Post Code"></ice:outputLabel>
+							<ice:inputText id="inputPost"
+								value="#{sampleModel.contact.postCode}"></ice:inputText>
+							<ice:outputLabel value="Country"></ice:outputLabel>
+							<ice:inputText id="inputCountry"
+								value="#{sampleModel.contact.country}"></ice:inputText>
+							<ice:outputLabel value="Geo Code"></ice:outputLabel>
+							<ice:inputText id="inputGeo"
+								value="#{sampleModel.contact.geoCode}"></ice:inputText>
+							<ice:outputLabel value="Mobile Phone"></ice:outputLabel>
+							<ice:inputText id="inputMobile"
+								value="#{sampleModel.contact.mobilePhone}"></ice:inputText>
+							<ice:outputLabel value="Office Phone"></ice:outputLabel>
+							<ice:inputText id="inputOffice"
+								value="#{sampleModel.contact.officePhone}"></ice:inputText>
+							<ice:outputLabel value="Email"></ice:outputLabel>
+							<ice:inputText id="inputEmail"
+								value="#{sampleModel.contact.email}"></ice:inputText>
+							<ice:outputLabel value="Home Phone"></ice:outputLabel>
+							<ice:inputText id="inputHome"
+								value="#{sampleModel.contact.homePhone}"></ice:inputText>
+							<ice:outputLabel value="Business Type"></ice:outputLabel>
+							<ice:inputText id="inputBusiness"
+								value="#{sampleModel.contact.businessType}"></ice:inputText>
+							<ice:outputLabel value="Send News Letter"></ice:outputLabel>
+							<ice:selectBooleanCheckbox id="checkboxNews"
+								value="#{sampleModel.contact.sendNewsletter}"></ice:selectBooleanCheckbox>
+							<div />
+							<ice:commandButton id="commandContactSave" value="Save"
+								style="float:right" styleClass="CommandButton"
+								action="#{sampleModel.saveContact}"></ice:commandButton>
+						</ice:panelGrid>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+
+</h:body>
+</html>

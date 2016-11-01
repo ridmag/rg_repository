@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>removeAndEditGuardian</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">removeAndEditGuardian</td></tr>
+</thead><tbody>
+<tr>
+	<td>click</td>
+	<td>id=formStudents:tabSetStudentDetails:0:tableStudentsGuardians:0:graphicEditGuardian</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStudents:selectOneGuardianTitle</td>
+	<td>label=Mrs.</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianFirstName</td>
+	<td>Stphens</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianMiddleName</td>
+	<td>Johns</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianLastName</td>
+	<td>Hopkin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianMobileNumber</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianHomeNumber</td>
+	<td>123456780</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianOfficeNumber</td>
+	<td>1234567890</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianEmail</td>
+	<td>test@tests.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianAddress</td>
+	<td>123, test streets</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianCity</td>
+	<td>Sydneys</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStudents:inputGuardianState</td>
+	<td>label=Tasmania</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStudents:inputGuardianPostalCode</td>
+	<td>123456</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStudents:commandEditGuardianOfStudent</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

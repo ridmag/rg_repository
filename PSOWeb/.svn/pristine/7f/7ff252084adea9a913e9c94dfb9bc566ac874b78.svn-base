@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="name" />
+	<composite:attribute name="params" />
+	<composite:attribute name="label" default="label" />
+</composite:interface>
+<composite:implementation>
+	<ice:panelGroup>
+		<h:commandLink style="color:black"
+			actionListener="#{printModel.toggleDyanamicPopup}">
+			<ice:graphicImage url="/images/icons/printer_s.png"
+				style="border:none;margin-right:10px" />
+			<ice:outputText value="#{cc.attrs.label}"
+				styleClass="topAlignedTableCell" />
+		</h:commandLink>
+		<ice:panelPopup modal="true" autoCentre="true"
+			visible="#{printModel.visibleDyanamicPopup}">
+			<f:facet name="header">
+				<ice:panelGroup styleClass="popupHeaderWrapper">
+					<ice:outputText value="#{cc.attrs.name}"
+						styleClass="popupHeaderText" />
+					<ice:commandButton type="button"
+						image="#{msgs['panelPopup.closeImage']}" immediate="true"
+						actionListener="#{printModel.toggleDyanamicPopup}"
+						styleClass="popupHeaderImage" title="Close Popup" alt="Close">
+					</ice:commandButton>
+				</ice:panelGroup>
+			</f:facet>
+			<f:facet name="body">
+				<ice:panelGroup>
+					<iframe
+						src="ReportServlet?name=#{cc.attrs.name}&amp;params=#{cc.attrs.params}" width="700" height="400"/>
+				</ice:panelGroup>
+			</f:facet>
+		</ice:panelPopup>
+	</ice:panelGroup>
+</composite:implementation>
+</html>

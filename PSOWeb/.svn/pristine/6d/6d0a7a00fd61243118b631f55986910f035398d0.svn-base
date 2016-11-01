@@ -1,0 +1,60 @@
+<tr>
+	<td>waitForElementPresent</td>
+	<td>//a[@id='formStaffManager:tabSetStaffDetails:0.2']/div/table/tbody/tr/td</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//a[@id='formStaffManager:tabSetStaffDetails:0.2']/div/table/tbody/tr/td</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:checkStaffSystemUser</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:checkStaffSystemUser</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffUserName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffUserName</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPassword</td>
+	<td>admin123</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffConfirmPassword</td>
+	<td>admin123</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneListboxStaffAuthorityList</td>
+	<td>label=ROLE_ADMIN</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=option[value=&quot;ROLE_ADMIN&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffConfigSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tableStaffMembers:2</td>
+	<td></td>
+</tr>

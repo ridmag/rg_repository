@@ -1,0 +1,1157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="PMNT"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Payment Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the tabel below to view the details of each #{msgs['student_label'].toLowerCase()}'s outstanding event details.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formPayments">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="7">
+						<ice:outputText
+							value="Search #{msgs['student_label'].toLowerCase()}(s) by #{msgs['student_label'].toLowerCase()} id or name :" />
+						<ice:inputText id="inputTextStdSearch" style="width:14em"
+							action="#{invoiceManagerModel.searchStudents}"
+							value="#{invoiceManagerModel.searchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:selectBooleanCheckbox id="selectInactive"
+							value="#{invoiceManagerModel.includeInactive}" />
+						<ice:outputText value="Include inactive" />
+						<ice:commandButton id="commanButtonStdSearch"
+							style="margin-left:20px"
+							action="#{invoiceManagerModel.searchStudents}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:panelGrid columns="2" style="margin-left:100px"
+							rendered="#{invoiceManagerModel.student != null}">
+							<ice:outputText value="Selected #{msgs['student_label']} :" />
+							<ice:outputText value="#{sessionContext.activeStringDetails}"
+								effect="#{sessionContext.effectDetails}"
+								styleClass="ReportSectionHeader" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:dataTable scrollable="true" scrollHeight="137px"
+						value="#{invoiceManagerModel.students}" var="stu"
+						id="tableStudents"
+						columnWidths="60px,75px,75px,260px,250px,100px,80px,100px,70px">
+						<ice:column id="columnStudentId" style="text-align:right">
+							<f:facet name="header">
+								<ice:outputText value="#{msgs['student_label']} ID" />
+							</f:facet>
+							<ice:outputText value="#{stu.id}" />
+						</ice:column>
+						<ice:column id="columnStudentCISID">
+							<f:facet name="header">
+								<ice:outputText value="CISID" />
+							</f:facet>
+							<ice:outputText value="#{stu.cisid}" title="#{stu.cisid}"
+								style="overflow:hidden;width:70px;height:1em" />
+						</ice:column>
+						<ice:column id="columnStudentMDSID">
+							<f:facet name="header">
+								<ice:outputText value="MDSID" />
+							</f:facet>
+							<ice:outputText value="#{stu.mdsid}" title="#{stu.mdsid}"
+								style="overflow:hidden;width:70px;height:1em" />
+						</ice:column>
+						<ice:column id="columnStudentName">
+							<ice:setEventPhase phase="UPDATE_MODEL_VALUES"
+								events="FacesEvent">
+								<ice:rowSelector id="rowselectStudent"
+									clickListener="#{invoiceManagerModel.selectStudent}"
+									value="#{stu.ui_selected}">
+									<f:attribute name="student" value="#{stu}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="#{msgs['student_label']} Name" />
+							</f:facet>
+							<ice:outputText value="#{stu.contact.name}" />
+						</ice:column>
+						<ice:column id="columnStudentSneedIcon">
+							<f:facet name="header">
+								<ice:outputText value="Special Needs" />
+							</f:facet>
+							<ui:repeat value="#{stu.specialNeeds}" var="sneed"
+								varStatus="status">
+								<ice:graphicImage value="/imageDownload?p=#{sneed.icon.id}"
+									height="25" rendered="#{sneed.icon != null}" width="25"
+									title="#{sneed.name}" style="margin-left:5px" />
+								<ice:outputText value="#{sneed.name}" style="float:left"
+									title="#{sneed.name}" rendered="#{sneed.icon == null}">
+									<f:converter converterId="truncateConverter" />
+								</ice:outputText>
+								<ice:outputText value=",&nbsp;" style="float:left"
+									rendered="#{sneed.icon == null and stu.specialNeeds.size() > 1 and status.index != stu.specialNeeds.size() - 1}" />
+							</ui:repeat>
+						</ice:column>
+						<ice:column id="columnStudentDob" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Date of Birth" />
+							</f:facet>
+							<ice:outputText value="#{stu.dob}" converter="dateConverter">
+							</ice:outputText>
+						</ice:column>
+						<ice:column id="columnStudentGender" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Gender" />
+							</f:facet>
+							<ice:outputText value="#{stu.gender}" />
+						</ice:column>
+						<ice:column id="columnStudentContactNo" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Contact Number" />
+							</f:facet>
+							<ice:outputText value="#{stu.contact.contactNumber}" />
+						</ice:column>
+						<ice:column id="columnStudentTransport" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Transport Requested" />
+							</f:facet>
+							<ice:selectBooleanCheckbox value="#{stu.transport}"
+								disabled="true" />
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelTabSet style="margin-top: 10px"
+						selectedIndex="#{invoiceManagerModel.tabIndex}"
+						tabChangeListener="#{invoiceManagerModel.tabChanged}">
+						<ice:panelTab label="Act. Statements">
+							<ice:panelGroup rendered="#{invoiceManagerModel.invoice != null}">
+								<ui:include src="includes/ActivityStatement.xhtml" />
+							</ice:panelGroup>
+							<ice:panelGroup rendered="#{invoiceManagerModel.invoice == null}">
+								<fieldset style="min-height: 350px">
+									<legend>
+										<ice:outputLabel value="Activity Statements Details" />
+									</legend>
+									<ice:panelGroup style="margin-top:10px"
+										rendered="#{invoiceManagerModel.student == null}">
+										<ice:outputText
+											value="Please select a #{msgs['student_label'].toLowerCase()} to view details.." />
+									</ice:panelGroup>
+									<ice:panelGroup
+										rendered="#{invoiceManagerModel.student != null}">
+										<ice:panelGrid styleClass="borderBox" width="100%">
+											<ice:panelGrid columns="3" cellspacing="10"
+												style="margin-top:-8px;margin-bottom:-8px;">
+												<ice:outputText value="Activity Statement(s) for year" />
+												<ice:selectOneMenu id="selectYear" style="width: 60px"
+													value="#{invoiceManagerModel.selectedYear}"
+													partialSubmit="true"
+													valueChangeListener="#{invoiceManagerModel.yearChanged}">
+													<f:selectItems value="#{lookupListProvider.actStmntYears}" />
+													<f:attribute name="from" value="payment" />
+												</ice:selectOneMenu>
+												<ice:messages />
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</ice:panelGroup>
+									<ice:setEventPhase events="FacesEvent"
+										phase="UPDATE_MODEL_VALUES"
+										rendered="#{invoiceManagerModel.student != null}">
+										<ice:dataTable value="#{invoiceManagerModel.invoices}"
+											var="inv" id="tableInvoices" varStatus="status"
+											rendered="#{!empty(invoiceManagerModel.invoices)}"
+											width="850">
+											<ice:column style="text-align:center;width:50px"
+												rendered="false">
+												<f:facet name="header">
+													<ice:outputText value="Select" />
+													<br />
+													<ice:selectBooleanCheckbox id="selAllInv"
+														style="margin-top:5px" partialSubmit="true"
+														value="#{invoiceManagerModel.selectAll}"
+														valueChangeListener="#{invoiceManagerModel.selectAllInvoices}">
+													</ice:selectBooleanCheckbox>
+												</f:facet>
+												<ice:selectBooleanCheckbox id="selInv"
+													value="#{inv.ui_selected}" partialSubmit="true"
+													valueChangeListener="#{invoiceManagerModel.selectInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+												</ice:selectBooleanCheckbox>
+											</ice:column>
+											<ice:column id="columnInvoiceId"
+												style="text-align:center;width:60px">
+												<f:facet name="header">
+													<ice:outputText value="ID" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey" />
+												<ice:outputText value="-" style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}" />
+												<ice:outputText value="#{inv.id}"
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}" />
+											</ice:column>
+											<ice:column id="columnMonth" style="text-align:center">
+												<f:facet name="header">
+													<ice:outputText value="Month" />
+												</f:facet>
+												<ice:outputText rendered="#{inv.id == null}"
+													style="color:grey"
+													value="#{invoiceManagerModel.monthFormat.format(inv.invoiceDate)}" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{invoiceManagerModel.monthFormat.format(inv.invoiceDate)}" />
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{invoiceManagerModel.monthFormat.format(inv.invoiceDate)}" />
+											</ice:column>
+											<ice:column id="columnInvoiceCarriedForwad"
+												style="text-align:right;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Carried Forward" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:45px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.previousOutstanding}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.previousOutstanding}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoiceCharge"
+												style="text-align:right;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Total Charge" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:45px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.totalCharge}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.totalCharge}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoicePayments"
+												style="text-align:right;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Total Payments" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:45px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.previousPayments + inv.currentPayments}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.previousPayments + inv.currentPayments}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnInvoiceBalance"
+												style="text-align:right;width:100px">
+												<f:facet name="header">
+													<ice:outputText value="Balance" />
+												</f:facet>
+												<ice:outputText value="-" rendered="#{inv.id == null}"
+													style="color:grey;margin-right:45px" />
+												<ice:outputText style="color:red"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus)}"
+													value="#{inv.total}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+												<ice:outputText
+													rendered="#{inv.id != null and empty(inv.stmntStatus)}"
+													value="#{inv.total}">
+													<f:convertNumber type="currency" maxFractionDigits="2"
+														minFractionDigits="2" currencySymbol="$" />
+												</ice:outputText>
+											</ice:column>
+											<ice:column id="columnStatus"
+												style="text-align:center;width:50px">
+												<f:facet name="header">
+													<ice:outputText value="Status" />
+												</f:facet>
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/ok.png" title="Statement ready"
+													rendered="#{inv.id != null and empty(inv.stmntStatus) and !inv.noRecords}" />
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/ok_disabled.png"
+													title="Statement ready to be generated"
+													rendered="#{inv.id == null and empty(inv.stmntStatus) and !inv.noRecords}" />
+												<ice:graphicImage style="border:none" width="13" height="13"
+													url="images/icons/warning_s.png" title="#{inv.stmntStatus}"
+													rendered="#{inv.id == null and !empty(inv.stmntStatus) and !inv.noRecords}" />
+												<ice:graphicImage style="border:none" width="15" height="15"
+													url="images/icons/warning_s_red.png"
+													title="#{inv.stmntStatus}"
+													rendered="#{inv.id != null and !empty(inv.stmntStatus) and !inv.noRecords}" />
+												<ice:outputText value="-" style="color:grey"
+													rendered="#{inv.noRecords}" />
+											</ice:column>
+											<ice:column id="columnAction"
+												style="text-align:center;width:70px">
+												<f:facet name="header">
+													<ice:outputText value="Action" />
+												</f:facet>
+												<ice:commandLink id="actOpen" value="View"
+													rendered="#{inv.id != null and !inv.noRecords}"
+													actionListener="#{invoiceManagerModel.openInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="sMonth"
+														value="#{invoiceManagerModel.monthFormatMM.format(inv.invoiceDate)}" />
+												</ice:commandLink>
+												<ice:commandLink id="actGen" value="Generate"
+													rendered="#{inv.id == null and !inv.noRecords}"
+													actionListener="#{invoiceManagerModel.generateInvoice}">
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="index" value="#{status.index}" />
+													<f:attribute name="from" value="paymentMgr" />
+												</ice:commandLink>
+												<ice:outputText value="-" style="color:grey"
+													rendered="#{inv.noRecords}" />
+											</ice:column>
+											<ice:column id="columnRemove"
+												style="text-align:center;width:50px">
+												<f:facet name="header">
+													<ice:outputText value="Delete" />
+												</f:facet>
+												<ice:commandLink style="border:none"
+													panelConfirmation="deleteConfirmation"
+													actionListener="#{invoiceManagerModel.deleteInvoice}"
+													title="Delete" id="commandDeleteInv"
+													rendered="#{inv.id != null and !inv.nxtStmntFound and !inv.noRecords}">
+													<ice:graphicImage style="border:none" width="13"
+														height="13" url="images/icons/delete-icon.png" />
+													<f:attribute name="invoice" value="#{inv}" />
+													<f:attribute name="index" value="#{status.index}" />
+													<f:attribute name="from" value="paymentMgr" />
+												</ice:commandLink>
+												<ice:graphicImage style="border:none"
+													title="Upcoming month's statement is already generated."
+													rendered="#{inv.id != null and inv.nxtStmntFound and !inv.noRecords}"
+													width="13" height="13"
+													url="images/icons/delete-icon-disabled.png" />
+												<ice:graphicImage style="border:none"
+													title="Statement isn't generated yet."
+													rendered="#{inv.id == null and !inv.noRecords}" width="13"
+													height="13" url="images/icons/delete-icon-disabled.png" />
+												<ice:outputText value="-" style="color:grey"
+													rendered="#{inv.noRecords}" />
+												<ice:panelConfirmation id="deleteConfirmation"
+													acceptLabel="Yes" cancelLabel="No" draggable="true"
+													title="Confirm"
+													message="Are you sure you want to perform this action?" />
+											</ice:column>
+										</ice:dataTable>
+									</ice:setEventPhase>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelTab>
+						<ice:panelTab label="Outstanding Events" rendered="false">
+							<fieldset style="height: 350px">
+								<legend>
+									<ice:outputLabel value="Outstanding Events Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{invoiceManagerModel.student == null}">
+									<ice:outputText
+										value="Please select a #{msgs['student_label'].toLowerCase()} to view details." />
+								</ice:panelGroup>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{invoiceManagerModel.student != null and empty(invoiceManagerModel.outstandingEvents)}">
+									<ice:outputText value="No outstanding events found.." />
+								</ice:panelGroup>
+								<ice:panelGroup
+									rendered="#{invoiceManagerModel.student != null and !empty(invoiceManagerModel.outstandingEvents)}">
+									<ice:commandButton value="Update Events"
+										styleClass="CommandButton" style="width:150px"
+										action="#{invoiceManagerModel.saveOutstandingEvents}" />
+									<ice:outputLabel value="Total Outstanding Amount :"
+										style="margin-left:15px" />
+									<ice:outputText value="#{invoiceManagerModel.totalOutstanding}"
+										style="margin-left:5px">
+										<f:convertNumber type="currency" currencySymbol="$" />
+									</ice:outputText>
+									<ice:dataTable value="#{invoiceManagerModel.outstandingEvents}"
+										var="stuEve" id="tableOutstandingEvents"
+										style="margin-top:10px"
+										columnWidths="80px,210px,80px,230px,60px,60px,50px,50px,200px"
+										scrollable="true" scrollHeight="255px"
+										rendered="#{not empty(invoiceManagerModel.outstandingEvents)}">
+										<ice:column id="columnEventDate" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Event Date" />
+											</f:facet>
+											<ice:outputText
+												value="#{stuEve.eventChargeTx.programEvent.eventDate}"
+												converter="dateConverter" />
+										</ice:column>
+										<ice:column id="columnProgramName"
+											style="text-align:left;vertical-align:top">
+											<f:facet name="header">
+												<ice:outputText value="Program Name" />
+											</f:facet>
+											<ice:outputText
+												value="#{stuEve.eventChargeTx.programEvent.program.name}" />
+										</ice:column>
+										<ice:column id="columnProgramType"
+											style="text-align:center;vertical-align:top">
+											<f:facet name="header">
+												<ice:outputText value="Program Type" />
+											</f:facet>
+											<ice:outputText
+												value="#{stuEve.eventChargeTx.programEvent.program.type.name}" />
+										</ice:column>
+										<ice:column id="columnEventGroup" style="vertical-align:top">
+											<f:facet name="header">
+												<ice:outputText value="#{msgs['student_label']} Group" />
+											</f:facet>
+											<ice:outputText value="#{stuEve.groupedStudent.group.name}" />
+										</ice:column>
+										<ice:column id="columnStudentChargeAmount"
+											style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="Total Amount Charged" />
+											</f:facet>
+											<ice:panelGroup style="text-align:right">
+												<ice:outputText value="#{stuEve.totalCharges}"
+													rendered="#{stuEve.attended}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+											</ice:panelGroup>
+										</ice:column>
+										<ice:column id="columnStudentEveAmount"
+											style="text-align:right">
+											<f:facet name="header">
+												<ice:outputText value="Total Amount Paid" />
+											</f:facet>
+											<ice:panelGroup style="text-align:right">
+												<ice:outputText value="#{stuEve.amountPaid}"
+													rendered="#{stuEve.attended}">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+											</ice:panelGroup>
+										</ice:column>
+										<ice:column id="columnStudentOtherCharges" style="padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Other Charges" />
+											</f:facet>
+											<ice:panelGrid columns="2" style="width:62px" cellpadding="0"
+												cellspacing="0">
+												<ice:panelGroup style="width:30px;text-align:right"
+													rendered="#{stuEve.attended}">
+													<ice:outputText value="#{stuEve.otherChargeTxs.size()}" />
+												</ice:panelGroup>
+												<ice:commandLink
+													actionListener="#{invoiceManagerModel.createNewCharge}"
+													title="Add new additional charge" id="commandlinkNewCharge"
+													rendered="#{stuEve.attended}">
+													<ice:graphicImage style="border:none"
+														url="images/icons/Add-icon.png" width="10" height="10" />
+													<f:attribute name="stdEvent" value="#{stuEve}" />
+												</ice:commandLink>
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStudentEvePayments" style="padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Number of Payments" />
+											</f:facet>
+											<ice:panelGrid columns="2" style="width:62px" cellpadding="0"
+												cellspacing="0">
+												<ice:panelGroup style="width:30px;text-align:right"
+													rendered="#{stuEve.attended}">
+													<ice:outputText value="#{stuEve.paymentTxs.size()}" />
+												</ice:panelGroup>
+												<ice:commandLink
+													actionListener="#{invoiceManagerModel.createNewPayment}"
+													title="Make New Payment" id="commandlinkNewPayment">
+													<ice:graphicImage style="border:none"
+														url="images/icons/Add-icon.png" width="10" height="10"
+														rendered="#{stuEve.attended}" />
+													<f:attribute name="stdEvent" value="#{stuEve}" />
+												</ice:commandLink>
+												<!-- <ice:commandLink
+										actionListener="#{invoiceManagerModel.createNewPayment}"
+										title="Show History" id="commandlinkPaymentHistory"
+										rendered="#{stuEve.attended and stuEve.totalCharges == stuEve.totalPayments}">
+										<ice:graphicImage style="border:none"
+											url="images/icons/ok.png" width="12" height="12" />
+										<f:attribute name="stdEvent" value="#{stuEve}" />
+									</ice:commandLink> -->
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStudentEveRemarks" style="padding:0">
+											<f:facet name="header">
+												<ice:outputText value="Remarks" />
+											</f:facet>
+											<ice:inputText id="inputRemarks" value="#{stuEve.remarks}"
+												style="width:198px;text-align:left"
+												maxlength="#{msgs['studentEvent.remarks.size']}"
+												title="#{stuEve.remarks}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelTab>
+						<ice:panelTab label="Other Transactions">
+							<fieldset style="height: 350px">
+								<legend>
+									<ice:outputLabel value="Ad-Hoc Transaction Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{invoiceManagerModel.student == null}">
+									<ice:outputText
+										value="Please select a #{msgs['student_label'].toLowerCase()} to view details.." />
+								</ice:panelGroup>
+								<ice:panelGroup
+									rendered="#{invoiceManagerModel.student != null}">
+									<ice:commandButton id="buttonAddCharge" value="Add Charge"
+										action="#{invoiceManagerModel.adhocCharge}"
+										styleClass="CommandButton" />
+									<ice:commandButton id="buttonAddPayment" value="Make Payment"
+										action="#{invoiceManagerModel.adhocPayment}"
+										styleClass="CommandButton"
+										style="margin-left:5px;margin-right:20px" />
+									<ice:outputLabel value="Total Outstanding Amount:" />
+									<ice:outputText value="#{invoiceManagerModel.adhocAmount}"
+										style="margin-left:10px">
+										<f:convertNumber type="currency" currencySymbol="$" />
+									</ice:outputText>
+									<ice:dataTable value="#{invoiceManagerModel.adHocTxs}"
+										var="Adhoc" id="AdhocTransationTable" scrollable="true"
+										scrollHeight="255px"
+										columnWidths="100px,130px,100px,100px,100px,100px,400px"
+										rendered="#{invoiceManagerModel.student != null}">
+										<ice:column id="columnDate" style="text-align:center;width:100px">
+											<f:facet name="header">
+												<ice:outputText value="Transaction Date" style="width:100px"/>
+											</f:facet>
+											<ice:outputText value="#{Adhoc.transactionDate}"
+												converter="dateConverter" style="width:100px"/>
+										</ice:column>
+										<ice:column id="columnAmount" style="text-align:right;width:100px">
+											<f:facet name="header">
+												<ice:outputText value="Amount ($)" style="width:100px"/>
+											</f:facet>
+											<ice:panelGrid columns="2" style="float:right">
+												<ice:outputText value="#{Adhoc.amount}" style="width:100px">
+													<f:convertNumber maxFractionDigits="2"
+														minFractionDigits="2" />
+												</ice:outputText>
+												<ice:panelGroup style="width:40px">
+													<ice:outputText value="+ GST" style="width:100px"
+														rendered="#{Adhoc.gstIncluded}" />
+												</ice:panelGroup>
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnTransactionType"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Transaction Type" />
+											</f:facet>
+											<ice:outputText value="#{Adhoc.transactionType.toString()}" />
+										</ice:column>
+										<ice:column id="columnChargeType" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Charge Type" />
+											</f:facet>
+											<ice:outputText value="#{Adhoc.chargeType.id}" />
+										</ice:column>
+										<ice:column id="columnPaymentType" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="PaymentType" />
+											</f:facet>
+											<ice:outputText value="#{Adhoc.paymentType.id}" />
+										</ice:column>
+										<ice:column id="columnPaymentMethod" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Payment Method" />
+											</f:facet>
+											<ice:outputText value="#{Adhoc.paymentMethod}" />
+										</ice:column>
+										<ice:column id="columnRemark">
+											<f:facet name="header">
+												<ice:outputText value="Remark" />
+											</f:facet>
+											<ice:outputText
+												rendered="#{Adhoc.paymentType.id == 'Collection'}"
+												value="Payment for '#{Adhoc.collection.name}' : #{Adhoc.remarks}" />
+											<ice:outputText value="#{Adhoc.remarks}"
+												rendered="#{Adhoc.paymentType.id != 'Collection'}" />
+										</ice:column>
+									</ice:dataTable>
+								</ice:panelGroup>
+							</fieldset>
+						</ice:panelTab>
+					</ice:panelTabSet>
+				</div>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{invoiceManagerModel.visiblePayment}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Make a new payment"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closePaymentButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{invoiceManagerModel.paymentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:panelGrid columns="2" width="100%" style="margin-top:10px"
+									rowClasses="topAlignedTableCell">
+									<ice:panelGrid columns="2">
+										<ice:outputText value="Payment Type " />
+										<ice:selectOneMenu id="selectOnePayment"
+											valueChangeListener="#{invoiceManagerModel.changePaymentType}"
+											value="#{invoiceManagerModel.paymentTx.paymentType}"
+											partialSubmit="true">
+											<f:attribute name="payment" value="outstanding" />
+											<f:selectItems var="paymentType"
+												itemLabel="#{paymentType.id}" itemValue="#{paymentType}"
+												value="#{invoiceManagerModel.paymentTypes}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Collection Type "
+											rendered="#{invoiceManagerModel.paymentTx.paymentType == 'COLLECTION'}" />
+										<ice:selectOneMenu id="selectoneCollection"
+											valueChangeListener="#{invoiceManagerModel.collectionChanged}"
+											value="#{invoiceManagerModel.collectionId}"
+											partialSubmit="true"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType == 'COLLECTION'}">
+											<f:attribute name="collection" value="outstanding" />
+											<f:selectItem itemValue="0" itemLabel="Please Select"
+												itemDisabled="true" />
+											<f:selectItems var="collection"
+												itemLabel="#{collection.name}" itemValue="#{collection.id}"
+												value="#{invoiceManagerModel.collection}" />
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Amount Payable :"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType != 'COLLECTION'}" />
+										<ice:outputText style="margin-left:5px"
+											value="#{invoiceManagerModel.studentEvent.tmpAmount}"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType != 'COLLECTION'}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2"
+												type="currency" currencySymbol="$" />
+										</ice:outputText>
+										<!-- <ice:panelGrid columns="2"
+											rendered="#{invoiceManagerModel.payType == 'COLLECTION'}">
+											<ice:outputLabel value="Amount Payable :" />
+											<ice:outputText
+												value="#{invoiceManagerModel.studentEvent.tmpAmount}">
+												<f:convertNumber maxFractionDigits="2" minFractionDigits="2"
+													type="currency" currencySymbol="$" />
+											</ice:outputText>
+										</ice:panelGrid> -->
+									</ice:panelGrid>
+									<ice:panelGrid columns="2">
+										<ice:outputText value="Amount " />
+										<ice:inputText id="inputAmount"
+											value="#{invoiceManagerModel.paymentTx.amount}"
+											partialSubmit="true">
+											<f:convertNumber type="number" maxFractionDigits="2"
+												minFractionDigits="2" />
+										</ice:inputText>
+										<ice:outputText value="Remarks " />
+										<ice:inputText id="inputRemarks"
+											value="#{invoiceManagerModel.paymentTx.remarks}"
+											partialSubmit="true" />
+										<ice:outputText value="Payment Method " />
+										<ice:selectOneMenu id="selectOnePaymentMethod"
+											styleClass="SelectOneMenu"
+											value="#{invoiceManagerModel.paymentTx.paymentMethod}">
+											<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+										</ice:selectOneMenu>
+										<ice:outputText />
+										<ice:commandButton id="buttonAdd" value="Add"
+											actionListener="#{invoiceManagerModel.addPayment}"
+											style="float:right;width:60px" styleClass="CommandButton">
+											<f:attribute name="add" value="outstanding" />
+										</ice:commandButton>
+									</ice:panelGrid>
+								</ice:panelGrid>
+							</ice:setEventPhase>
+							<ice:dataTable id="paymentTable" var="tx"
+								value="#{invoiceManagerModel.studentEvent.paymentTxs}"
+								style="margin-bottom:5px" width="550">
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+									<!-- <ice:inputText id="inputTxAmt" value="#{tx.amount}"
+										style="width:48px;text-align:right"
+										rendered="#{tx.id == null}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText> -->
+									<!-- <ice:inputText id="inputTxAmt1" value="#{tx.amount}"
+										style="width:48px;text-align:right;border:none"
+										readonly="true" rendered="#{tx.id != null}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText> -->
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Payment Type" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.paymentType != 'COLLECTION'}" />
+									<ice:outputText
+										value="#{tx.paymentType.id}: #{tx.collection.name}"
+										rendered="#{tx.paymentType == 'COLLECTION'}" />
+									<!-- <ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.id != null and tx.paymentType != 'COLLECTION'}" />
+									<ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.id != null and tx.paymentType == 'COLLECTION'}" />
+									<ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.id == null}" /> -->
+								</ice:column>
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Payment Method" style="font-size:10px" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentMethod}" />
+									<!-- <ice:selectOneMenu id="selectOnePaymentMethod"
+										styleClass="SelectOneMenu" rendered="#{tx.id == null}"
+										value="#{tx.paymentMethod}" style="width:100px">
+										<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+									</ice:selectOneMenu> -->
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+									<!-- <ice:inputText id="inputTxRmks" value="#{tx.remarks}"
+										style="width:148px" rendered="#{tx.id == null}"
+										maxlength="#{msgs['transaction.remarks.size']}" />
+									<ice:inputText id="inputTxRmks1" value="#{tx.remarks}"
+										style="width:148px;border:none" readonly="true"
+										rendered="#{tx.id != null}" title="#{tx.remarks}" /> -->
+								</ice:column>
+								<ice:column style="text-align:center;width:40px">
+									<f:facet name="header">
+										<ice:outputText value="Remove" />
+									</f:facet>
+									<ice:graphicImage style="border:none"
+										rendered="#{tx.invoiceId != null}"
+										title="Can not remove. Transaction is invoiced"
+										url="images/icons/delete-icon-disabled.png" />
+									<ice:commandLink style="border:none"
+										rendered="#{tx.invoiceId == null}"
+										actionListener="#{invoiceManagerModel.deletePayment}"
+										title="Remove" id="commandDeleteTx">
+										<ice:graphicImage style="border:none"
+											url="images/icons/delete-icon.png" />
+										<f:attribute name="tx" value="#{tx}" />
+										<f:attribute name="txType" value="event" />
+									</ice:commandLink>
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandTxCancel" value="Cancel"
+								action="#{invoiceManagerModel.paymentPopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandTxAdd" value="Ok"
+								actionListener="#{invoiceManagerModel.savePayment}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton">
+								<f:attribute name="save" value="outstanding" />
+							</ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{invoiceManagerModel.visibleCharge}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add new additional charge"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeChargeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{invoiceManagerModel.chargePopup}"
+								styleClass="popupHeaderImage" title="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+								rowClasses="topAlignedTableCell" width="500">
+								<ice:panelGrid columns="2">
+									<ice:outputText value="Amount" />
+									<ice:inputText id="inputChrgeAmnt"
+										value="#{invoiceManagerModel.chargeTx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText>
+									<ice:outputText value="GST Included" />
+									<ice:selectBooleanCheckbox id="selectGSTIncluded"
+										value="#{invoiceManagerModel.chargeTx.gstIncluded}" />
+								</ice:panelGrid>
+								<ice:panelGrid columns="2" style="margin-right:-5px">
+									<ice:panelGroup style="height:40px">
+										<ice:outputText value="Remarks" />
+									</ice:panelGroup>
+									<ice:inputTextarea id="inputChrgeRemarks"
+										style="height:40px;width:180px"
+										value="#{invoiceManagerModel.chargeTx.remarks}"
+										maxlength="#{msgs['transaction.remarks.size']}" />
+								</ice:panelGrid>
+								<div />
+								<ice:commandButton id="commandAddCharge" value="Add"
+									actionListener="#{invoiceManagerModel.addCharge}"
+									style="float:right;width:60px" styleClass="CommandButton">
+									<f:attribute name="add" value="outstanding" />
+								</ice:commandButton>
+							</ice:panelGrid>
+							<ice:dataTable id="chargeTable" var="tx"
+								value="#{invoiceManagerModel.studentEvent.otherChargeTxs}"
+								style="margin-bottom:5px" width="100%">
+								<ice:column style="text-align:center;width:100px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column style="text-align:center;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="GST Included" />
+									</f:facet>
+									<ice:selectBooleanCheckbox value="#{tx.gstIncluded}"
+										disabled="true" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandChargeTxCancel" value="Cancel"
+								action="#{invoiceManagerModel.chargePopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandChargeTxAdd" value="Ok"
+								actionListener="#{invoiceManagerModel.saveCharges}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton">
+								<f:attribute name="save" value="outstanding" />
+							</ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{invoiceManagerModel.visibleAdhocCharge}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Add new charge"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeadhocChargeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{invoiceManagerModel.adhocChargePopup}"
+								styleClass="popupHeaderImage" title="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px">
+							<ice:messages />
+							<ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+								rowClasses="topAlignedTableCell" width="550">
+								<ice:panelGrid columns="2">
+									<ice:outputText value="Tx Date" />
+									<ice:selectInputDate id="chargeTxDate" renderAsPopup="true"
+										renderMonthAsDropdown="true" renderYearAsDropdown="true"
+										value="#{invoiceManagerModel.chargeTx.transactionDate}"
+										converter="dateConverter" />
+									<ice:outputText value="Amount" />
+									<ice:inputText id="inputAdhocChrgeAmnt"
+										value="#{invoiceManagerModel.chargeTx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:inputText>
+									<ice:outputText value="GST Included" />
+									<ice:selectBooleanCheckbox id="selectAdhocGSTIncluded"
+										value="#{invoiceManagerModel.chargeTx.gstIncluded}" />
+								</ice:panelGrid>
+								<ice:panelGrid columns="2" style="margin-right:-5px;float:right">
+									<ice:panelGroup style="height:40px">
+										<ice:outputText value="Remarks" />
+									</ice:panelGroup>
+									<ice:inputTextarea id="inputAdhocChrgeRemarks"
+										style="height:40px;width:200px"
+										value="#{invoiceManagerModel.chargeTx.remarks}"
+										maxlength="#{msgs['transaction.remarks.size']}" />
+								</ice:panelGrid>
+								<div />
+								<ice:commandButton id="commandAddAdhocCharge" value="Add"
+									actionListener="#{invoiceManagerModel.addCharge}"
+									style="float:right;width:60px" styleClass="CommandButton">
+									<f:attribute name="add" value="adhoc" />
+								</ice:commandButton>
+							</ice:panelGrid>
+							<ice:dataTable id="adhocChargeTable" var="tx"
+								value="#{invoiceManagerModel.tempTxs}" style="margin-bottom:5px"
+								width="100%">
+								<ice:column style="text-align:center;width:100px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column style="text-align:center;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="GST Included" />
+									</f:facet>
+									<ice:selectBooleanCheckbox value="#{tx.gstIncluded}"
+										disabled="true" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandAdhocChargeTxCancel" value="Cancel"
+								action="#{invoiceManagerModel.adhocChargePopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandAdhocChargeTxAdd" value="Ok"
+								actionListener="#{invoiceManagerModel.saveCharges}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton">
+								<f:attribute name="save" value="adhoc" />
+							</ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<ice:panelPopup modal="true" draggable="true"
+					rendered="#{invoiceManagerModel.visibleAdhocPayment}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText value="Make a new Ad-Hoc payment"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeAdhocPaymentButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{invoiceManagerModel.adhocPaymentPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="margin-top:10px; width:600px">
+							<ice:messages />
+							<ice:setEventPhase events="FacesEvent"
+								phase="UPDATE_MODEL_VALUES">
+								<ice:panelGrid columns="2" width="100%" style="margin-top:10px"
+									rowClasses="topAlignedTableCell">
+									<ice:panelGrid columns="2">
+										<ice:panelGroup style="width: 115px">
+											<ice:outputText value="Tx Date" />
+										</ice:panelGroup>
+										<ice:selectInputDate id="paymentTxDate" renderAsPopup="true"
+											renderMonthAsDropdown="true" renderYearAsDropdown="true"
+											value="#{invoiceManagerModel.paymentTx.transactionDate}"
+											converter="dateConverter" />
+										<ice:outputText value="Payment Type " />
+										<ice:selectOneMenu id="selectOneAdhocPayment"
+											valueChangeListener="#{invoiceManagerModel.changePaymentType}"
+											value="#{invoiceManagerModel.paymentTx.paymentType}"
+											partialSubmit="true">
+											<f:attribute name="payment" value="adhoc" />
+											<f:selectItems var="paymentType"
+												itemLabel="#{paymentType.id}" itemValue="#{paymentType}"
+												value="#{invoiceManagerModel.paymentTypes}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Collection Type "
+											rendered="#{invoiceManagerModel.paymentTx.paymentType == 'COLLECTION'}" />
+										<ice:selectOneMenu id="selectoneAdhocCollection"
+											valueChangeListener="#{invoiceManagerModel.collectionChanged}"
+											value="#{invoiceManagerModel.collectionId}"
+											partialSubmit="true"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType == 'COLLECTION'}">
+											<f:attribute name="collection" value="adhoc" />
+											<f:selectItem itemValue="0" itemLabel="Please Select"
+												itemDisabled="true" />
+											<f:selectItems var="collection"
+												itemLabel="#{collection.name}" itemValue="#{collection.id}"
+												value="#{invoiceManagerModel.collection}" />
+										</ice:selectOneMenu>
+										<ice:outputLabel value="Amount Payable :"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType != 'COLLECTION'}" />
+										<ice:outputText style="margin-left:5px"
+											value="#{invoiceManagerModel.adhocAmountPayable}"
+											rendered="#{invoiceManagerModel.paymentTx.paymentType != 'COLLECTION'}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2"
+												type="currency" currencySymbol="$" />
+										</ice:outputText>
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" style="float:right">
+										<ice:outputText value="Amount " />
+										<ice:inputText id="inputAdhocAmount"
+											value="#{invoiceManagerModel.paymentTx.amount}"
+											partialSubmit="true">
+											<f:convertNumber type="number" maxFractionDigits="2"
+												minFractionDigits="2" />
+										</ice:inputText>
+										<ice:outputText value="Remarks " />
+										<ice:inputText id="inputAdhocRemarks"
+											value="#{invoiceManagerModel.paymentTx.remarks}"
+											partialSubmit="true" />
+										<ice:outputText value="Payment Method " />
+										<ice:selectOneMenu id="selectOneAdhocPaymentMethod"
+											styleClass="SelectOneMenu"
+											value="#{invoiceManagerModel.paymentTx.paymentMethod}">
+											<f:selectItems value="#{lookupListProvider.paymentMethods}" />
+										</ice:selectOneMenu>
+										<ice:outputText />
+										<ice:commandButton id="buttonAdhocAdd" value="Add"
+											actionListener="#{invoiceManagerModel.addPayment}"
+											style="float:right;width:60px" styleClass="CommandButton">
+											<f:attribute name="add" value="adhoc" />
+										</ice:commandButton>
+									</ice:panelGrid>
+								</ice:panelGrid>
+							</ice:setEventPhase>
+							<ice:dataTable id="adhocPaymentTable" var="tx"
+								value="#{invoiceManagerModel.tempTxs}" style="margin-bottom:5px"
+								width="100%">
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Date" />
+									</f:facet>
+									<ice:outputText value="#{tx.transactionDate}"
+										converter="dateConverter" />
+								</ice:column>
+								<ice:column style="text-align:right;width:50px">
+									<f:facet name="header">
+										<ice:outputText value="Amount" />
+									</f:facet>
+									<ice:outputText value="#{tx.amount}">
+										<f:convertNumber type="number" maxFractionDigits="2"
+											minFractionDigits="2" />
+									</ice:outputText>
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Payment Type" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentType.id}"
+										rendered="#{tx.paymentType != 'COLLECTION'}" />
+									<ice:outputText
+										value="#{tx.paymentType.id}: #{tx.collection.name}"
+										rendered="#{tx.paymentType == 'COLLECTION'}" />
+								</ice:column>
+								<ice:column style="text-align:center;width:70px">
+									<f:facet name="header">
+										<ice:outputText value="Payment Method" style="font-size:10px" />
+									</f:facet>
+									<ice:outputText value="#{tx.paymentMethod}" />
+								</ice:column>
+								<ice:column>
+									<f:facet name="header">
+										<ice:outputText value="Remarks" />
+									</f:facet>
+									<ice:outputText value="#{tx.remarks}" />
+								</ice:column>
+								<ice:column style="text-align:center;width:40px">
+									<f:facet name="header">
+										<ice:outputText value="Remove" />
+									</f:facet>
+									<ice:graphicImage style="border:none"
+										rendered="#{tx.invoiceId != null}"
+										title="Can not remove. Transaction is invoiced"
+										url="images/icons/delete-icon-disabled.png" />
+									<ice:commandLink style="border:none"
+										rendered="#{tx.invoiceId == null}"
+										actionListener="#{invoiceManagerModel.deletePayment}"
+										title="Remove" id="commandDeleteTx">
+										<ice:graphicImage style="border:none"
+											url="images/icons/delete-icon.png" />
+										<f:attribute name="txType" value="adhoc" />
+										<f:attribute name="tx" value="#{tx}" />
+									</ice:commandLink>
+								</ice:column>
+							</ice:dataTable>
+							<ice:commandButton id="commandAdhocTxCancel" value="Cancel"
+								action="#{invoiceManagerModel.adhocPaymentPopup}"
+								style="float:right;width:60px" styleClass="CommandButton" />
+							<ice:commandButton id="commandAdhocTxAdd" value="Ok"
+								actionListener="#{invoiceManagerModel.savePayment}"
+								style="float:right;width:60px;margin-right:5px"
+								styleClass="CommandButton">
+								<f:attribute name="save" value="adhoc" />
+							</ice:commandButton>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

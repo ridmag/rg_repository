@@ -1,0 +1,543 @@
+package com.itelasoft.pso.web;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import com.itelasoft.pso.beans.EnumHolidayType;
+import com.itelasoft.pso.beans.Holiday;
+import com.itelasoft.pso.beans.Program;
+import com.itelasoft.pso.beans.ProgramEvent;
+import com.itelasoft.pso.beans.StaffEvent;
+import com.itelasoft.pso.beans.StaffMember;
+import com.itelasoft.pso.beans.StudentGroup;
+import com.itelasoft.pso.beans.Vehicle;
+import com.itelasoft.pso.services.ProgramService;
+import com.itelasoft.util.SortSelectItemsByLabel;
+import net.sf.json.JSONObject;
+
+//import com.itelasoft.util.PDFExporter;
+
+@ManagedBean(name = "rosterManagerModel")
+@SessionScoped
+public class RosterManagerModel extends UIModel {
+
+	private Date weekDate;
+	private Date startDate;
+	private Date endDate;
+	private DataModel<Program> rowDataModel;
+	private DataModel<Date> columnDataModel;
+	private List<Program> programs;
+	private List<Date> dates;
+	private List<StaffMember> staffList;
+	private List<StaffEvent> availableStaffList;
+	private List<Vehicle> vehicles, activeVehicles;
+	private ProgramEvent proEvent;
+	private JSONObject json;
+	private String jsonString;
+	private String staffId;
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	private boolean visibleEvent;
+	private List<SelectItem> staffSelectItemList;
+	private String status;
+	private String timePeriod;
+	private List<Date> holidayDates;
+	private StudentGroup studentGroup;
+	private Date currentDate;
+	public static String flag;
+
+	public RosterManagerModel() {
+		init();
+	}
+
+	public void init() {
+		currentDate = new Date();
+		flag = "";
+		weekDate = new Date();
+		visibleEvent = false;
+		timePeriod = "1W";
+		staffId = "All";
+		jsonString = "";
+		staffList = serviceLocator.getStaffMemberService().listActiveStaffMembers();
+		staffSelectItemList = new ArrayList<SelectItem>();
+		if (staffList != null && !staffList.isEmpty()) {
+			for (StaffMember member : staffList) {
+				staffSelectItemList.add(new SelectItem(member.getStaffId(), member.getContact().getName()));
+			}
+			Collections.sort(staffSelectItemList, new SortSelectItemsByLabel());
+			staffSelectItemList.add(0, new SelectItem("All", "All Staff Members"));
+		} else {
+			staffSelectItemList.add(new SelectItem("", "No Staff Available"));
+		}
+		activeVehicles = serviceLocator.getVehicleService().listActiveVehicles();
+		createRoster();
+	}
+
+	public void createRoster(ValueChangeEvent ve) {
+		String flag = (String) ve.getComponent().getAttributes().get("flag");
+		if (flag.equals("staff")) {
+			staffId = (String) ve.getNewValue();
+		} else if (flag.equals("date")) {
+			weekDate = (Date) ve.getNewValue();
+		} else if (flag.equals("period")) {
+			timePeriod = (String) ve.getNewValue();
+		}
+		createRoster();
+	}
+
+	private void createRoster() {
+		calculateRosterDates();
+		if (currentDate.compareTo(endDate) >= 0) {
+			flag = "Final";
+		} else {
+			flag = "Draft";
+		}
+		programs = serviceLocator.getProgramService().createRoster(startDate, endDate,
+				(staffId.equals("All") ? "" : staffId));
+
+		if (programs != null && !programs.isEmpty()) {
+			dates = new ArrayList<Date>();
+			if (rowDataModel == null) {
+				rowDataModel = new ListDataModel<Program>(programs);
+			} else {
+				rowDataModel.setWrappedData(programs);
+			}
+			Date rosterDate = startDate;
+			Calendar cal = new GregorianCalendar();
+			cal.setTime(startDate);
+			while (rosterDate.before(endDate) || rosterDate.equals(endDate)) {
+				if (serviceLocator.getHolidayService().isHoliday(new Long(1), cal.getTime())) {
+					holidayDates.add(cal.getTime());
+				}
+				dates.add(cal.getTime());
+				cal.add(Calendar.DATE, 1);
+				rosterDate = cal.getTime();
+			}
+			if (columnDataModel == null) {
+				columnDataModel = new ListDataModel<Date>(dates);
+			} else {
+				columnDataModel.setWrappedData(dates);
+			}
+		}
+	}
+
+	public void goToNext() {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(weekDate);
+		/*
+		 * if (timePeriod.equals("1W")) { calendar.add(Calendar.DATE, 7); } else
+		 * if (timePeriod.equals("2W")) { calendar.add(Calendar.DATE, 14); }
+		 */
+		cal.add(Calendar.DATE, 14);
+		weekDate = cal.getTime();
+		createRoster();
+	}
+
+	public void goToPrevious() {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(weekDate);
+		/*
+		 * if (timePeriod.equals("1W")) { calendar.add(Calendar.DATE, -7); }
+		 * else if (timePeriod.equals("2W")) { calendar.add(Calendar.DATE, -14);
+		 * }
+		 */
+		cal.add(Calendar.DATE, -14);
+		weekDate = cal.getTime();
+		createRoster();
+	}
+
+	public List<ProgramEvent> getCellValue() {
+		List<ProgramEvent> events = new ArrayList<ProgramEvent>();
+		if (visibleEvent)
+			return events;
+		if (rowDataModel != null && columnDataModel != null) {
+			if (rowDataModel.isRowAvailable() && columnDataModel.isRowAvailable()) {
+				Object row = rowDataModel.getRowData();
+				int currentRow = ((ArrayList<?>) rowDataModel.getWrappedData()).indexOf(row);
+				Object column = columnDataModel.getRowData();
+				int currentColumn = ((ArrayList<?>) columnDataModel.getWrappedData()).indexOf(column);
+				Program program = programs.get(currentRow);
+				Date date = dates.get(currentColumn);
+				String rosterString = dateFormat.format(date);
+				for (ProgramEvent event : program.getProgramEvents()) {
+					String eventString = dateFormat.format(event.getStartTime());
+					if (rosterString.equals(eventString)) {
+						events.add(event);
+					}
+				}
+			}
+		}
+		return events;
+	}
+
+	public void selectEvent(ActionEvent ae) {
+		proEvent = (ProgramEvent) ae.getComponent().getAttributes().get("event");
+		this.studentGroup = new StudentGroup();
+		this.studentGroup = serviceLocator.getStudentGroupService().retrieveWithData(proEvent.getGroup().getId());
+		availableStaffList = new ArrayList<StaffEvent>();
+		for (StaffEvent se : proEvent.getStaffEvents()) {
+			se.getStaffMember().setTotalWorkHours(serviceLocator.getStaffMemberService()
+					.getTotalWorkHours(se.getStaffMember().getId(), startDate, endDate));
+			se.getStaffMember()
+					.setAllocatedHours(ProgramService.staffRosterTimeMap.get(se.getStaffMember().getId()) / 3600000.0);
+		}
+		eventPopup();
+		if (proEvent.getStatus().equals("finished")) {
+			return;
+		}
+		for (StaffMember staff : staffList) {
+			if (proEvent.getStaffAvailabilityMap().containsKey(staff.getId())) {
+				continue;
+			}
+			staff.setTotalWorkHours(
+					serviceLocator.getStaffMemberService().getTotalWorkHours(staff.getId(), startDate, endDate));
+			StaffEvent newStaff = createStaffEvent(staff, proEvent);
+			serviceLocator.getProgramService().setStaffAvailabilityNSkills(newStaff, proEvent);
+			serviceLocator.getProgramService().setStaffStatusByEvents(programs, newStaff, proEvent);
+
+			availableStaffList.add(newStaff);
+
+			if (proEvent.getProgram().getType().getName().equals("Transport")) {
+				vehicles = new ArrayList<Vehicle>();
+				vehicles.addAll(activeVehicles);
+				if (proEvent.getVehicle().getStatus().equals("Inactive"))
+					vehicles.add(0, proEvent.getVehicle());
+				for (Vehicle vehi : vehicles) {
+					serviceLocator.getProgramService().setVehicleStatusByEvents(programs, vehi, proEvent);
+					if (proEvent.getVehicle() != null) {
+						vehi.setActive(vehi.getId().equals(proEvent.getVehicle().getId()));
+					}
+				}
+			}
+			if (ProgramService.staffRosterTimeMap.get(staff.getId()) != null) {
+				staff.setAllocatedHours(ProgramService.staffRosterTimeMap.get(staff.getId()) / 3600000.0);
+			} else {
+				staff.setAllocatedHours(new Long(0));
+			}
+		}
+	}
+
+	public void addStaffMember(ActionEvent ae) {
+		Long timeDiff;
+		Double fortnightHours;
+		StaffEvent staffEvent = (StaffEvent) ae.getComponent().getAttributes().get("staff");
+		if (staffEvent != null) {
+			timeDiff = ProgramService.staffRosterTimeMap.get(staffEvent.getStaffMember().getId());
+			long startTime, endTime;
+			startTime = staffEvent.getProgramEvent().getStartTime().getTime();
+			endTime = staffEvent.getProgramEvent().getEndTime().getTime();
+			staffEvent.setRosterStartTime(staffEvent.getProgramEvent().getStartTime());
+			staffEvent.setRosterEndTime(staffEvent.getProgramEvent().getEndTime());
+			if (timeDiff == null) {
+				timeDiff = (endTime - startTime);
+			} else {
+				timeDiff = timeDiff + (endTime - startTime);
+			}
+			fortnightHours = staffEvent.getStaffMember().getHoursperFortnight();
+			if ((timeDiff / 3600000 > fortnightHours)) {
+				showInfo(staffEvent.getStaffMember().getContact().getName()
+						+ " exceeds allocated hours limit for this fortnight.");
+			}
+			ProgramService.staffRosterTimeMap.put(staffEvent.getStaffMember().getId(), timeDiff);
+			staffEvent.getStaffMember().setAllocatedHours(
+					ProgramService.staffRosterTimeMap.get(staffEvent.getStaffMember().getId()) / 3600000.0);
+			availableStaffList.remove(staffEvent);
+			proEvent.getStaffEvents().add(staffEvent);
+			serviceLocator.getProgramEventService().update(proEvent);
+
+		}
+	}
+
+	public void removeStaffMember(ActionEvent ae) {
+		Long timeDiff;
+		StaffEvent se = (StaffEvent) ae.getComponent().getAttributes().get("staffEvent");
+		if (se != null) {
+			double durationHours = 0;
+			if (se.getProgramEvent().getStartTime() != null && se.getProgramEvent().getEndTime() != null) {
+				Calendar calendar = Calendar.getInstance();
+				Date startTime = (se.getRosterStartTime() == null) ? se.getProgramEvent().getStartTime()
+						: se.getRosterStartTime();
+				Date endTime = (se.getRosterEndTime() == null) ? se.getProgramEvent().getEndTime()
+						: se.getRosterEndTime();
+				calendar.setTime(startTime);
+				long startingMilis = calendar.getTimeInMillis();
+				calendar.setTime(endTime);
+				long endingMilis = calendar.getTimeInMillis();
+				long durationMilis = endingMilis - startingMilis;
+				durationHours = durationMilis / (3600000);
+			}
+			try {
+				timeDiff = ProgramService.staffRosterTimeMap.get(se.getStaffMember().getId());
+				long startTime = (se.getRosterStartTime() == null) ? se.getProgramEvent().getStartTime().getTime()
+						: se.getRosterStartTime().getTime();
+				long endTime = (se.getRosterEndTime() == null) ? se.getProgramEvent().getEndTime().getTime()
+						: se.getRosterEndTime().getTime();
+				timeDiff = timeDiff - (endTime - startTime);
+				ProgramService.staffRosterTimeMap.put(se.getStaffMember().getId(), timeDiff);
+				serviceLocator.getStaffEventService().delete(se.getId());
+				proEvent.getStaffEvents().remove(se);
+				se.getStaffMember().setTotalWorkHours(se.getStaffMember().getTotalWorkHours() - durationHours);
+				se.getStaffMember().setAllocatedHours(
+						ProgramService.staffRosterTimeMap.get(se.getStaffMember().getId()) / 3600000);
+				se.setId(null);
+				availableStaffList.add(se);
+				proEvent.getStaffAvailabilityMap().remove(se.getStaffMember().getId());
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	private StaffEvent createStaffEvent(StaffMember staffMember, ProgramEvent programEvent) {
+		StaffEvent event = new StaffEvent();
+		event.setStaffMember(staffMember);
+		event.setProgramEvent(programEvent);
+		return event;
+	}
+
+	public void setActiveVehicle(ValueChangeEvent ve) {
+		Boolean selected = (Boolean) ve.getNewValue();
+		Vehicle selectedVehicle = (Vehicle) ve.getComponent().getAttributes().get("vehi");
+		if (selectedVehicle != null) {
+			if (selected) {
+				proEvent.setVehicle(selectedVehicle);
+				for (Vehicle veh : vehicles) {
+					veh.setActive(veh.getId().equals(selectedVehicle.getId()));
+				}
+				showInfo("Vehicle added successfully..");
+			} else {
+				proEvent.setVehicle(null);
+				showInfo("Vehicle removed successfully..");
+			}
+			serviceLocator.getProgramEventService().update(proEvent);
+		}
+	}
+
+	public void eventPopup() {
+		if (visibleEvent) {
+			visibleEvent = false;
+			serviceLocator.getProgramService().refreshRoster(programs);
+		} else {
+			visibleEvent = true;
+		}
+	}
+
+	public String getHolidayColor(Object endTime) {
+		Date currentDate = (Date) endTime;
+		if (currentDate != null) {
+			for (Date holiday : holidayDates) {
+				if (dateFormat.format(currentDate).equals(dateFormat.format(holiday))) {
+					Holiday holidayType = serviceLocator.getHolidayService().getHolidayType(holiday);
+					if (holidayType.getHolidayType().equals(EnumHolidayType.PUBLIC)) {
+						return "Wheat";
+					} else if (holidayType.getHolidayType().equals(EnumHolidayType.NON_PROGRAM)) {
+						return "Pink";
+					}
+				}
+			}
+		}
+		return "white";
+	}
+
+	public void generateTimeSheet() {
+		if (staffId.equals("All")) {
+			for (StaffMember staff : staffList) {
+				if (staff.getEmploymentType() == null) {
+					status = "There are staff memebers exist without an Employment type selected. Please go to staff manager and set the employment types first.";
+					return;
+				}
+			}
+		} else {
+			StaffMember staff = serviceLocator.getStaffMemberService().searchByStaffId(staffId);
+			if (staff == null) {
+				status = "Staff member not selected.";
+				return;
+			}
+			if (staff.getEmploymentType() == null) {
+				status = "Employment type of the selected staff member is not available. Please go to staff manager and set the employment type first.";
+				return;
+			}
+		}
+		status = "success";
+		json = new JSONObject();
+		json.put("startDate", dateFormat.format(startDate));
+		json.put("endDate", dateFormat.format(endDate));
+		json.put("staffId", staffId.toString());
+		jsonString = json.toString();
+	}
+
+	public void generateRosterReport() {
+		json = new JSONObject();
+		json.put("startDate", dateFormat.format(startDate));
+		json.put("endDate", dateFormat.format(endDate));
+		jsonString = json.toString();
+	}
+
+	private void calculateRosterDates() {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(weekDate);
+		if (cal.get(Calendar.DAY_OF_WEEK) != 7) {
+			cal.set(Calendar.DAY_OF_WEEK, 1);
+			cal.add(Calendar.DATE, -1);
+		}
+		startDate = Util.getDayStartTime(cal.getTime());
+		cal.add(Calendar.DATE, 13);
+		endDate = Util.getDayEndTime(cal.getTime());
+		holidayDates = new ArrayList<Date>();
+	}
+
+	/*
+	 * getters and setters
+	 */
+
+	/*
+	 * public PDFExporter getExporter() { return new PDFExporter(); }
+	 */
+
+	public TimeZone getTimeZone() {
+		return java.util.TimeZone.getDefault();
+	}
+
+	public void setWeekDate(Date weekDate) {
+		this.weekDate = weekDate;
+	}
+
+	public Date getWeekDate() {
+		return weekDate;
+	}
+
+	public void setRowDataModel(DataModel<Program> rowDataModel) {
+		this.rowDataModel = rowDataModel;
+	}
+
+	public DataModel<Program> getRowDataModel() {
+		return rowDataModel;
+	}
+
+	public void setColumnDataModel(DataModel<Date> columnDataModel) {
+		this.columnDataModel = columnDataModel;
+	}
+
+	public DataModel<Date> getColumnDataModel() {
+		return columnDataModel;
+	}
+
+	public void setProEvent(ProgramEvent proEvent) {
+		this.proEvent = proEvent;
+	}
+
+	public ProgramEvent getProEvent() {
+		return proEvent;
+	}
+
+	public void setVisibleEvent(boolean visibleEvent) {
+		this.visibleEvent = visibleEvent;
+	}
+
+	public boolean isVisibleEvent() {
+		return visibleEvent;
+	}
+
+	public List<StaffMember> getStaffList() {
+		return staffList;
+	}
+
+	public List<Vehicle> getVehicles() {
+		return vehicles;
+	}
+
+	public String getStaffId() {
+		return staffId;
+	}
+
+	public void setStaffId(String staffId) {
+		this.staffId = staffId;
+	}
+
+	public String getJsonString() {
+		return jsonString;
+	}
+
+	public void setJsonString(String jsonString) {
+		this.jsonString = jsonString;
+	}
+
+	/*
+	 * public void setTimeFormat(SimpleDateFormat timeFormat) { this.timeFormat
+	 * = timeFormat; }
+	 * 
+	 * public SimpleDateFormat getTimeFormat() { return timeFormat; }
+	 */
+
+	public List<SelectItem> getStaffSelectItemList() {
+		return staffSelectItemList;
+	}
+
+	public List<StaffEvent> getAvailableStaffList() {
+		return availableStaffList;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public SimpleDateFormat getDateFormat() {
+		return dateFormat;
+	}
+
+	public List<Program> getPrograms() {
+		return programs;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public void setTimePeriod(String timePeriod) {
+		this.timePeriod = timePeriod;
+	}
+
+	public String getTimePeriod() {
+		return timePeriod;
+	}
+
+	public void setStudentGroup(StudentGroup studentGroup) {
+		this.studentGroup = studentGroup;
+	}
+
+	public StudentGroup getStudentGroup() {
+		return studentGroup;
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
+	}
+
+	public String getFlag() {
+		return flag;
+	}
+}

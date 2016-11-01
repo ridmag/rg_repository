@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<ice:panelGroup>
+	<ice:panelGrid columns="6" styleClass="borderBox" width="100%">
+		<ice:commandLink id="commanButtonGoToPreviousWeek"
+			action="#{dashboardModel.goToPrevious}" value="&lt;&lt; Previous"
+			style="float:left" />
+		<ice:selectInputDate renderMonthAsDropdown="true" id="inputDate"
+			renderYearAsDropdown="true" renderAsPopup="true"
+			value="#{dashboardModel.currentDate}" converter="dateConverter"
+			partialSubmit="true"
+			valueChangeListener="#{dashboardModel.dateChanged}">
+			<f:attribute name="flag" value="date" />
+		</ice:selectInputDate>
+		<ice:commandLink id="commanButtonGoToNextWeek" style="float:right"
+			action="#{dashboardModel.goToNext}" value="Next &gt;&gt;" />
+	</ice:panelGrid>
+	<ice:panelTabSet id="tabStaffDashboard" partialSubmit="true"
+		tabChangeListener="#{dashboardModel.selectTab}"
+		selectedIndex="#{dashboardModel.selectedTabIndex}">
+		<ice:panelTab id="tabAdminProfile" label="Admin Programs">
+			<ui:include src="Dashboard_include.xhtml" />
+		</ice:panelTab>
+		<ice:panelTab id="tabDayDashboard"
+			label="#{msgs['student_label']} Programs">
+			<ui:include src="Dashboard_include.xhtml" />
+		</ice:panelTab>
+		<ice:panelTab id="tabIndvDashboard" label="Individual Programs">
+			<ui:include src="Dashboard_include.xhtml" />
+		</ice:panelTab>
+		<ice:panelTab id="tabTransportDashboard" label="Transport Programs">
+			<ui:include src="Dashboard_include.xhtml" />
+		</ice:panelTab>
+	</ice:panelTabSet>
+</ice:panelGroup>
+</html>
+<!--  -->

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" 
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+	<tlib-version>0.01</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>simple</short-name>
+	<uri>http://www.itelasoft.com/facescomponents</uri>
+	<description>This tag library contains simple JSF Components.</description>
+	<tag>
+		<name>uiframe</name>
+		<tag-class>com.itelasoft.vet.web.jsf.FrameTag</tag-class>
+		<description>Iframetag</description>
+		<attribute>
+			<name>binding</name>
+			<description>A value binding that points to a bean property</description>
+		</attribute>
+
+		<attribute>
+			<name>id</name>
+			<description>The client id of this component</description>
+		</attribute>
+
+		<attribute>
+			<name>rendered</name>
+			<description>Is this component rendered?</description>
+		</attribute>
+
+		<attribute>
+			<name>src</name>
+			<description>url of the iframe</description>
+		</attribute>
+		
+		<attribute>
+			<name>style</name>
+			<description>css style</description>
+		</attribute>
+		
+		<attribute>
+			<name>height</name>
+			<description>url of the iframe</description>
+		</attribute>
+		
+		<attribute>
+			<name>width</name>
+			
+			<description>css style</description>
+		</attribute>
+
+	</tag>
+	<tag>
+		<name>outputIFrame</name>
+		<tag-class>com.itelasoft.vet.web.jsf.OutputResourceTag</tag-class>
+		<description>outputIFrame</description>
+		<attribute>
+			<name>binding</name>
+			<description>A value binding that points to a bean property</description>
+		</attribute>
+
+		<attribute>
+			<name>id</name>
+			<description>The client id of this component</description>
+		</attribute>
+
+		<attribute>
+			<name>rendered</name>
+			<description>Is this component rendered?</description>
+		</attribute>
+
+		<attribute>
+			<name>src</name>
+			<description>url of the iframe</description>
+		</attribute>
+		
+		<attribute>
+			<name>style</name>
+			<description>css style</description>
+		</attribute>
+		
+		<attribute>
+			<name>height</name>
+			<description>url of the iframe</description>
+		</attribute>
+		
+		<attribute>
+			<name>width</name>
+			
+			<description>css style</description>
+		</attribute>
+		<attribute>
+			<name>fileName</name>
+			
+			<description>fileName</description>
+		</attribute>
+		<attribute>
+			<name>lastModified</name>
+			
+			<description>lastModified</description>
+		</attribute>
+		<attribute>
+			<name>label</name>
+			
+			<description>label</description>
+		</attribute>
+		<attribute>
+			<name>resource</name>
+			
+			<description>resource</description>
+		</attribute>
+		<attribute>
+			<name>mimeType</name>
+			
+			<description>mimeType</description>
+		</attribute>
+		<attribute>
+			<name>shared</name>
+			
+			<description>shared</description>
+		</attribute>
+		<attribute>
+			<name>type</name>
+			
+			<description>type</description>
+		</attribute>
+		<attribute>
+			<name>attachment</name>
+			
+			<description>attachment</description>
+		</attribute>
+
+	</tag>
+	
+	<tag>
+		<name>itelaSchedule</name>
+		<tag-class>com.itelasoft.vet.web.jsf.ItelaScheduleTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>mouseListener</name>
+			
+		</attribute>
+	</tag>
+	<tag>
+		<name>schedule</name>
+		<tag-class>org.apache.myfaces.custom.schedule.ScheduleTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>value</name>
+			
+		</attribute>
+	</tag>
+</taglib>

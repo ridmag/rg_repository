@@ -1,0 +1,87 @@
+patient.name.label=Name
+dob.label=Date of Birth
+search.label=Search
+popup.consultation.synopsis=Do you want to create a new Consultation?<p>Clicking on Yes will create a new Consultation</p>
+panelPopup.closeImage=images/popupclose.gif
+system.version = 0.1.0 Alpha
+system.date.format=dd/MM/yyyy
+
+student_label = Participant
+students_label = Participants
+site-url = http://psoweb.itelasoft.com.au/PSOWeb
+ndis_invoice_path = D:\\ITELASOFT\\NDIS-INVOICES\\
+
+collection.name.size = 50
+collection.description.size = 255
+collection.collectionType.size = 50
+
+communication.summery.size = 255
+communication.note.size = 255
+
+oragnaization.name.size = 50
+oragnaization.paymentOption.size = 50
+
+holiday.remarks.size = 255
+
+studentEvent.remarks.size = 255
+
+transaction.remarks.size = 255
+
+specialNeed.name.size = 50
+
+fundingSource.fundingCode.size = 20
+fundingSource.fundingDescription.size = 255
+fundingSource.fundingType.size = 255
+
+outlet.name.size = 255
+outlet.serviceid.size = 20
+outlet.description.size = 255
+outlet.mdsid.size = 255
+outlet.status.size = 255
+
+vehicle.name.size = 50
+vehicle.regid.size = 20
+
+program.name.size = 100
+
+group.name.size = 50
+
+location.code.size = 10
+location.name.size = 50
+
+programEvent.name.size = 50
+
+staff.staffId.size = 20
+
+user.username.size = 20
+user.password.size = 20
+
+configuration.contents.size = 100
+
+contact.firstName.size = 20
+contact.lastName.size = 20
+contact.middleNames.size = 40
+contact.businessName.size = 30
+contact.businessType.size = 30
+contact.streetAddress.size = 40
+contact.city.size = 30
+contact.state.size = 30
+contact.postCode.size = 15
+contact.country.size = 30
+contact.geoCode.size = 30
+contact.phone.size = 20
+contact.fax.size = 20
+contact.email.size = 80
+
+student.cisid.size = 20
+student.mdsid.size = 20
+
+error.required={1} is required
+javax.faces.component.UIInput.REQUIRED=Enter value.
+javax.faces.component.UIInput.REQUIRED_detail=	{0}: Value is required.
+javax.faces.validator.LengthValidator.MAXIMUM= Text is too long. Only {0} letters are allowed.
+
+javax.faces.converter.NumberConverter.NUMBER={2}: {0} is not a valid number. Example: {1}
+
+error.integrity = Operation can not be allowed. The record is currently in use.
+error.custom.eventincomplete = Some groups contain incomplete information.

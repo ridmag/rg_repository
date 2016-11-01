@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fo="http://www.w3.org/1999/XSL/Format">
+    <body>
+    	#set($studEvents = $proEvents.get('Student'))
+        #foreach( $proEvent1 in $studEvents)
+        	#set($proEvent = $proEvent1)
+       		#parse ('AttendanceInclude.html')
+        	#if($proEvent.returnEvent)
+				#set($proEvent = $proEvent1.returnEvent)
+				#set($return = true)
+				<p></p>
+       			#parse ('AttendanceInclude.html')
+				#set($return = false)
+			#end
+		<fo:block break-after="page">
+            <fo:leader/>
+        </fo:block>
+		#end
+		#set($studEventLists = $proEvents.get('Individual'))
+		#foreach( $proEvents in $studEventLists)
+			#parse ('AttendanceIndInc.html')
+			
+		#end
+        
+    </body>
+</html>

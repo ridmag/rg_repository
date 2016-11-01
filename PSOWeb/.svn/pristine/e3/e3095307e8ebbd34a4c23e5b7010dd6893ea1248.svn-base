@@ -1,0 +1,181 @@
+
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:programsMenuItem:transportMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td>Transport 1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramStartDate</td>
+	<td>01/02/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramEndDate</td>
+	<td>28/02/2012</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectOneCoordinator</td>
+	<td>label=Mr. Stphen Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramAmount</td>
+	<td>50.0</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectTransportVehicle</td>
+	<td>label=GTX-2001</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:commandTransportSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:programsMenuItem:transportMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td>Transport 2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramStartDate</td>
+	<td>01/02/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramEndDate</td>
+	<td>28/02/2012</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectOneCoordinator</td>
+	<td>label=Mr. Stphen Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramAmount</td>
+	<td>50.0</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectTransportVehicle</td>
+	<td>label=GTX-2001</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:commandTransportSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:programsMenuItem:transportMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:commandProgramAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputTrosportProgramName</td>
+	<td>Transport 3</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramStartDate</td>
+	<td>01/02/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramEndDate</td>
+	<td>28/02/2012</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectOneCoordinator</td>
+	<td>label=Mr. Stphen Hopkins</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:inputProgramAmount</td>
+	<td>50.0</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:selectTransportVehicle</td>
+	<td>label=GTX-2001</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formTransProgram:tabSetTransportProgram:0:commandTransportSave</td>
+	<td></td>
+</tr>

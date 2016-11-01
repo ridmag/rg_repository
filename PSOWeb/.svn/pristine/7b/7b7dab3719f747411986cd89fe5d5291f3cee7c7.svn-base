@@ -1,0 +1,100 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:HolidayMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formHoliday:commandholidayAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:commandholidayAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formHoliday:inputStartDate</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputStartDate</td>
+	<td>14/02/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputEndDate</td>
+	<td>16/02/2012</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:inputRemarks</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputRemarks</td>
+	<td>None</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:savePopup</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:HolidayMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formHoliday:commandholidayAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:commandholidayAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formHoliday:inputStartDate</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputStartDate</td>
+	<td>22/02/2012</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputEndDate</td>
+	<td>23/02/2012</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:inputRemarks</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formHoliday:inputRemarks</td>
+	<td>None</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formHoliday:savePopup</td>
+	<td></td>
+</tr>

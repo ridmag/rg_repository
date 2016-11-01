@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>editStaffMember</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">editStaffMember</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:staffMenuItem:link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tableStaffMembers:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tableStaffMembers:0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectStaffTitle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectStaffTitle</td>
+	<td>label=Mrs.</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFirstName</td>
+	<td>Stphens</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMiddleName</td>
+	<td>Johnas</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStafftLastName</td>
+	<td>Hopkin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffDob</td>
+	<td>12/04/1978</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffId</td>
+	<td>Pso0007</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCreatedOn</td>
+	<td>03/02/2011</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneStaffType</td>
+	<td>label=Coordinator</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:selectOneStaffStatus</td>
+	<td>label=Exited</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStreetAddress</td>
+	<td>123, test streets</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffCity</td>
+	<td>Sydneys</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffState</td>
+	<td>label=Tasmania</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffPostalCode</td>
+	<td>123456</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffMobileNumber</td>
+	<td>0987654321</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffHomeNumber</td>
+	<td>0987654321</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffOfficeNumber</td>
+	<td>0987654321</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffEmail</td>
+	<td>tesst@test.com</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:inputStaffFax</td>
+	<td>0987654321</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:0:checkIsCompleted</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:1:checkIsCompleted</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:2:checkIsCompleted</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:3:checkIsCompleted</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:3:textAreaRemark</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:3:textAreaRemark</td>
+	<td>something</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:specialRecords:3:inputRecordRenew</td>
+	<td>11/12/2014</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formStaffManager:tabSetStaffDetails:0:commandStaffSave</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

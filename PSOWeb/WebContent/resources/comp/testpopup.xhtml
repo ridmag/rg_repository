@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="param1" default="Test1" />
+	<composite:attribute name="rendered1" required="true" />
+	<composite:attribute name="visible" default="true" />
+</composite:interface>
+<composite:implementation>
+	<ice:outputText value="#{cc.attrs.rendered1}"></ice:outputText>
+	<ice:panelPopup id="popup1" autoCentre="true" modal="#{!printModel.printPopupVisible}" rendered="#{cc.attrs.rendered1 == 'true'}"
+		styleClass="icePnlPop">
+		<f:facet name="header">
+			<ice:panelGroup>
+				<ice:outputText value="Upload or View Attached Documents" />
+			</ice:panelGroup>
+		</f:facet>
+		<f:facet name="body">
+			<ice:panelGroup>
+				<h:commandButton id="inp1" value="#{cc.attrs.param1}"
+					actionListener="#{printModel.togglePrintPopup}" />
+				<h:commandButton id="inp2" type="reset" value="Test2" />
+			</ice:panelGroup>
+		</f:facet>
+	</ice:panelPopup>
+
+</composite:implementation>
+
+</html>

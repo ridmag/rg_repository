@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="ROSTER"></ui:param>
+		<ui:define name="pageTitle">Staff Roster</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Staff Roster</ui:define>
+		<ui:define name="pageDescription">This allows you to assign staff members and vehicles into program events.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formRoaster">
+				<ice:panelGrid columns="2" styleClass="borderBox" width="100%">
+					<ice:panelGroup style="margin-bottom:5px">
+						<fieldset>
+							<legend>
+								<ice:outputLabel value="Program events for" />
+							</legend>
+							<!-- <ice:panelGrid columns="2" cellpadding="0" cellspacing="0"
+								style="float:right;margin-top:4px" >
+								
+							</ice:panelGrid> -->
+							<ice:panelGrid columns="8" cellspacing="0" cellpadding="0">
+								<ice:outputText value="Staff Member :" />
+								<ice:selectOneMenu value="#{rosterManagerModel.staffId}"
+									id="selectOneStaff" partialSubmit="true"
+									valueChangeListener="#{rosterManagerModel.createRoster}">
+									<f:selectItems
+										value="#{rosterManagerModel.staffSelectItemList}" />
+									<f:attribute name="flag" value="staff" />
+								</ice:selectOneMenu>
+								<ice:outputText value="Date :" style="margin-left:20px" />
+								<ice:selectInputDate renderMonthAsDropdown="true"
+									id="inputDateCreateRoster" renderYearAsDropdown="true"
+									renderAsPopup="true" value="#{rosterManagerModel.weekDate}"
+									converter="dateConverter" partialSubmit="true"
+									valueChangeListener="#{rosterManagerModel.createRoster}" label="Date" >
+									<f:attribute name="flag" value="date" />
+								</ice:selectInputDate>
+					<!-- 			<ice:outputText value="Period :" style="margin-left:20px" />
+								<ice:selectOneMenu value="#{rosterManagerModel.timePeriod}"
+									partialSubmit="true"
+									valueChangeListener="#{rosterManagerModel.createRoster}">
+									<f:selectItem itemLabel="2 Weeks" itemValue="2W" />
+									<f:attribute name="flag" value="period" />
+								</ice:selectOneMenu> --> 
+								<!-- <ice:commandButton id="commanButtonProSearch"
+									action="#{rosterManagerModel.createRoster}"
+									value="Create Roster" styleClass="CommandButton"
+									style="margin-left:20px" /> -->
+								<ice:panelGroup style="margin-left:20px ;width:100%"
+										rendered="#{(not empty(rosterManagerModel.staffId) and rosterManagerModel.programs != null and !empty(rosterManagerModel.programs) and rosterManagerModel.flag == 'Draft') ||(not empty(rosterManagerModel.staffId) and rosterManagerModel.flag == 'Draft' and !empty(rosterManagerModel.holidays))}">
+										<comp:ajaxReportPopup style="margin-left:20px ;width:100%"
+											params="#{rosterManagerModel.jsonString}" 
+											status="#{rosterManagerModel.status}" 
+											id="compPrintReport_draft" reportName="timeSheet"
+											label="Print Draft Timesheet(s)" />
+								</ice:panelGroup>	
+								<ice:panelGroup style="margin-left:20px;width:100%"
+									rendered="#{(not empty(rosterManagerModel.staffId) and rosterManagerModel.programs != null and !empty(rosterManagerModel.programs) and rosterManagerModel.flag == 'Final')||(not empty(rosterManagerModel.staffId) and rosterManagerModel.flag == 'Final' and !empty(rosterManagerModel.holidays))}">
+									<comp:ajaxReportPopup params="#{rosterManagerModel.jsonString}" style="margin-left:20px ;width:100%"
+										 status="#{rosterManagerModel.status}"
+										id="compPrintReport_final" reportName="timeSheet"
+										label="Print Final Timesheet(s)" />
+								</ice:panelGroup>
+								<ice:panelGroup style="margin-left:20px"
+									rendered="#{rosterManagerModel.staffId == 'All' and rosterManagerModel.programs != null and !empty(rosterManagerModel.programs)}">
+									<comp:ajaxReportPopup params="#{rosterManagerModel.jsonString}"
+										id="compPrintRosterReport" reportName="rosterReport"
+										label="Roster Report" />
+								</ice:panelGroup>
+								<ice:panelGroup style="margin-left:5px">
+									<ice:commandLink id="commanButtonGoToPreviousWeek"
+										action="#{rosterManagerModel.goToPrevious}"
+										style="margin-left:30px;width:140px;margin-right:5px"
+										value="&lt;&lt; Previous" />
+									<ice:commandLink id="commanButtonGoToNextWeek"
+										style="margin-left:30px;width:130px"
+										action="#{rosterManagerModel.goToNext}" value="Next &gt;&gt;" />
+								</ice:panelGroup>
+								<!-- <ice:panelGroup style="margin-left:5px"
+									rendered="#{rosterManagerModel.programs != null and !rosterManagerModel.programs.isEmpty()}">
+									<comp:rosterReport
+										id="compRosterPrintReport" reportName="rosterFullReport" />
+								</ice:panelGroup> -->
+							</ice:panelGrid>
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+				<ice:panelGroup style="margin-top:60px;width:100%;text-align:center"
+					rendered="#{rosterManagerModel.programs == null || empty(rosterManagerModel.programs)}">
+					<ice:outputLabel
+						value="There are no Participant,Transport,Staff program events for the selected period. [#{rosterManagerModel.dateFormat.format(rosterManagerModel.startDate)} - #{rosterManagerModel.dateFormat.format(rosterManagerModel.endDate)}]" />
+				</ice:panelGroup>
+				<ice:panelGroup style="margin-top:60px;width:100%;text-align:center"
+					rendered="#{(rosterManagerModel.programs == null || empty(rosterManagerModel.programs)) and !empty(rosterManagerModel.holidays)}">
+					<ice:outputLabel
+						value="Public holiday(s) are included for the selected period." />
+				</ice:panelGroup>
+				<ice:panelGroup style="overflow:auto;margin-top:10px"
+					rendered="#{rosterManagerModel.programs != null and !empty(rosterManagerModel.programs) and !rosterManagerModel.visibleEvent}">
+					<ice:panelGroup style="margin-top:-10px;">
+						<ice:dataTable value="#{rosterManagerModel.rowDataModel}"
+							var="row" id="tableProgramEvents"
+							rendered="#{rosterManagerModel.programs != null and !empty(rosterManagerModel.programs)}">
+							<ice:column id="columnDatesAndProgram" style="background:white">
+								<f:facet name="header">
+									<ice:outputText value="Cost Centers/Dates" />
+								</f:facet>
+								<ice:panelGroup style="width:195px">
+									<ice:outputText value="#{row.name}" />
+								</ice:panelGroup>
+							</ice:column>
+							<ice:columns value="#{rosterManagerModel.columnDataModel}"
+								var="column" id="columnTimeAndDate">
+								<f:facet name="header">
+									<ice:outputText value="#{column}" id="outputTextDate">
+										<f:convertDateTime timeZone="#{rosterManagerModel.timeZone}"
+											type="date" pattern="dd/MM/yyyy - EEEE" />
+									</ice:outputText>
+								</f:facet>
+								<ice:panelGroup id="panelGroupCellValue"
+									style="width:205px;height:100px;overflow:auto;margin-left:-5px;margin-right:-5px;background-color:#{rosterManagerModel.getHolidayColor(column)};">
+									<ui:repeat var="event" value="#{rosterManagerModel.cellValue}"
+										id="uiRepeatEvents">
+										<ice:commandLink id="commandSelectEvent"
+											actionListener="#{rosterManagerModel.selectEvent}">
+											<f:attribute name="event" value="#{event}" />
+											<ice:panelGrid
+												style="margin-bottom:2px;border:1px solid #{event.eventColor}"
+												width="100%" title="#{event.eventTitle}">
+												<ice:panelGrid cellpadding="0" cellspacing="0" width="100%"
+													style="border-bottom:1px solid #{event.eventColor}"
+													rendered="#{event.program.type.name != 'Transport'}"
+													id="panelGridEventName">
+													<ice:outputText
+														value="#{event.group.name} : #{event.location.name}"
+														style="font-size:12px;font-weight:bold;margin-left:2px" />
+												</ice:panelGrid>
+												<ice:panelGrid cellpadding="0" cellspacing="0"
+													style="border-bottom:1px solid #{event.eventColor}"
+													width="100%" id="panelGridEventType"
+													rendered="#{event.program.type.name == 'Transport'}">
+													<ice:panelGrid columns="3" cellpadding="0" cellspacing="0"
+														id="panelGridGroupName">
+														<ice:outputText value="#{event.group.name}"
+															id="outputGroupName"
+															style="font-size:12px;font-weight:bold;margin-left:2px" />
+														<ice:outputText value=" : " id="outputTextColon"
+															style="font-size:12px;font-weight:bold; margin-left:2px; margin-right:2px" />
+														<ice:outputText value="#{event.vehicle.registrationId}"
+															rendered="#{event.vehicle != null}"
+															id="outputTextVehicle"
+															style="color:#{event.vehicleColor};font-size:12px;font-weight:bold" />
+														<ice:outputText value="Vehicle Not Selected"
+															id="outputVehicleNotSelected"
+															rendered="#{event.vehicle == null}"
+															style="color:orange;font-size:12px;font-weight:bold" />
+													</ice:panelGrid>
+												</ice:panelGrid>
+												<ice:panelSeries value="#{event.staffEvents}" var="se"
+													rendered="#{!empty(event.staffEvents)}"
+													id="panelSeriesCordinator">
+													<ice:outputText value="#{se.staffMember.contact.name}"
+														id="outputStaffMemberName"
+														style="font-size:10px;margin-left:5px;color:#{se.staffColor}" />
+												</ice:panelSeries>
+												<ice:outputText value="No Coordinator(s) Available"
+													id="outputTextCordinators"
+													rendered="#{empty(event.staffEvents) and event.status != 'finished'}"
+													style="font-size:10px;margin-left:5px;color:orange" />
+												<ice:outputText value="No Coordinator(s) Available"
+													id="outputTextNoCordinators"
+													rendered="#{empty(event.staffEvents) and event.status == 'finished'}"
+													style="font-size:10px;margin-left:5px" />
+											</ice:panelGrid>
+										</ice:commandLink>
+									</ui:repeat>
+								</ice:panelGroup>
+							</ice:columns>
+						</ice:dataTable>
+					</ice:panelGroup>
+				</ice:panelGroup>
+
+				<ice:panelPopup modal="true" styleClass="icePnlPop"
+					id="popUpRosterEvet" rendered="#{rosterManagerModel.visibleEvent}"
+					draggable="true" autoCentre="true">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png);">
+							<ice:outputText
+								value="Details of : #{rosterManagerModel.proEvent.name}"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeProEventButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								action="#{rosterManagerModel.eventPopup}"
+								styleClass="popupHeaderImage" title="Close" alt="Close" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup>
+							<ice:messages />
+							<ice:panelGroup style="margin-top:10px; width:720px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Event Details" />
+									</legend>
+									<ice:panelGrid columns="3" cellpadding="0" cellspacing="0">
+										<ice:panelGrid columns="3" cellpadding="5">
+											<ice:outputLabel value="Event Date" />
+											<ice:outputLabel value=":"
+												style="margin-left:5px;margin-right:5px" />
+											<ice:outputText
+												value="#{rosterManagerModel.proEvent.eventDate}"
+												converter="dateConverter" />
+											<ice:outputLabel value="Time" />
+											<ice:outputLabel value=":"
+												style="margin-left:5px;margin-right:5px" />
+											<ice:panelGroup>
+												<ice:outputText
+													value="#{rosterManagerModel.proEvent.startTime}">
+													<f:convertDateTime type="time" timeStyle="short"
+														timeZone="#{rosterManagerModel.timeZone}" />
+												</ice:outputText>
+												<ice:outputText value=" - " />
+												<ice:outputText
+													value="#{rosterManagerModel.proEvent.endTime}">
+													<f:convertDateTime type="time" timeStyle="short"
+														timeZone="#{rosterManagerModel.timeZone}" />
+												</ice:outputText>
+											</ice:panelGroup>
+										</ice:panelGrid>
+										<ice:panelGrid columns="3" style="margin-left:10px"
+											cellpadding="5">
+											<ice:outputLabel value="Location"
+												rendered="#{rosterManagerModel.proEvent.program.type.name != 'Transport'}" />
+											<ice:outputLabel value="Vehicle"
+												rendered="#{rosterManagerModel.proEvent.program.type.name == 'Transport'}" />
+											<ice:outputLabel value=":"
+												style="margin-left:5px;margin-right:5px" />
+											<ice:outputText
+												rendered="#{rosterManagerModel.proEvent.location != null}"
+												value="#{rosterManagerModel.proEvent.location.name}" />
+											<ice:outputText
+												rendered="#{rosterManagerModel.proEvent.vehicle != null}"
+												value="#{rosterManagerModel.proEvent.vehicle.name}" />
+											<ice:outputText
+												rendered="#{rosterManagerModel.proEvent.program.type.name == 'Transport' and rosterManagerModel.proEvent.vehicle == null}"
+												value="Not Selected" />
+											<ice:outputLabel value="Status" />
+											<ice:outputLabel value=":"
+												style="margin-left:5px;margin-right:5px" />
+											<ice:outputText value="#{rosterManagerModel.proEvent.status}" />
+										</ice:panelGrid>
+										<ice:panelGrid columns="1" style="margin-left:10px"
+											cellpadding="5">
+											<ice:outputLabel value="Required Group Skill(s)" />
+											<ice:repeat
+												rendered="#{!empty(rosterManagerModel.studentGroup.staffSkills)}"
+												value="#{rosterManagerModel.studentGroup.staffSkills}"
+												var="sk" varStatus="status">
+												<ice:outputText value="#{sk.itemValue}" />
+												<ice:outputText rendered="#{!status.last}"> / </ice:outputText>
+											</ice:repeat>
+											<ice:outputText value="Group skills not assigned"
+												rendered="#{empty(rosterManagerModel.studentGroup.staffSkills)}" />
+										</ice:panelGrid>
+									</ice:panelGrid>
+									<!-- <ice:panelGrid columns="2" width="350" cellpadding="5px">
+										<ice:outputLabel value="Roster Start Time :" />
+										<comp:timeControl id="startTime1"
+											value="#{rosterManagerModel.startTime}" />
+										<ice:outputLabel value="Roster End Time :" />
+										<comp:timeControl id="endTime1"
+											value="#{rosterManagerModel.endTime}" />
+									</ice:panelGrid>
+									<ice:commandButton value="Save Roster Times"
+										id="commandSaveEvent"
+										action="#{rosterManagerModel.saveEvent}" style="float:right"
+										styleClass="CommandButton" /> -->
+								</fieldset>
+							</ice:panelGroup>
+							<!-- 			<ice:panelGroup style="margin-top:10px; width:720px"
+								rendered="#{rosterManagerModel.displayMessage==true}">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Level Of Support" />
+									</legend>
+									<ice:panelGrid columns="1" cellpadding="0" cellspacing="0">
+										<ice:panelGrid columns="15" cellpadding="5">
+											<ice:outputLabel value="Expected Level Of Support" />
+											<ice:outputText value=">>" />
+											<ice:outputText value="#{rosterManagerModel.expStaffs}" />
+											<ice:outputLabel value=":" />
+											<ice:outputText value="#{rosterManagerModel.expStudents}" />
+											<ice:outputText value="&#160;" />
+											<ice:outputText value="&#160;" />
+											<ice:outputLabel value="Current Level Of Support" />
+										<ice:outputLabel value=">>" />
+										<ice:outputText value="#{rosterManagerModel.actNoOfStaffMembers }" />
+										<ice:outputLabel value= ":" />
+										<ice:outputText value="#{rosterManagerModel.actNoOfStudents}" />
+											<ice:graphicImage style="border:none" id="graphicActualLOSDIS"
+												url="images/icons/ok_disabled.png" width="15" height="15"
+												title="Current LOS is #{rosterManagerModel.currentStaffs}:#{rosterManagerModel.currentStudents}" 
+												rendered="#{rosterManagerModel.displayIcon==false}"/>
+											<ice:graphicImage style="border:none" id="graphicActualLOS"
+												url="images/icons/ok.png" width="15" height="15"
+												title="Current LOS is #{rosterManagerModel.currentStaffs}:#{rosterManagerModel.currentStudents}" 
+												rendered="#{rosterManagerModel.displayIcon==true}"/>
+										</ice:panelGrid>
+									</ice:panelGrid>
+									<ice:panelGrid columns="1" cellpadding="5">
+										<ice:outputText
+											value="Please #{rosterManagerModel.commandText}  #{rosterManagerModel.noOfStaffs}  Staff member(s) to full fill LOS" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:10px; width:720px"
+								rendered="#{rosterManagerModel.displayMessage==false}">
+								<fieldset>
+								<legend>
+									<ice:outputLabel value="Level Of Support" />
+								</legend>
+								<ice:panelGrid columns="1" cellpadding="5">
+									<ice:panelGrid columns="2">
+									<ice:outputText value="Level Of Support is full filled." />
+									<ice:graphicImage style="border:none" id="graphicActualLOSFirst"
+												url="images/icons/ok.png" width="15" height="15"
+												title="Current LOS is #{rosterManagerModel.currentStaffs}:#{rosterManagerModel.currentStudents}" 
+												rendered="#{rosterManagerModel.displayIcon==true}"/>
+									</ice:panelGrid>
+								</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup> -->
+							<ice:panelGroup style="margin-top:10px; width:720px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Assigned Staff Members" />
+									</legend>
+									<ice:panelGroup style="margin-top:8px;margin-left:2px"
+										rendered="#{empty(rosterManagerModel.proEvent.staffEvents)}">
+										<ice:outputText value="No staff members assigned.." />
+									</ice:panelGroup>
+									<ice:dataTable scrollable="true" scrollHeight="80px"
+										rendered="#{!empty(rosterManagerModel.proEvent.staffEvents)}"
+										value="#{rosterManagerModel.proEvent.staffEvents}" var="se"
+										id="tableAssignedStaff" style="margin-top:0px"
+										columnWidths="50px,153px,90px,65px,90px,105px,55px">
+										<ice:column id="columnStaffId" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Staff Id" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.staffId}" />
+										</ice:column>
+										<ice:column id="columnStaffName">
+											<f:facet name="header">
+												<ice:outputText value="Name" />
+											</f:facet>
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+												<ice:panelGroup
+													style="width:135px;height:1.4em;overflow:hidden">
+													<ice:outputText value="#{se.staffMember.contact.name}"
+														title="#{se.staffMember.contact.name}" />
+												</ice:panelGroup>
+												<ice:graphicImage style="border:none" id="graphicAddStaff"
+													url="images/icons/information.png" width="15" height="15"
+													title="#{se.staffSkills}" />
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStaffContactNumber"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Contact Number" />
+											</f:facet>
+											<ice:outputText
+												value="#{se.staffMember.contact.contactNumber}" />
+										</ice:column>
+										<ice:column id="columnAllocatedHours"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Allocated Hours" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.allocatedHours}" rendered ="#{se.staffMember.allocatedHours > se.staffMember.hoursperFortnight}" style="color:orange" >
+											</ice:outputText>
+											<ice:outputText value="#{se.staffMember.allocatedHours}" rendered ="#{!(se.staffMember.allocatedHours > se.staffMember.hoursperFortnight)}">
+											</ice:outputText>
+										</ice:column>
+										<ice:column id="columnStaffTotalHours"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Actual Worked Hours" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.totalWorkHours}">
+												<f:convertNumber maxFractionDigits="2" />
+											</ice:outputText>
+										</ice:column>
+										<ice:column id="columnStaffAvailability"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Availability" />
+											</f:facet>
+											<center>
+												<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+													<ice:outputText
+														rendered="#{rosterManagerModel.proEvent.status == 'pending'}"
+														value="#{se.staffStatus}" />
+													<ice:outputText value="Not Applicable"
+														title="Availability is not applicable for finished events."
+														rendered="#{rosterManagerModel.proEvent.status == 'finished'}" />
+													<ice:graphicImage style="border:none;margin-left:10px"
+														rendered="#{se.staffStatus == 'Busy' and rosterManagerModel.proEvent.status != 'finished'}"
+														url="images/icons/information.png" width="15" height="15"
+														title="#{se.conflictingEvents}" />
+												</ice:panelGrid>
+											</center>
+										</ice:column>
+										<ice:column id="columnStaffRemoveStaffMember"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Remove" />
+											</f:facet>
+											<ice:commandLink
+												rendered="#{rosterManagerModel.proEvent.status != 'finished'}"
+												actionListener="#{rosterManagerModel.removeStaffMember}"
+												title="Remove Staff Member" id="commandlinkRmvStaff">
+												<ice:graphicImage style="border:none"
+													url="images/icons/delete-icon.png" />
+												<f:attribute name="staffEvent" value="#{se}" />
+											</ice:commandLink>
+											<ice:graphicImage style="border:none" title="Not allowed."
+												rendered="#{rosterManagerModel.proEvent.status == 'finished'}"
+												url="images/icons/delete-icon-disabled.png" />
+										</ice:column>
+									</ice:dataTable>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:10px; width:720px"
+								rendered="#{rosterManagerModel.proEvent.status != 'finished'}">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Available Staff Members" />
+									</legend>
+									<ice:panelGroup style="margin-top:8px;margin-left:2px"
+										rendered="#{empty(rosterManagerModel.availableStaffList)}">
+										<ice:outputText value="No staff members available.." />
+									</ice:panelGroup>
+									<ice:dataTable scrollable="true" scrollHeight="80px"
+										rendered="#{!empty(rosterManagerModel.availableStaffList)}"
+										value="#{rosterManagerModel.availableStaffList}" var="se"
+										id="tableAvailableStaff" style="margin-top:0px"
+										columnWidths="62px,152px,80px,123px,62px,78px,35px">
+										<ice:column id="columnStaffId" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Staff Id" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.staffId}" />
+										</ice:column>
+										<ice:column id="columnStaffName">
+											<f:facet name="header">
+												<ice:outputText value="Name" />
+											</f:facet>
+											<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+												<ice:panelGroup
+													style="width:135px;height:1.4em;overflow:hidden">
+													<ice:outputText value="#{se.staffMember.contact.name}"
+														title="#{se.staffMember.contact.name}" />
+												</ice:panelGroup>
+												<ice:graphicImage style="border:none"
+													url="images/icons/information.png" width="15" height="15"
+													title="#{se.staffSkills}" />
+											</ice:panelGrid>
+										</ice:column>
+										<ice:column id="columnStaffAvailableContactNumber"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Contact Number" />
+											</f:facet>
+											<ice:outputText
+												value="#{se.staffMember.contact.contactNumber}" />
+										</ice:column>
+										<ice:column id="columnAllocatedHoursavlbl"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Allocated Hours" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.allocatedHours}" rendered ="#{se.staffMember.allocatedHours > se.staffMember.hoursperFortnight}" style="color:orange" >
+											</ice:outputText>
+											<ice:outputText value="#{se.staffMember.allocatedHours}" rendered ="#{!(se.staffMember.allocatedHours > se.staffMember.hoursperFortnight)}">
+											</ice:outputText>
+										</ice:column>
+										<ice:column id="columnStaffTotalHours"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Actual Worked Hours" />
+											</f:facet>
+											<ice:outputText value="#{se.staffMember.totalWorkHours}">
+												<f:convertNumber maxFractionDigits="2" />
+											</ice:outputText>
+										</ice:column>
+										<ice:column id="columnStaffAvailability">
+											<f:facet name="header">
+												<ice:outputText value="Availability" />
+											</f:facet>
+											<center>
+												<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+													<ice:outputText value="#{se.staffStatus}" />
+													<ice:graphicImage style="border:none;margin-left:10px"
+														rendered="#{se.staffStatus == 'Busy'}"
+														url="images/icons/information.png" width="15" height="15"
+														title="#{se.conflictingEvents}" />
+												</ice:panelGrid>
+											</center>
+										</ice:column>
+										<ice:column id="columnStaffAssignStaffMember"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Assign" />
+											</f:facet>
+											<ice:commandLink
+												actionListener="#{rosterManagerModel.addStaffMember}"
+												title="Assign Staff Member" id="commandlinkAddStaff">
+												<ice:graphicImage style="border:none"
+													url="images/icons/Add-icon.png"
+													id="graphicAssignStaffMember" />
+												<f:attribute name="staff" value="#{se}" />
+											</ice:commandLink>
+										</ice:column>
+									</ice:dataTable>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:10px; width:720px"
+								rendered="#{rosterManagerModel.proEvent.program.type.name == 'Transport' and rosterManagerModel.proEvent.status != 'finished'}">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Available Vehicles" />
+									</legend>
+									<ice:dataTable scrollable="true" scrollHeight="80px"
+										value="#{rosterManagerModel.vehicles}" var="vehi"
+										id="tableAvailableVehicles" style="margin-top:0px"
+										rendered="#{rosterManagerModel.proEvent.program.type.name == 'Transport'}"
+										columnWidths="60px,210px,75px,75px,130px,75px">
+										<ice:column id="columnLocId" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Id" />
+											</f:facet>
+											<ice:outputText value="#{vehi.id}" />
+										</ice:column>
+										<ice:column id="columnVehicleName" style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="Name" />
+											</f:facet>
+											<ice:panelGroup
+												style="width:140px;height:1.4em;overflow:hidden">
+												<ice:outputText value="#{vehi.name}" title="#{vehi.name}" />
+											</ice:panelGroup>
+										</ice:column>
+										<ice:column id="columnVehiclePassengers"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Passengers" />
+											</f:facet>
+											<ice:outputText value="#{vehi.passengers}" />
+										</ice:column>
+										<ice:column id="columnVehicleWheelChairs"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Wheel Chairs" />
+											</f:facet>
+											<ice:outputText value="#{vehi.wheelChairs}" />
+										</ice:column>
+										<ice:column id="columnVehicleAvailability"
+											style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Availability" />
+											</f:facet>
+											<center>
+												<ice:panelGrid columns="2" cellpadding="0" cellspacing="0">
+													<ice:outputText value="#{vehi.availability}" />
+													<ice:graphicImage style="border:none;margin-left:10px"
+														rendered="#{vehi.availability == 'Busy'}"
+														url="images/icons/information.png" width="15" height="15"
+														title="#{vehi.conflictingEvents}" />
+												</ice:panelGrid>
+											</center>
+										</ice:column>
+										<ice:column id="columnVehicleActive" style="text-align:center">
+											<f:facet name="header">
+												<ice:outputText value="Active" />
+											</f:facet>
+											<ice:setEventPhase phase="UPDATE_MODEL_VALUES"
+												events="FacesEvent">
+												<ice:selectBooleanCheckbox id="selectBooleanSetVehicle"
+													partialSubmit="true" value="#{vehi.active}"
+													valueChangeListener="#{rosterManagerModel.setActiveVehicle}">
+													<f:attribute name="vehi" value="#{vehi}" />
+												</ice:selectBooleanCheckbox>
+											</ice:setEventPhase>
+										</ice:column>
+									</ice:dataTable>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<!--<f:metadata>
+		<f:event listener="#{programManagerModel.loadPrograms}"
+			type="preRenderView"></f:event>
+	</f:metadata>
+	-->
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="CONFIG"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Leave Policy Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each leave policy.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formLeavePolicy">
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell">
+					<ice:panelGroup>
+						<fieldset style="width: 320px; height: 410px">
+							<legend>
+								<ice:outputLabel value="Leave Policies" />
+							</legend>
+							<ice:commandButton id="commandPolicyAdd" value="Add Leave Policy"
+								styleClass="CommandButton"
+								style="margin-left:2px;margin-top:5px"
+								action="#{leavePolicyManager.addNewPolicy}" />
+							<ice:outputText value="No leave policies found.."
+								rendered="#{empty(leavePolicyManager.policies)}"
+								style="margin-left:10px" />
+							<ice:dataTable scrollable="true" scrollHeight="320px"
+								value="#{leavePolicyManager.policies}" var="policy"
+								id="tablepolicies" columnWidths="60px,150px,80px"
+								rendered="#{not empty(leavePolicyManager.policies)}">
+								<ice:column id="columnPolicyId" style="text-align:center">
+									<ice:setEventPhase events="FacesEvent"
+										phase="INVOKE_APPLICATION">
+										<ice:rowSelector id="rowselectPolicy"
+											value="#{policy.ui_selected}"
+											clickListener="#{leavePolicyManager.selectPolicy}">
+											<f:attribute name="policy" value="#{policy}" />
+										</ice:rowSelector>
+									</ice:setEventPhase>
+									<f:facet name="header">
+										<ice:outputText value="Policy ID" />
+									</f:facet>
+									<ice:outputText value="#{policy.id}" />
+								</ice:column>
+								<ice:column id="columnPolicyName">
+									<f:facet name="header">
+										<ice:outputText value="Policy Name" />
+									</f:facet>
+									<ice:outputText value="#{policy.name}" />
+								</ice:column>
+								<ice:column id="columnPolicyStatus" style="text-align:center">
+									<f:facet name="header">
+										<ice:outputText value="Status" />
+									</f:facet>
+									<ice:outputText value="#{policy.status}" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 800px; height: 410px">
+							<legend>
+								<ice:outputLabel value="Leave Policy Details" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{leavePolicyManager.policy == null}">
+								<ice:outputText
+									value="Please select a leave policy to view details.." />
+							</ice:panelGroup>
+							<ice:panelGrid columns="2" cellspacing="10"
+								rowClasses="topAlignedTableCell">
+								<ice:panelGrid columns="2" style="margin-top:5px"
+									rendered="#{leavePolicyManager.policy != null}">
+									<ice:outputText value="Leave-Policy Name" />
+									<ice:inputText id="inputPolicyName" tabindex="1"
+										style="width:210px;margin-left:30px"
+										value="#{leavePolicyManager.policy.name}" />
+									<ice:outputText value="Status" />
+									<ice:selectOneMenu value="#{leavePolicyManager.policy.status}"
+										style="width:218px;margin-left:30px" tabindex="4">
+										<f:selectItems value="#{lookupListProvider.leavePolicyStatus}" />
+									</ice:selectOneMenu>
+									<ice:commandButton id="commandPolicyDetailAdd" tabindex="7"
+										value="Add Detail" style="margin-right:5px; width:80px"
+										rendered="#{leavePolicyManager.policy != null}"
+										styleClass="CommandButton"
+										action="#{leavePolicyManager.addDetail}" />
+								</ice:panelGrid>
+								<ice:panelGroup
+									style="height:350px;width:405px;overflow:auto;margin-right:-15px"
+									id="leavePolicies">
+									<ice:panelSeries var="detail" id="seriesPolicyDetail"
+										value="#{leavePolicyManager.policy.details}">
+										<ice:panelGroup>
+											<fieldset style="width: 364px; height: 100px">
+												<ice:panelGrid columns="2">
+													<ice:panelGrid columns="2">
+														<ice:outputText value="Days Entitled" />
+														<ice:inputText id="inputdaysEntitled" tabindex="2"
+															style="width:200px;margin-left:30px"
+															value="#{detail.daysEntitled}" />
+														<ice:outputText value="Leave Type" />
+														<ice:selectOneMenu id="leaveTypeSelectItems" tabindex="3"
+															style="width:208px;margin-left:30px"
+															title="#{detail.leaveType.toString()}"
+															value="#{detail.leaveType}" partialSubmit="true">
+															<f:selectItem itemLabel="Please Select" itemValue=""
+																itemDisabled="true" />
+															<f:selectItems value="#{lookupListProvider.leaveTypes}"
+																var="leaveType" itemLabel="#{leaveType.id}"
+																itemValue="#{leaveType}" />
+														</ice:selectOneMenu>
+														<ice:outputText value="Remarks" />
+														<ice:inputText id="inputdaysRemarks" tabindex="5"
+															style="width:200px;margin-left:30px"
+															value="#{detail.remarks}" />
+													</ice:panelGrid>
+													<ice:commandLink id="commandlinkDeleteDetail"
+														actionListener="#{leavePolicyManager.deleteDetail}"
+														title="Remove">
+														<ice:graphicImage style="border:none"
+															url="images/icons/delete-icon.png" />
+														<f:attribute name="detail" value="#{detail}" />
+													</ice:commandLink>
+												</ice:panelGrid>
+											</fieldset>
+										</ice:panelGroup>
+									</ice:panelSeries>
+								</ice:panelGroup>
+							</ice:panelGrid>
+							<ice:panelGroup style="float:right"
+								rendered="#{leavePolicyManager.policy != null}">
+								<ice:commandButton id="commandPolicyDelete" tabindex="7"
+									value="Delete" style="margin-right:5px; width:80px"
+									rendered="#{leavePolicyManager.policy.id != null}"
+									styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									action="#{leavePolicyManager.deletePolicy}" />
+								<ice:commandButton id="commandPolicySave" tabindex="6"
+									value="Save" styleClass="CommandButton"
+									style="margin-right:15px; width:80px"
+									actionListener="#{leavePolicyManager.savePolicy}" />
+							</ice:panelGroup>
+
+							<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+								cancelLabel="No" draggable="true" title="Confirm"
+								message="Are you sure you want to perform this action?" />
+
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+
+				<comp:confirmationPopup
+					rendered="#{leavePolicyManager.visibleConfirmation}"
+					actionListener="#{leavePolicyManager.confirmationAction}"
+					message="This Leave policy is entitled with current staff member(s). Are you sure you want to change the status?" />
+
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

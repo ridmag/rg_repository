@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Aggression / Behaviour Form Report</ui:define>
+		<ui:define name="pageDescription">Behaviour Report.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="Behaviourform">
+				<ice:panelTabSet id="tabAggressionBehaviour">
+					<ice:panelTab id="tabBasicDetails"
+						label="Aggression/Behaviour Details">
+						<fieldset>
+							<legend>
+								<ice:outputLabel value="Aggression/Behaviour Details" />
+							</legend>
+							<ice:panelGrid columns="2" width="100%">
+								<ice:panelGroup style="margin-top:7px">
+									<fieldset>
+										<legend>
+											<ice:outputLabel value="Your Name" />
+										</legend>
+										<ice:panelGrid columns="2">
+											<ice:outputText value="Please print" />
+											<ice:inputText id="inputYourName" />
+										</ice:panelGrid>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup style="margin-top:7px">
+									<fieldset>
+										<legend>
+											<ice:outputLabel value="Their Name" />
+										</legend>
+										<ice:panelGrid columns="2">
+											<ice:outputText></ice:outputText>
+											<ice:inputText id="inputTheirName" />
+										</ice:panelGrid>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+							<ice:panelGrid columns="5" width="100%">
+								<ice:panelGroup id="panelDateofIncident" style="margin-top:7px">
+									<fieldset style="height: 75px; width: 180px">
+										<legend>
+											<ice:outputLabel value="Date of Incident" />
+										</legend>
+										<ice:selectInputDate id="inputIncidentDate"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											renderMonthAsDropdown="true" style="margin-bottom:10px"
+											converter="dateConverter" />
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup id="panelTimeofIncident" style="margin-top:7px">
+									<fieldset style="height: 75px; width: 200px">
+										<legend>
+											<ice:outputLabel value="Time of Incident" />
+										</legend>
+										<comp:timeControl />
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup id="panelYourSex" style="margin-top:7px">
+									<fieldset style="height: 75px">
+										<legend>
+											<ice:outputLabel value="Your Sex" />
+										</legend>
+										<ice:selectOneRadio id="selectYourGender">
+											<f:selectItem itemLabel="Male" />
+											<f:selectItem itemLabel="Female" />
+										</ice:selectOneRadio>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup id="panelTheirSex" style="margin-top:7px">
+									<fieldset style="height: 75px">
+										<legend>
+											<ice:outputLabel value="Their Sex" />
+										</legend>
+										<ice:selectOneRadio id="selectTheirGender">
+											<f:selectItem itemLabel="Male" />
+											<f:selectItem itemLabel="Female" />
+										</ice:selectOneRadio>
+									</fieldset>
+								</ice:panelGroup>
+								<ice:panelGroup id="panelPastAction" style="margin-top:7px">
+									<fieldset>
+										<ice:outputLabel
+											value="Has this person been aggressive to you before?" />
+										<ice:selectOneRadio id="selectPastActivity">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel
+											value="'Tick' the activity you were engaged in when the incident occured" />
+									</legend>
+									<ice:panelGrid columns="6" width="100%">
+										<ice:selectManyCheckbox id="selectActivityEngaged1">
+											<f:selectItem itemLabel="Manual Handling" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged2">
+											<f:selectItem itemLabel="Transporting" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged3">
+											<f:selectItem itemLabel="Participating 1:1" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged4">
+											<f:selectItem itemLabel="Work Placement" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged5">
+											<f:selectItem itemLabel="Mail/Email" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged6">
+											<f:selectItem itemLabel="Participating 2:1" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged7">
+											<f:selectItem itemLabel="Grooming" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged8">
+											<f:selectItem itemLabel="Telephone" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged9">
+											<f:selectItem itemLabel="Participate in group" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged10">
+											<f:selectItem itemLabel="Toileting" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged11">
+											<f:selectItem itemLabel="Meeting" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged12">
+											<f:selectItem itemLabel="Community Access" />
+										</ice:selectManyCheckbox>
+
+										<ice:selectManyCheckbox id="selectActivityEngaged13">
+											<f:selectItem itemLabel="Others(Please state)" />
+										</ice:selectManyCheckbox>
+
+										<ice:inputText id="inputOtherEngagedActivity" />
+
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel
+											value="Please State the Location Where occured" />
+									</legend>
+									<ice:inputText id="inputLocation" />
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Did the behaviour come from" />
+									</legend>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText value="Service user you were supporting" />
+										<ice:selectOneRadio id="selectYesNo1">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Staff member" />
+										<ice:selectOneRadio id="selectYesNo2">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Family Member" />
+										<ice:selectOneRadio id="selectYesNo3">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Member of Public" />
+										<ice:selectOneRadio id="selectYesNo4">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Group Home" />
+										<ice:selectOneRadio id="selectYesNo5">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Other" />
+										<ice:selectOneRadio id="selectYesNo6">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText></ice:outputText>
+										<ice:inputTextarea id="inputBehaviourComeFrom" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel
+											value="'Tick' the type of behaviour DISPLAYED" />
+									</legend>
+									<ice:panelGrid columns="3" width="100%">
+										<ice:selectManyCheckbox id="selectBehaviour1">
+											<f:selectItem itemLabel="hit" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour2">
+											<f:selectItem itemLabel="unwelcomed touching" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour3">
+											<f:selectItem itemLabel="hair pulling" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour4">
+											<f:selectItem itemLabel="punch" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour5">
+											<f:selectItem itemLabel="trip" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour6">
+											<f:selectItem itemLabel="pushing" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour7">
+											<f:selectItem itemLabel="scratch" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour8">
+											<f:selectItem itemLabel="yell(insult)" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour9">
+											<f:selectItem itemLabel="bent fingers" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour10">
+											<f:selectItem itemLabel="kick" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour11">
+											<f:selectItem itemLabel="yell(noice)" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour12">
+											<f:selectItem itemLabel="bite" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour13">
+											<f:selectItem itemLabel="spit" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour14">
+											<f:selectItem itemLabel="abusive comment" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour15">
+											<f:selectItem itemLabel="throwing object" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour16">
+											<f:selectItem itemLabel="sexual harassment" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour17">
+											<f:selectItem itemLabel="offensive comment" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour18">
+											<f:selectItem itemLabel="grabbing/pinching" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour19">
+											<f:selectItem itemLabel="sexual comment" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour20">
+											<f:selectItem itemLabel="racial abuse" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour21">
+											<f:selectItem itemLabel="bullying" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectBehaviour22">
+											<f:selectItem itemLabel="other" />
+										</ice:selectManyCheckbox>
+										<ice:inputTextarea id="inputBehaviour" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGrid columns="2" width="100%">
+								<ice:outputText
+									value="Were you or anyone else injured physically,mentally or emotionally" />
+								<ice:selectOneRadio id="selectInjured">
+									<f:selectItem itemLabel="Yes" />
+									<f:selectItem itemLabel="No" />
+								</ice:selectOneRadio>
+								<ice:outputText value="Was there any damage to property" />
+								<ice:selectOneRadio id="selectDamage">
+									<f:selectItem itemLabel="Yes" />
+									<f:selectItem itemLabel="No" />
+								</ice:selectOneRadio>
+								<ice:outputText
+									value="Reminder:Compare an Accident/Incident form" />
+								<ice:selectBooleanCheckbox id="selectCompare">
+									<f:selectItem itemLabel="Yes" />
+								</ice:selectBooleanCheckbox>
+								<ice:outputText value="Acc/Inc form ID no" />
+								<ice:inputText id="inputFormId" />
+							</ice:panelGrid>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel
+											value="Indicate the seriousness of the incident from your perspective by circling the appropriate number below" />
+									</legend>
+									<ice:panelGrid columns="6" width="100%">
+										<ice:outputText
+											value="---------------------------------------------" />
+										<ice:outputText
+											value="---------------------------------------------" />
+										<ice:outputText
+											value="---------------------------------------------" />
+										<ice:outputText
+											value="---------------------------------------------" />
+										<ice:outputText
+											value="---------------------------------------------" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText value="|" />
+										<ice:outputText value="|" />
+										<ice:outputText value="|" />
+										<ice:outputText value="|" />
+										<ice:outputText value="|" />
+										<ice:outputText value="|" />
+
+										<ice:outputText value="0" />
+										<ice:outputText value="1" />
+										<ice:outputText value="2" />
+										<ice:outputText value="3" />
+										<ice:outputText value="4" />
+										<ice:outputText value="5" />
+
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="0" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="1" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="2" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="3" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="4" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="5" />
+										</ice:selectOneRadio>
+										<ice:outputText
+											value="0=Extremely Serious/Immediate Attention" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText></ice:outputText>
+										<ice:outputText></ice:outputText>
+										<ice:outputText></ice:outputText>
+										<ice:outputText value="5=Not all serious" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Your Opinion" />
+									</legend>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText
+											value="In your Opinion was there a 'trigger' to the incident " />
+										<ice:selectOneRadio id="selectTrigger">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+										<ice:outputText
+											value="If 'Yes' what was the trigger? E.g.Pain,other person,personal care etc(please state below)" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText value="Trigger" />
+										<ice:inputTextarea id="inputTrigger" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGrid width="100%">
+								<ice:outputText
+									value="Note:Debriefing is available to all - please notify your coordinator for actioning!" />
+								<ice:panelGrid columns="2">
+									<ice:outputText value="Date" />
+									<ice:selectInputDate id="inputSignedDate" renderAsPopup="true"
+										renderYearAsDropdown="true" renderMonthAsDropdown="true"
+										style="margin-bottom:10px" converter="dateConverter" />
+								</ice:panelGrid>
+							</ice:panelGrid>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Supervisor has read this form" />
+									</legend>
+									<ice:panelGrid columns="4" width="100%">
+										<ice:outputText value="(Print Name)" />
+										<ice:inputText id="inputPrintName" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText></ice:outputText>
+										<ice:outputText value="Date" />
+										<ice:selectInputDate id="inputreadDate" renderAsPopup="true"
+											renderYearAsDropdown="true" renderMonthAsDropdown="true"
+											style="margin-bottom:10px" converter="dateConverter" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText
+											value="Investigation has been completed on the Accident/Incident Form" />
+										<ice:selectOneRadio id="selectInvestigationComplete">
+											<f:selectItem itemLabel="Yes" />
+											<f:selectItem itemLabel="No" />
+										</ice:selectOneRadio>
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</fieldset>
+					</ice:panelTab>
+				</ice:panelTabSet>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

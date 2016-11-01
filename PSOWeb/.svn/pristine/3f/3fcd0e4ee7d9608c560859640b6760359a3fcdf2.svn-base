@@ -1,0 +1,28 @@
+@ECHO OFF
+CLS
+
+SET PATH=C:\Program Files\PostgreSQL\9.0\bin
+SET usr=postgres
+SET pwd=pass
+
+D:
+cd\Development
+
+ECHO Dropping Database psodb
+::dropdb.exe -U %usr% W %pwd% psodb
+
+psql -U %usr% -W %pwd% -d psodb -c "drop schema public cascade;"
+psql -U %usr% -W %pwd% -d psodb -c "create schema public;"
+ECHO 
+
+::ECHO Creating Database psodb
+::createdb.exe -U %usr% -W %pwd% psodb
+
+ECHO 
+
+ECHO Restoring Database Dump
+psql.exe -U %usr% -W %pwd% --set ON_ERROR_STOP=on psodb < psodb20150813.sql
+	
+ECHO .
+ECHO Database setup complete.
+pause

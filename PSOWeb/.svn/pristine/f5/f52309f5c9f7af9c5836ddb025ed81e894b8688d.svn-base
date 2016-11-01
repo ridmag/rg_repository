@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Hazard Report</ui:define>
+		<ui:define name="pageDescription">Hazard Report.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="Hazardform">
+				<ice:panelTabSet id="tabHazard">
+					<ice:panelTab id="tabReportingofHazard" label="Reporting of Hazard">
+						<fieldset>
+							<legend>
+								<ice:outputLabel value="Reporting of Hazard" />
+							</legend>
+							<ice:panelGrid columns="1" width="100%">
+								<ice:outputLabel
+									value="Follow procedure and return to the Coordinator at the completion of each day" />
+								<ice:outputLabel
+									value="If this requires immediate attention,notify your Coordinator by ASAP" />
+							</ice:panelGrid>
+							<ice:panelGrid columns="4" width="100%">
+								<ice:outputText value="Hazard Identified By" />
+								<ice:inputText id="inputHazardIdentifiedBy" />
+								<ice:outputText value="Date" />
+								<ice:selectInputDate id="inputDate" renderAsPopup="true"
+									renderYearAsDropdown="true" renderMonthAsDropdown="true"
+									style="margin-bottom:10px" converter="dateConverter" />
+								<ice:outputText value="Location" />
+								<ice:inputText id="inputLocation" />
+								<ice:outputText />
+								<ice:outputText />
+								<ice:outputText value="Name of the person Reporting" />
+								<ice:inputText id="inputNameReportingPerson" />
+							</ice:panelGrid>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Description" />
+									</legend>
+									<ice:panelGrid columns="6" width="100%">
+										<ice:outputText value="Description of Hazard" />
+										<ice:inputTextarea id="inputDescriptionofHazard" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Risk Indicator" />
+									</legend>
+									<ice:panelGrid columns="1" width="100%">
+										<ice:outputText
+											value="How much of a risk is this hazard.Please mark where the risk lies" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="6" width="100%">
+										<ice:outputText
+											value="1----------------------------------------" />
+										<ice:outputText
+											value="2----------------------------------------" />
+										<ice:outputText
+											value="3----------------------------------------" />
+										<ice:outputText
+											value="4----------------------------------------" />
+										<ice:outputText value="5------------------------------------6" />
+										<ice:outputText></ice:outputText>
+
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="1" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="2" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="3" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="4" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="5" />
+										</ice:selectOneRadio>
+										<ice:selectOneRadio style="width:40px">
+											<f:selectItem itemValue="6" />
+										</ice:selectOneRadio>
+										<ice:outputText value="Fatality/Very likely to occur" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText
+											value="Injury requiring First Aid/likely to occur" />
+										<ice:outputText></ice:outputText>
+										<ice:outputText value="No Injury/Unlikely to occur" />
+										<ice:outputText></ice:outputText>
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Eliminated or Controlled" />
+									</legend>
+									<ice:panelGrid columns="4" width="100%">
+										<ice:outputText
+											value="Has the Hazard been eliminated or controlled?" />
+										<ice:selectOneRadio id="selectEliminatedorControlled">
+											<f:selectItem itemLabel="Yes" itemValue="0" />
+											<f:selectItem itemLabel="No" itemValue="1" />
+										</ice:selectOneRadio>
+										<ice:outputText />
+										<ice:outputText />
+									</ice:panelGrid>
+									<ice:panelGrid columns="1" width="100%">
+										<ice:outputLabel
+											value="NOTE:BE MINDFUL OF NOT CREATING A NEW HAZARD" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText value="Eliminated" />
+										<ice:inputText id="inputEliminated" />
+										<ice:outputText value="Substituted a safe alternative" />
+										<ice:inputText id="inputalternative" />
+										<ice:outputText value="Isolated the hazard" />
+										<ice:inputText id="inputIsolated" />
+										<ice:outputText value="Admin Controls(warning signs,training)" />
+										<ice:inputText id="inputAdminControls" />
+										<ice:outputText value="Personal Protective Equipment" />
+										<ice:inputText id="inputPPEquipment" />
+										<ice:outputText
+											value="Permanent Engineering Controls(sacffolding)" />
+										<ice:inputText id="inputScaffolding" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="1" width="100%">
+										<ice:outputLabel
+											value="NOTE:COORDINATOR WILL COMPLETE INVESTIGATION AND TABLE AT THE NEXT OHS COMMITTEE MEETING" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:selectBooleanCheckbox id="selectNotifyCoordinator">
+											<f:selectItem itemLabel="yes" itemValue="1" />
+										</ice:selectBooleanCheckbox>
+										<ice:outputText
+											value="Notify Coordinator immediately and follow instructions provided" />
+										<ice:selectBooleanCheckbox id="selectSubmitReport">
+											<f:selectItem itemLabel="yes" itemValue="1" />
+										</ice:selectBooleanCheckbox>
+										<ice:outputText
+											value="Submit hazard report to Coordinator ASAP" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</fieldset>
+					</ice:panelTab>
+					<ice:panelTab id="tabInvestigation" label="Investigation">
+						<fieldset>
+							<legend>
+								<ice:outputLabel value="Investigation of Hazard" />
+							</legend>
+							<ice:panelGrid columns="1" width="100%">
+								<ice:outputLabel value="Coordinator to complete investigation" />
+							</ice:panelGrid>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Risk Calculator" />
+									</legend>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText
+											value="Assign a number from the risk calculator" />
+										<ice:selectManyCheckbox id="selectRiskNumber">
+											<f:selectItem itemLabel="1" />
+											<f:selectItem itemLabel="2" />
+											<f:selectItem itemLabel="3" />
+											<f:selectItem itemLabel="4" />
+											<f:selectItem itemLabel="5" />
+											<f:selectItem itemLabel="6" />
+										</ice:selectManyCheckbox>
+									</ice:panelGrid>
+									<ice:panelGrid columns="3" width="100%">
+										<ice:outputText value="1:Catastrophic" />
+										<ice:outputText value="1-2:Major to Catastrophic" />
+										<ice:outputText value="2-4:Moderate to Major" />
+										<ice:outputText value="4-5:Moderate to Minor" />
+										<ice:outputText value="6:Minor" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel value="Assign a priority/timeframe" />
+									</legend>
+									<ice:panelGrid columns="3" width="100%">
+										<ice:selectManyCheckbox id="selectPriority1">
+											<f:selectItem itemLabel="Immediate" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectPriority2">
+											<f:selectItem itemLabel="Within 1 month" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectPriority3">
+											<f:selectItem itemLabel="Within 3 months" />
+										</ice:selectManyCheckbox>
+										<ice:selectManyCheckbox id="selectPriority4">
+											<f:selectItem itemLabel="Other" />
+										</ice:selectManyCheckbox>
+										<ice:inputText id="inputOtherPriority" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputLabel />
+									</legend>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputLabel
+											value="Has the remedial action completed by staff eliminated or controlled the hazard form reoccuring?" />
+										<ice:selectOneRadio id="selectOneActionTaken">
+											<f:selectItem itemLabel="Yes" itemValue="0" />
+											<f:selectItem itemLabel="No" itemValue="1" />
+										</ice:selectOneRadio>
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputText value="Action required(short term)" />
+										<ice:inputTextarea id="inputRequiredAction" />
+										<ice:outputText value="Person Responsible" />
+										<ice:inputText id="inputResponsiblePerson" />
+										<ice:outputText value="Completed by(date)" />
+										<ice:selectInputDate id="selectCompletedDate"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											renderMonthAsDropdown="true" style="margin-bottom:10px"
+											converter="dateConverter" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputText />
+									</legend>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:outputLabel value="Has this hazard now been finalised" />
+										<ice:selectOneRadio id="selectOnefinalised">
+											<f:selectItem itemLabel="Yes" itemValue="0" />
+											<f:selectItem itemLabel="No" itemValue="1" />
+										</ice:selectOneRadio>
+									</ice:panelGrid>
+									<ice:panelGrid columns="2">
+										<ice:outputText
+											value="What recommendations(if any) can be put forward for the OHS Committee to consider in resolving this hazard?" />
+										<ice:inputTextarea id="inputRecommendation" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:7px">
+								<fieldset>
+									<legend>
+										<ice:outputText />
+									</legend>
+									<ice:outputLabel
+										value="Has the staff member who made the notification been notified of the result?(Eg.Tables at the OHS committee Meeting,Steps put place to resolve the hazard)" />
+									<ice:panelGrid columns="5" width="100%">
+										<ice:selectBooleanCheckbox id="selectNotified">
+											<f:selectItem itemLabel="Yes" itemValue="1" />
+										</ice:selectBooleanCheckbox>
+										<ice:outputText value="Yes" />
+										<ice:outputText value="Date" />
+										<ice:selectInputDate id="selectNotifiedDate"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											renderMonthAsDropdown="true" style="margin-bottom:10px"
+											converter="dateConverter" />
+									</ice:panelGrid>
+									<ice:panelGrid columns="2" width="100%">
+										<ice:selectBooleanCheckbox id="selectInforTransfer">
+											<f:selectItem itemLabel="yes" itemValue="1" />
+										</ice:selectBooleanCheckbox>
+										<ice:outputText
+											value="Information transferred to the OHS Reports Summary Sheet for tabling at the next OHS Committee Meeting" />
+										<ice:outputText value="Coordinator Name" />
+										<ice:inputText id="inputCoordinatorName" />
+										<ice:outputText value="Date" />
+										<ice:selectInputDate id="selectSignedDate"
+											renderAsPopup="true" renderYearAsDropdown="true"
+											renderMonthAsDropdown="true" style="margin-bottom:10px"
+											converter="dateConverter" />
+									</ice:panelGrid>
+								</fieldset>
+							</ice:panelGroup>
+						</fieldset>
+					</ice:panelTab>
+				</ice:panelTabSet>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

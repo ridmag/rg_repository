@@ -1,0 +1,300 @@
+
+<table width="100%">
+	<tr>
+		<td style="width: 320px" align="right">
+		<h3>
+				<u>ACTIVITY STATEMENT</u>
+			</h3>
+		</td>
+		<td align="right"><img width="50" height="50"
+		src="http://localhost:8080/NDIS/images/PSO_Logo.png"  />
+		</td>
+	</tr>
+	<tr>
+		<td />
+		<td align="right" style="font-size: 9">CENTRAL COAST POST SCHOOL
+			OPTIONS<br /> 46 The Avenue, Kariong NSW 2250.<br /> Ph: 43405155
+			Fax: 43405166</td>
+	</tr>
+</table>
+<table width="100%">
+	<tr>
+		<td style="width: 300px">
+			<table width="100%" frame="box">
+				<tr>
+					<td style="width: 65px" />
+					<td valign="middle" style="height: 100px; font-size: 10">
+						$invoice.student.contact.name<br />
+						#if($invoice.student.mailAddressDefault)
+						$invoice.student.contact.streetAddress<br />
+						$invoice.student.contact.city<br />
+						$invoice.student.contact.state $invoice.student.contact.postCode</td>
+					#end #if(not $invoice.student.mailAddressDefault)
+					$invoice.student.mailingAddress.streetAddress
+					<br /> $invoice.student.mailingAddress.city
+					<br /> $invoice.student.mailingAddress.state
+					$invoice.student.mailingAddress.postCode
+					</td> #end
+				</tr>
+			</table></td>
+		<td style="width: 65px" />
+		<td valign="middle" align="right" style="font-size: 9">
+			<table>
+				<tr>
+					<td style="width: 75px">Service User No.</td>
+					<td style="width: 10px">:</td>
+					<td style="width: 65px">$invoice.student.id</td>
+				</tr>
+				<tr>
+					<td>Statement No.</td>
+					<td>:</td>
+					<td>$invoice.id</td>
+				</tr>
+				<tr>
+					<td>Statement Date</td>
+					<td>:</td>
+					<td>$dateFormat.format($invoice.invoiceDate)</td>
+				</tr>
+				<tr>
+					<td>Due Date</td>
+					<td>:</td>
+					<td>$dateFormat.format($invoice.dueDate)</td>
+				</tr>
+			</table></td>
+	</tr>
+</table>
+<div align="center"
+	style="margin-top: 40px; margin-bottom: 20px; font-weight: bold">
+	<u>Account Summary</u>
+</div>
+<table style="margin-top: 15px; font-size: 9" width="300">
+	<tr>
+		<td colspan="25" style="font-weight: bold; height: 15px"
+			valign="middle">Balance BF</td>
+		<td colspan="5" align="right" style="font-weight: bold; height: 15px"
+			valign="middle">$myFormatter.format($invoice.previousOutstanding)
+		</td>
+	</tr>
+	<tr>
+		<td colspan="30" />
+	</tr>
+	<tr>
+		<td colspan="25" style="font-weight: bold; height: 15px"
+			valign="middle">Total Charges</td>
+		<td colspan="5" align="right" style="font-weight: bold; height: 15px"
+			valign="middle">$myFormatter.format($invoice.totalCharge)</td>
+	</tr>
+	<tr>
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">Transport</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($invoice.transportCharge)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		#set($tmpProgramCharge = $invoice.totalCharge -
+		$invoice.transportCharge - $invoice.otherCharge)
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">Program</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($tmpProgramCharge)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">Other</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($invoice.otherCharge)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">GST
+			Included</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($invoice.tax)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		<td colspan="30" />
+	</tr>
+	<tr>
+		#set($totalPayments =
+		$invoice.currentPayments+$invoice.previousPayments)
+		<td colspan="25" style="font-weight: bold; height: 15px"
+			valign="middle">Total Payments</td>
+		<td colspan="5" align="right" style="font-weight: bold; height: 15px"
+			valign="middle">$myFormatter.format($totalPayments)</td>
+	</tr>
+	<tr>
+		#set($cashPayments = $invoice.currentPayments +
+		$invoice.previousPayments - $invoice.eftCharge)
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">Cash/Cheque</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($cashPayments)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		<td colspan="2" />
+		<td colspan="19" style="height: 15px" valign="middle">EFT</td>
+		<td colspan="4" style="height: 15px" valign="middle" align="right">$myFormatter.format($invoice.eftCharge)</td>
+		<td colspan="5" />
+	</tr>
+	<tr>
+		<td colspan="30" />
+	</tr>
+	<tr>
+		<td colspan="25" style="font-weight: bold; height: 15px"
+			valign="middle">Total Outstanding</td>
+		<td colspan="5" align="right" valign="middle"
+			style="font-weight: bold; border-top: 1px solid; border-bottom: 3px double; height: 15px">
+			$myFormatter.format($invoice.total)</td>
+	</tr>
+</table>
+<div style="height: 235px"></div>
+<div style="top: 570; position: absolute">
+	<table width="100%"
+		style="border-top: 1px dashed; margin-top: 15px; font-size: 8">
+		<tr>
+			<td align="left" height="70px" style="width: 100px; height: 50px"
+				valign="middle"><img width="50" height="50"
+				src="http://localhost:8080/NDIS/images/PSO_Logo.png" /></td>
+			<td align="left" valign="middle">Please detach and return with
+				your payment or Direct Deposit to our Bank Account as per the
+				details below.</td>
+		</tr>
+	</table>
+	<table style="font-size: 8">
+		<tr>
+			<td align="left" style="width: 380px">
+				<table>
+					<tr>
+						<td style="width: 60px">Name</td>
+						<td style="width: 10px">:</td>
+						<td style="width: 200px">Central Coast Post School Options
+							Inc.</td>
+					</tr>
+					<tr>
+						<td>Bank</td>
+						<td>:</td>
+						<td>Commonwealth Bank The Entrance</td>
+					</tr>
+					<tr>
+						<td>BSB</td>
+						<td>:</td>
+						<td>062-606</td>
+					</tr>
+					<tr>
+						<td>Account</td>
+						<td>:</td>
+						<td>28000824</td>
+					</tr>
+				</table></td>
+			<td align="right">
+				<table>
+					<tr>
+						<td style="width: 60px">Reference No.</td>
+						<td style="width: 10px">:</td>
+						<td align="right"
+							style="width: 60px; border-top: 1px solid; border-bottom: 1px solid; border-left: 1px solid; border-right: 1px solid">
+							$invoice.id</td>
+					</tr>
+					<tr>
+						<td>Customer No.</td>
+						<td>:</td>
+						<td align="right"
+							style="width: 60px; border-top: 1px solid; border-bottom: 1px solid; border-left: 1px solid; border-right: 1px solid">
+							$invoice.student.id</td>
+					</tr>
+					<tr>
+						<td>Date Due</td>
+						<td>:</td>
+						<td align="right"
+							style="width: 60px; border-top: 1px solid; border-bottom: 1px solid; border-left: 1px solid; border-right: 1px solid">
+							$dateFormat.format($invoice.dueDate)</td>
+					</tr>
+					<tr>
+						<td>Amount Due</td>
+						<td>:</td>
+						<td align="right"
+							style="width: 60px; border-top: 1px solid; border-bottom: 1px solid; border-left: 1px solid; border-right: 1px solid">
+							$myFormatter.format($invoice.total)</td>
+					</tr>
+				</table></td>
+		</tr>
+	</table>
+</div>
+<table width="100%" style="font-weight: bold">
+	<tr>
+		<td width="100%" style="height: 20px" valign="middle" align="center"><u>Transaction
+				Details</u></td>
+	</tr>
+</table>
+<div
+	style="margin-top: 2px; margin-bottom: 3px; font-weight: bold; font-size: 10">
+	<u> Event Transactions </u>
+</div>
+<table width="100%"
+	style="border-collapse: collapse; margin-bottom: 5px; font-size: 8"
+	border="1">
+	<tr style="background-color: #BDBDBD">
+		<th colspan="3" valign="middle">Event Date</th>
+		<th colspan="6" valign="middle">Program(s)</th>
+		<th colspan="2" valign="middle">Attended</th>
+		<th colspan="2" valign="middle">Program Charges</th>
+		<th colspan="2" valign="middle">Transport Charges</th>
+		<th colspan="2" valign="middle">Payment Received</th>
+	</tr>
+
+	<!--  #foreach ( $item.eventDate in $invoice.tmpItems ) 
+  	 #set ( $rowCount1 = 0 )
+     $eventDate = ($item.eventDate)$dateFormat.format($item.eventDate)
+	 #set ( $rowCount1 = $rowCount1 + 1 )
+	 #end
+	-->
+	#foreach($item in $invoice.tmpItems)
+	<tr>
+		<td colspan="3" align="center" rowspan="$rowCount1">
+			#if($item.eventDate)$dateFormat.format($item.eventDate)#end</td>
+		<td colspan="6" align="left">#if($item.groups)$item.groups #end
+			#if($item.groupname)$item.groupname #end</td>
+		<td colspan="2" align="center">#if($item.attended) Yes #end
+			#if(!$item.attended) No #end</td>
+		<td colspan="2" align="center">#if($item.chargeAmount !=
+			0)$myFormatter.format($item.chargeAmount) #end</td>
+		<td colspan="2" align="center">#if($item.transportCharge !=
+			0)$myFormatter.format($item.transportCharge) #end</td>
+		<td colspan="2" align="center">#if($item.paidAmount !=
+			0)$myFormatter.format($item.paidAmount) #end</td>
+	</tr>
+	#end
+</table>
+#if(!$invoice.additionalInvoiceItems.empty)
+<div
+	style="margin-top: 3px; margin-bottom: 2px; font-weight: bold; font-size: 10">
+	<u> Other Transactions</u>
+</div>
+<table width="100%" style="border-collapse: collapse; font-size: 8"
+	border="1">
+	<tr style="background-color: #BDBDBD">
+		<th colspan="2" valign="middle">Transaction Date</th>
+		<th colspan="12" valign="middle">Description</th>
+		<th colspan="2" valign="middle">Charges</th>
+		<th colspan="2" valign="middle">Payments</th>
+		<th colspan="2" valign="middle">Payment Method</th>
+	</tr>
+	#foreach($item in $invoice.additionalInvoiceItems) #if($item.chargeType
+	!= 'Collection')
+	<tr>
+		<td colspan="2" align="center">
+			#if($item.transactionDate)$dateFormat.format($item.transactionDate)#end
+		</td>
+		<td colspan="12">#if($item.remarks)$item.remarks #end</td>
+		<td colspan="2" align="right">#if($item.paymentType ==
+			'Collection') $myFormatter.format($item.paidAmount) #else
+			#if($item.chargeAmount != 0)$myFormatter.format($item.chargeAmount)
+			#end #end</td>
+		<td colspan="2" align="right">#if($item.paidAmount !=
+			0)$myFormatter.format($item.paidAmount)#end</td>
+		<td colspan="2" align="center">#if($item.paymentMethod)$item.paymentMethod
+			#end</td>
+	</tr>
+	#end #end
+</table>
+#end

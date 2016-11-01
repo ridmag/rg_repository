@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFINIS"></ui:param>
+		<ui:define name="pageTitle">NDIS Support Cluster </ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">NDIS Support Cluster </ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each NDIS Support cluster</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formExternalSources">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Search NDIS Support Item by name or id" />
+						<ice:inputText id="inputTextNdisSearch"
+							action="#{ndisSupportItemManagerModel.searchNdisSupportItem}"
+							value="#{ndisSupportItemManagerModel.searchText}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commanButtonNdisMainSearch"
+							action="#{ndisSupportItemManagerModel.searchNdisSupportItem}"
+							value="Search" styleClass="CommandButton" />
+						<ice:commandButton id="commandNdisAdd"
+							value="Add NDIS Support Cluster" style="margin-left:5px"
+							styleClass="CommandButton"
+							action="#{ndisSupportItemManagerModel.newNdisItem}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{ndisSupportItemManagerModel.allItems}" var="item"
+						id="tableNdis" columnWidths="50px,500px,130px,300px,200px">
+						<ice:column id="columnid" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="ID" />
+							</f:facet>
+							<ice:outputText value="#{item.id}" />
+						</ice:column>
+						<ice:column id="columnNdisName" style="text-align:left">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectNdis" value="#{item.ui_selected}"
+									clickListener="#{ndisSupportItemManagerModel.selectNdisSupportItem}">
+									<f:attribute name="item" value="#{item}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Support Cluster" />
+							</f:facet>
+							<ice:outputText value="#{item.itemName}" />
+						</ice:column>
+						<ice:column id="columnTypes" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Type" />
+							</f:facet>
+							<ice:outputText value="#{item.ndisClusterType}" />
+						</ice:column>
+						<ice:column id="columnRatio" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Level of Support" />
+							</f:facet>
+							<ice:panelGroup
+								rendered="#{item.denominator !=0 and item.numerator !=0}">
+								<ice:outputText rendered="#{item.skills == false}"
+									value="#{item.numerator} : #{item.denominator}" />
+								<ice:outputText rendered="#{item.skills == true}"
+									value="#{item.numerator} : #{item.denominator} S" />
+							</ice:panelGroup>
+							<ice:panelGroup
+								rendered="#{item.denominator ==0 and item.numerator ==0}">
+								<ice:outputText value="N/A" />
+							</ice:panelGroup>
+						</ice:column>
+					</ice:dataTable>
+					<ice:panelTabSet id="tabSetOrgDetails"
+						style="margin-top:10px;width:1200px">
+						<ice:panelTab id="tabOrgProfile"
+							label="NDIS Support Cluster Profile">
+							<ice:panelGroup>
+								<fieldset style="height: 290px">
+									<ice:panelGrid columns="2" width="100%"
+										rowClasses="topAlignedTableCell">
+										<ice:panelGroup style="width: 300px;">
+											<fieldset style="height: 260px">
+												<legend>
+													<ice:outputLabel value="NDIS Support Cluster Details" />
+												</legend>
+												<ice:panelGroup style="margin-top:10px"
+													rendered="#{ndisSupportItemManagerModel.item == null}">
+													<ice:outputText
+														value="Please select a NDIS Support Item to view details.." />
+												</ice:panelGroup>
+												<ice:panelGroup>
+													<ice:panelGrid columns="2" cellspacing="5" width="100%"
+														rendered="#{ndisSupportItemManagerModel.item != null}">
+														<ice:outputText value="Support Cluster Name*" />
+														<ice:inputText id="input_ItemName"
+															value="#{ndisSupportItemManagerModel.item.itemName}" />
+														<ice:outputText value="Type*" />
+														<ice:setEventPhase events="ValueChangeEvent"
+															phase="INVOKE_APPLICATION">
+															<ice:selectOneMenu id="select_ndisClusterType"
+																value="#{ndisSupportItemManagerModel.item.ndisClusterType}"
+																partialSubmit="true">
+																<f:selectItems
+																	value="#{ndisSupportItemManagerModel.ndisTypes}" />
+															</ice:selectOneMenu>
+														</ice:setEventPhase>
+														<ice:outputText value="GST Code" />
+														<ice:setEventPhase events="ValueChangeEvent"
+															phase="INVOKE_APPLICATION">
+															<ice:selectOneMenu id="select_GST"
+																value="#{ndisSupportItemManagerModel.item.gstCode}">
+																<f:selectItem itemValue="" itemLabel="Please select"
+																	itemDisabled="true" />
+																<f:selectItems value="#{lookupListProvider.GSTCodes}" />
+															</ice:selectOneMenu>
+														</ice:setEventPhase>
+
+														<!-- 	<ice:outputText value="Price($)" rendered="#{!(ndisSupportItemManagerModel.item.quotereq)}" />
+													<ice:inputText id="inputNdisPrice" tabindex="7"
+														rendered="#{!(ndisSupportItemManagerModel.item.quotereq)}"
+														value="#{ndisSupportItemManagerModel.item.price}" /> -->
+
+														<ice:outputText
+															rendered="#{(ndisSupportItemManagerModel.item.ndisClusterType=='DayProgram' || ndisSupportItemManagerModel.item.ndisClusterType=='Individual') }"
+															value="Level of Support*" />
+														<ice:panelGrid
+															rendered="#{(ndisSupportItemManagerModel.item.ndisClusterType=='DayProgram' || ndisSupportItemManagerModel.item.ndisClusterType=='Individual') }"
+															columns="3" style="text-align:center">
+															<ice:inputText id="input_StaffRatio"
+																style="width:60px;text-align:center"
+																value="#{ndisSupportItemManagerModel.item.numerator}" />
+															<ice:outputLabel value=" :" />
+															<ice:inputText id="input_StudentRatio"
+																style="width: 60px;text-align:center"
+																value="#{ndisSupportItemManagerModel.item.denominator}" />
+															<ice:outputText value="Staff" style="font-size:12px;" />
+															<ice:outputLabel value=" : " />
+															<ice:outputText value="Student" style="font-size:12px;" />
+														</ice:panelGrid>
+														<ice:outputText
+															rendered="#{(ndisSupportItemManagerModel.item.ndisClusterType=='DayProgram' || ndisSupportItemManagerModel.item.ndisClusterType=='Individual') }"
+															value="Skill Required" />
+														<ice:selectBooleanCheckbox id="selectSkillReq"
+															rendered="#{(ndisSupportItemManagerModel.item.ndisClusterType=='DayProgram' || ndisSupportItemManagerModel.item.ndisClusterType=='Individual') }"
+															value="#{ndisSupportItemManagerModel.item.skills}" />
+													</ice:panelGrid>
+
+													<ice:panelGroup style="width:290px;margin-top:25px"
+														rendered="#{ndisSupportItemManagerModel.item != null}">
+														<ice:commandButton id="commandNdisSave" value="Save"
+															style="width:80px;float:right"
+															rendered="#{ndisSupportItemManagerModel.item != null}"
+															styleClass="CommandButton"
+															action="#{ndisSupportItemManagerModel.saveNdisItem}" />
+														<ice:commandButton id="commandNdisDelete" value="Delete"
+															style="width:80px;margin-left:120px"
+															panelConfirmation="deleteConfirmation"
+															rendered="#{ndisSupportItemManagerModel.item.id != null}"
+															styleClass="CommandButton"
+															action="#{ndisSupportItemManagerModel.deleteNdisItem}" />
+													</ice:panelGroup>
+												</ice:panelGroup>
+											</fieldset>
+											<ice:panelConfirmation id="deleteConfirmation"
+												acceptLabel="Yes" cancelLabel="No" draggable="true"
+												title="Confirm"
+												message="Are you sure you want to perform this action?" />
+										</ice:panelGroup>
+
+										<ice:panelGroup
+											rendered="#{ndisSupportItemManagerModel.item.id!=null}">
+											<fieldset style="width: 780px; height: 260px">
+												<legend>
+													<ice:outputLabel value="NDIS Support Item Details" />
+												</legend>
+												<ice:commandButton id="commandPriceAdd"
+													rendered="#{ndisSupportItemManagerModel.item!=null}"
+													value="Add New Price"
+													style="margin-left:2px; margin-top:5px"
+													styleClass="CommandButton"
+													action="#{ndisSupportItemManagerModel.addNewPrice}" />
+												<ice:dataTable scrollable="true" scrollHeight="180px"
+													value="#{ndisSupportItemManagerModel.item.ndisPrice}"
+													var="np" id="tablePrice"
+													columnWidths="80px,150px,100px,100px,80px,80px,50px,50px">
+													<ice:column id="columnSupportId"
+														style="text-align:center;width:80px">
+														<f:facet name="header">
+															<ice:outputText value="Ref No" style="width:80px" />
+														</f:facet>
+														<ice:outputText value="#{np.itemNumber}"
+															style="width:80px" />
+													</ice:column>
+													<ice:column id="columnPriceName" style="width:150px">
+														<f:facet name="header">
+															<ice:outputText value="Price Name" style="width:150px" />
+														</f:facet>
+														<ice:outputText value="#{np.priceName}" />
+													</ice:column>
+													<ice:column id="columnStartDate"
+														style="text-align:center;width:100px">
+														<f:facet name="header">
+															<ice:outputText value="Start Date" style="width:100px" />
+														</f:facet>
+														<ice:outputText value="#{np.startDate}"
+															style="width:100px" converter="dateConverter">
+														</ice:outputText>
+													</ice:column>
+													<ice:column id="columnndisTime"
+														style="text-align:center;width:100px">
+														<f:facet name="header">
+															<ice:outputText value="NDIS Time" style="width:100px" />
+														</f:facet>
+														<ice:outputText value="#{np.ndisTime}" style="width:100px">
+														</ice:outputText>
+													</ice:column>
+
+													<ice:column id="columnPrice"
+														style="text-align:center;width:80px">
+														<f:facet name="header">
+															<ice:outputText value="Price" style="width:80px" />
+														</f:facet>
+														<ice:outputText value="#{np.price}" style="width:80px" />
+													</ice:column>
+													<ice:column id="columnuom"
+														style="text-align:center;width:80px">
+														<f:facet name="header">
+															<ice:outputText value="UOM" style="width:80px" />
+														</f:facet>
+														<ice:outputText value="#{np.uom}" style="width:80px" />
+													</ice:column>
+													<ice:column id="columnPriceEdit"
+														style="text-align:center;width:50px">
+														<f:facet name="header">
+															<ice:outputText value="Edit" style="width:50px" />
+														</f:facet>
+														<ice:commandLink style="border:none"
+															actionListener="#{ndisSupportItemManagerModel.editNdisPriceItem}"
+															title="Edit StaffMember" id="commandlinkEditPrice">
+															<ice:graphicImage style="border:none"
+																url="images/icons/edit.png" />
+															<f:attribute name="np" value="#{np}" />
+														</ice:commandLink>
+													</ice:column>
+													<ice:column id="columnPriceDelete"
+														style="text-align:center;width:50px">
+														<f:facet name="header"
+															style="text-align:center;width:50px">
+															<ice:outputText value="Remove" />
+														</f:facet>
+
+														<ice:commandLink style="border:none"
+															actionListener="#{ndisSupportItemManagerModel.removeNdisPrice}"
+															panelConfirmation="deleteNdisPriceConfirmation"
+															title="deletePriceMember" id="commandlinkDeletePrice">
+															<ice:graphicImage style="border:none"
+																id="graphicDeletePrice"
+																url="images/icons/delete-icon.png" />
+															<f:attribute name="np" value="#{np}" />
+														</ice:commandLink>
+														<ice:panelConfirmation id="deleteNdisPriceConfirmation"
+															acceptLabel="Yes" cancelLabel="No" draggable="true"
+															title="Confirm"
+															message="Are you sure you want to perform this action?" />
+													</ice:column>
+
+												</ice:dataTable>
+											</fieldset>
+										</ice:panelGroup>
+									</ice:panelGrid>
+									<ice:panelPopup modal="true" styleClass="icePnlPop"
+										draggable="true"
+										rendered="#{ndisSupportItemManagerModel.visibleAddPrice}">
+										<f:facet name="header">
+											<ice:panelGroup styleClass="popupHeaderWrapper1"
+												style="background:url(images/dialogbg1.png);">
+												<ice:outputText
+													value="Enroll new Price into NDIS Support Item: #{ndisSupportItemManagerModel.item.itemName}"
+													styleClass="popupHeaderText" />
+												<ice:commandButton id="closeButton"
+													image="#{msgs['panelPopup.closeImage']}"
+													action="#{ndisSupportItemManagerModel.addPricePopup}"
+													styleClass="popupHeaderImage" title="Close" alt="Close" />
+											</ice:panelGroup>
+										</f:facet>
+										<f:facet name="body">
+											<ice:panelGroup style="width:100%;margin-top:10px">
+												<ice:messages></ice:messages>
+												<ice:panelGrid columns="2" width="100%">
+													<ice:panelGroup style="width:170px">
+														<ice:outputText value="Support Item Name*" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:inputText id="input_Name"
+															value="#{ndisSupportItemManagerModel.price.priceName}" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:outputText value="Reference No*" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:inputText id="input_SupportNumber"
+															value="#{ndisSupportItemManagerModel.price.itemNumber}" />
+													</ice:panelGroup>
+													<ice:outputText value="Description" />
+													<ice:inputTextarea
+														value="#{ndisSupportItemManagerModel.price.description}"></ice:inputTextarea>
+													<ice:panelGroup style="width:170px">
+														<ice:outputText value="NDIS Time*" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:setEventPhase events="FacesEvent"
+															phase="INVOKE_APPLICATION">
+															<ice:selectOneMenu id="select_NDISTime"
+																value="#{ndisSupportItemManagerModel.price.ndisTime}"
+																valueChangeListener="#{ndisSupportItemManagerModel.selectNdisTime}"
+																partialSubmit="true">
+																<f:selectItems
+																	value="#{ndisSupportItemManagerModel.currentNdisTimeList}" />
+															</ice:selectOneMenu>
+														</ice:setEventPhase>
+													</ice:panelGroup>
+													<ice:outputText value="UOM*" />
+													<ice:setEventPhase events="FacesEvent"
+														phase="UPDATE_MODEL_VALUES">
+														<ice:selectOneMenu id="select_Uom"
+															value="#{ndisSupportItemManagerModel.price.uom}">
+															<f:selectItems
+																value="#{ndisSupportItemManagerModel.availableUoms}" />
+														</ice:selectOneMenu>
+													</ice:setEventPhase>
+													<ice:panelGroup style="width:170px">
+														<ice:outputText value="Price*" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:inputText id="input_Price"
+															value="#{ndisSupportItemManagerModel.price.price}"
+															converterMessage="Price must be a number greater than zero" />
+													</ice:panelGroup>
+													<ice:panelGroup style="width:170px">
+														<ice:outputText value="Start Date*" />
+													</ice:panelGroup>
+													<ice:panelGroup id="input_PriceStartDate">
+														<ice:selectInputDate
+															value="#{ndisSupportItemManagerModel.price.startDate}"
+															renderAsPopup="true" renderMonthAsDropdown="true"
+															renderYearAsDropdown="true" converter="dateConverter"
+															converterMessage="Start date must be valide date">
+														</ice:selectInputDate>
+													</ice:panelGroup>
+
+
+
+													<!-- <ice:panelGroup style="width:170px">
+															<ice:outputText value="Time Of Week" />
+														</ice:panelGroup> -->
+													<!-- <ice:panelGroup style="width:170px">
+															<ice:selectOneMenu id="selectTimeOfWeek"
+																value="#{ndisSupportItemManagerModel.timeOfWeek}">
+																<f:selectItems value="#{lookupListProvider.timeofweek}" />
+															</ice:selectOneMenu>
+														</ice:panelGroup>	 -->
+												</ice:panelGrid>
+												<ice:commandButton id="commandAddPriceandExit"
+													value="Cancel" styleClass="CommandButton"
+													style="float:right;margin-top:10px;width:100px;margin-left:10px"
+													action="#{ndisSupportItemManagerModel.addPricePopup}" />
+												<ice:commandButton id="commandAddPrice" value="Submit"
+													styleClass="CommandButton"
+													style="float:right;margin-top:10px;width:80px;margin-left:10px"
+													action="#{ndisSupportItemManagerModel.savePrice}" />
+											</ice:panelGroup>
+										</f:facet>
+									</ice:panelPopup>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelTab>
+					</ice:panelTabSet>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

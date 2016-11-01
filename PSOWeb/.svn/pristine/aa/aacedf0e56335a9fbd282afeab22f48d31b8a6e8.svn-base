@@ -1,0 +1,171 @@
+package com.itelasoft.pso.beans;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.search.annotations.IndexedEmbedded;
+
+@Entity
+@Table(name = "ndisinvoiceitemsref")
+public class NdisInvoiceItem extends BaseEntity {
+
+	private Long registrationNumber;
+	//private String studentName;
+	private String ndisNumber;
+	private Date supportsDeliveredFrom;
+	private Date supportsDeliveredTo;
+	private String supportNumber;
+	private String claimReference;
+	private Double quantity;
+	private String hours;
+	private Double unitPrice;
+	private String gstCode;
+	@Transient
+	private String authorisedby;
+	private Boolean participantApproved;
+	private String inkindFundingProgram;
+	private ProgramEvent programEvent;
+	//private double totalAmount;
+	@IndexedEmbedded
+	private StudentEvent studentEvent;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	public Long getRegistrationNumber() {
+		return registrationNumber;
+	}
+
+	public void setRegistrationNumber(Long registrationNumber) {
+		this.registrationNumber = registrationNumber;
+	}
+
+	/**
+	 * public String getNdisNumber() { return ndisNumber; } public void
+	 * setNdisNumber(String ndisNumber) { this.ndisNumber = ndisNumber; }
+	 */
+	public String getNdisNumber() {
+		return ndisNumber;
+	}
+
+	public void setNdisNumber(String ndisNumber) {
+		this.ndisNumber = ndisNumber;
+	}
+
+	public String getSupportNumber() {
+		return supportNumber;
+	}
+
+	public void setSupportNumber(String supportNumber) {
+		this.supportNumber = supportNumber;
+	}
+
+	public Double getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getHours() {
+		return hours;
+	}
+
+	public void setHours(String hours) {
+		this.hours = hours;
+	}
+
+	public Double getUnitPrice() {
+		return unitPrice;
+	}
+
+	public void setUnitPrice(Double unitPrice) {
+		this.unitPrice = unitPrice;
+	}
+
+	public String getGstCode() {
+		return gstCode;
+	}
+
+	public void setGstCode(String gstCode) {
+		this.gstCode = gstCode;
+	}
+
+	public String getAuthorisedBy() {
+		return authorisedby;
+	}
+
+	public void setAuthorisedBy(String authorisiedBy) {
+		this.authorisedby = authorisiedBy;
+	}
+
+	public Boolean getParticipantApproved() {
+		return participantApproved;
+	}
+
+	public void setParticipantApproved(Boolean participantApproved) {
+		this.participantApproved = participantApproved;
+	}
+
+	public String getInkindFundingProgram() {
+		return inkindFundingProgram;
+	}
+
+	public void setInkindFundingProgram(String inkindFundingProgram) {
+		this.inkindFundingProgram = inkindFundingProgram;
+	}
+
+	@ManyToOne
+	@JoinColumn(name = "programeventid")
+	public ProgramEvent getProgramEvent() {
+		return programEvent;
+	}
+
+	public void setProgramEvent(ProgramEvent programEvent) {
+		this.programEvent = programEvent;
+	}
+
+	@OneToOne
+	@JoinColumn(name = "studenteventid")
+	public StudentEvent getStudentEvent() {
+		return studentEvent;
+	}
+
+	public void setStudentEvent(StudentEvent studentEvent) {
+		this.studentEvent = studentEvent;
+	}
+
+	public String getClaimReference() {
+		return claimReference;
+	}
+
+	public void setClaimReference(String claimReference) {
+		this.claimReference = claimReference;
+	}
+
+	public Date getSupportsDeliveredFrom() {
+		return supportsDeliveredFrom;
+	}
+
+	public void setSupportsDeliveredFrom(Date supportsDeliveredFrom) {
+		this.supportsDeliveredFrom = supportsDeliveredFrom;
+	}
+
+	public Date getSupportsDeliveredTo() {
+		return supportsDeliveredTo;
+	}
+
+	public void setSupportsDeliveredTo(Date supportsDeliveredTo) {
+		this.supportsDeliveredTo = supportsDeliveredTo;
+	}
+}

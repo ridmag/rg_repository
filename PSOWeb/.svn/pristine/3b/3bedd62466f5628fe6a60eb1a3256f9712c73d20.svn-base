@@ -1,0 +1,294 @@
+package com.itelasoft.pso.dao;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
+import com.itelasoft.pso.beans.GroupedStaff;
+import com.itelasoft.pso.beans.Leave;
+import com.itelasoft.pso.beans.Program;
+import com.itelasoft.pso.beans.ProgramEvent;
+import com.itelasoft.pso.beans.StaffEvent;
+import com.itelasoft.pso.beans.StaffMember;
+
+public class StaffMemberDao extends GenericDao<StaffMember, Long> implements
+		IStaffMemberDao {
+
+	public boolean validateStaffId(Long userId, String staffId) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(StaffMember.class).add(
+				Restrictions.eq("staffId", staffId).ignoreCase());
+		if (userId != null)
+			criteria.add(Restrictions.ne("id", userId));
+		StaffMember staff = (StaffMember) criteria.uniqueResult();
+		if (staff == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public List<StaffMember> listByName(String staffName) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(StaffMember.class)
+				.createCriteria("contact");
+		if (!staffName.isEmpty())
+			criteria = criteria.add(Restrictions.or(
+					Restrictions.like("firstName", staffName,
+							MatchMode.ANYWHERE).ignoreCase(), Restrictions
+							.like("lastName", staffName, MatchMode.ANYWHERE)
+							.ignoreCase()));
+		criteria.addOrder(Order.asc("firstName")).addOrder(
+				Order.asc("lastName"));
+		@SuppressWarnings("unchecked")
+		List<StaffMember> list = criteria.list();
+		return list;
+	}
+
+	public StaffMember searchByStaffId(String staffId) {
+		Session session = getCurrentSession();
+		Query query = session
+				.createQuery("from StaffMember as sm where sm.staffId = ? order by sm.staffId");
+		query.setParameter(0, staffId);
+		StaffMember staff = (StaffMember) query.uniqueResult();
+		if (staff != null) {
+			return staff;
+		}
+		return null;
+	}
+
+	public List<StaffMember> listByStaffType(Long staffTypeId) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(StaffMember.class)
+				.createAlias("contact", "contact").createAlias("type", "type")
+				.add(Restrictions.eq("type.id", staffTypeId))
+				.addOrder(Order.asc("contact.firstName"))
+				.addOrder(Order.asc("contact.lastName"));
+		@SuppressWarnings("unchecked")
+		List<StaffMember> list = criteria.list();
+		return list;
+	}
+
+	public List<StaffMember> listByStaffTypeNStatus(Long staffTypeId,
+			String staffStatus) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(StaffMember.class)
+				.createAlias("contact", "contact").createAlias("type", "type")
+				.add(Restrictions.eq("status", staffStatus))
+				.add(Restrictions.eq("type.id", staffTypeId))
+				.addOrder(Order.asc("contact.firstName"))
+				.addOrder(Order.asc("contact.lastName"));
+		@SuppressWarnings("unchecked")
+		List<StaffMember> list = criteria.list();
+		return list;
+	}
+
+	public List<StaffMember> listActiveStaffMembers() {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(StaffMember.class)
+				.createAlias("contact", "contact")
+				.add(Restrictions.eq("status", "Current"))
+				.addOrder(Order.asc("contact.firstName"))
+				.addOrder(Order.asc("contact.lastName"))
+				.setFetchMode("skills", FetchMode.JOIN)
+				.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		@SuppressWarnings("unchecked")
+		List<StaffMember> members = criteria.list();
+		return members;
+	}
+
+
+	public boolean isHavingActivePrograms(Long staffId) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(Program.class)
+				.add(Restrictions.eq("status", "Active"))
+				.createCriteria("coordinator")
+				.add(Restrictions.eq("id", staffId));
+		@SuppressWarnings("unchecked")
+		List<Program> pros = criteria.list();
+		if (pros != null && !pros.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isHavingPendingEvents(Long staffId) {
+		Session session = getCurrentSession();
+		Criteria criteria = session.createCriteria(ProgramEvent.class)
+				.createAlias("staffEvents", "se")
+				.createAlias("se.staffMember", "staff")
+				.add(Restrictions.ne("status", "finished"))
+				.add(Restrictions.eq("staff.id", staffId));
+		@SuppressWarnings("unchecked")
+		List<ProgramEvent> events = criteria.list();
+		if (events != null && !events.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean checkAvailabilityByDate(Long staffId, Date eventDate) {
+		Session session = getCurrentSession();
+		Query query = session
+				.createQuery("from Leave as leave where ((leave.staffMember.id = :staffId) and (:eventDate between leave.startDate and leave.endDate))");
+		query.setParameter("staffId", staffId);
+		query.setParameter("eventDate", eventDate);
+		Leave leave = (Leave) query.uniqueResult();
+		if (leave == null) {
+			return true;
+		}
+		return false;
+	}
+
+	public double getTotalWorkHours(Long staffId, Date startDate,Date endDate) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+		//TimeTrackerModel model = new TimeTrackerModel();
+		//Date fromDate = model.getFortnightStartDate(eventDate);
+		//Date toDate = model.getFortnightEnd();
+		Date fromDate = startDate;
+		Date toDate = endDate;
+		// Calendar calendar = Calendar.getInstance();
+		// calendar.setTime(eventDate);
+		// calendar.set(Calendar.DAY_OF_WEEK, 1);
+		// String fromDate = dateFormat.format(calendar.getTime());
+		// calendar.add(Calendar.WEEK_OF_MONTH, 1);
+		// calendar.add(Calendar.DAY_OF_WEEK, -1);
+		// String toDate = dateFormat.format(calendar.getTime());
+		Session session = getCurrentSession();
+		/*
+		 * String queryString =
+		 * "SELECT sum(date_part('hour', pe.actualendtime) - date_part('hour', pe.actualstarttime)) AS hours "
+		 * +
+		 * "FROM programevents pe JOIN ProgramEventCoordinatorXRef x ON x.programEventId = pe.id "
+		 * +
+		 * "JOIN staffmembers s ON s.id = x.coordinatorid LEFT OUTER JOIN leaves l on l.staffid = s.id "
+		 * + "WHERE s.id = " + staffId + " AND pe.eventdate BETWEEN '" +
+		 * fromDate + "' AND '" + toDate +
+		 * "' and not exists (select * from leaves where leaves.staffid = s.id and pe.eventdate between leaves.startdate and leaves.enddate)"
+		 * ;
+		 */
+		String queryString = "SELECT (sum((date_part('hour', x.endtime - x.starttime)*60) + "
+				+ "date_part('minute', x.endtime - x.starttime)))/60 AS hours "
+				+ "FROM programevents pe JOIN ProgramEventCoordinatorXRef x ON x.programEventId = pe.id "
+				+ "JOIN staffmembers s ON s.id = x.coordinatorid "
+				+ "WHERE s.id = "
+				+ staffId
+				+ " AND pe.eventdate BETWEEN '"
+				+ dateFormat.format(fromDate)
+				+ "' AND '"
+				+ dateFormat.format(toDate) + "'";
+		SQLQuery query = session.createSQLQuery(queryString);
+		Double hours = (Double) query.uniqueResult();
+		if (hours != null)
+			return hours.doubleValue();
+		else
+			return 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<StaffMember> listAvailableByName(String searchText) {
+		Session session = getCurrentSession();
+		Criteria criteria = session
+				.createCriteria(StaffMember.class)
+				.add(Restrictions.eq("status", "Current"))
+				.createCriteria("contact")
+				.add(Restrictions.or(
+						Restrictions.like("firstName", searchText,
+								MatchMode.ANYWHERE).ignoreCase(),
+						Restrictions.like("lastName", searchText,
+								MatchMode.ANYWHERE).ignoreCase()))
+				.addOrder(Order.asc("firstName"))
+				.addOrder(Order.asc("lastName"));
+		return criteria.list();
+	}
+
+	public List<StaffMember> listAvailableByNameNGroup(Long groupId,
+			String staffName) {
+		Session session = getCurrentSession();
+		Query query = session
+				.createQuery("select staff from StaffMember as staff, StudentGroup as g "
+						+ "where g.id = :id and (lower(staff.contact.firstName) like :name or lower(staff.contact.lastName) like :name) "
+						+ "and staff not in elements(g.staffMembers) and staff.status = 'Current'");
+		query.setParameter("id", groupId);
+		query.setParameter("name", "%" + staffName.toLowerCase() + "%");
+		@SuppressWarnings("unchecked")
+		List<StaffMember> list = query.list();
+		return list;
+	}
+
+	public StaffMember listAvailableByStaffIdNGroup(Long groupId, String staffId) {
+		Session session = getCurrentSession();
+		Query query = session
+				.createQuery("select staff from StaffMember as staff, StudentGroup as g where g.id = :groupId "
+						+ "and staff.staffId = :staffId and staff not in elements(g.staffMembers) "
+						+ "and staff.status = 'Current'");
+		query.setParameter("groupId", groupId);
+		query.setParameter("staffId", staffId);
+		StaffMember member = (StaffMember) query.uniqueResult();
+		return member;
+	}
+
+	public void updateActiveRecords(List<Program> programs,
+			List<ProgramEvent> proEvents, List<GroupedStaff> groupedStaffs,
+			List<StaffEvent> staffEvents) {
+		Session session = getCurrentSession();
+		List<GroupedStaff> tmpGS = new ArrayList<GroupedStaff>();
+		List<StaffEvent> tmpSE = new ArrayList<StaffEvent>();
+		List<Program> tmpPro = new ArrayList<Program>();
+		List<ProgramEvent> tmpPE = new ArrayList<ProgramEvent>();
+		for (GroupedStaff gs : groupedStaffs) {
+			if (gs.isUi_selected()) {
+				session.delete(gs);
+				tmpGS.add(gs);
+			}
+		}
+		for (StaffEvent se : staffEvents) {
+			if (se.isUi_selected()) {
+				session.delete(se);
+				tmpSE.add(se);
+			}
+		}
+		for (Program pro : programs) {
+			if (pro.isUi_selected()) {
+				pro.setCoordinator(null);
+				session.update(pro);
+				tmpPro.add(pro);
+			}
+		}
+		for (ProgramEvent event : proEvents) {
+			if (event.isUi_selected()) {
+				event.setCoordinator(null);
+				session.update(event);
+				tmpPE.add(event);
+			}
+		}
+		groupedStaffs.removeAll(tmpGS);
+		staffEvents.removeAll(tmpSE);
+		proEvents.removeAll(tmpPE);
+		programs.removeAll(tmpPro);
+	}
+	public List<StaffMember> listAll(){
+		Session session = getCurrentSession();
+		Criteria criteria = session
+				.createCriteria(StaffMember.class)
+				.createCriteria("contact")
+				.addOrder(Order.asc("firstName"))
+				.addOrder(Order.asc("lastName"));
+		@SuppressWarnings("unchecked")
+		List<StaffMember> list= criteria.list();
+		return list;
+		
+	}
+
+}

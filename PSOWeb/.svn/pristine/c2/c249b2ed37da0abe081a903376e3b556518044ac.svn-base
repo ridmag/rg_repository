@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFIGV"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Vehicle Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each vehicle.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formVehicle">
+				<ice:panelGrid styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="5">
+						<ice:outputText value="Search vehicle(s) by vehicle type :" />
+						<ice:setEventPhase events="ValueChangeEvent"
+							phase="INVOKE_APPLICATION">
+							<ice:selectOneMenu id="selectType" partialSubmit="true"
+								value="#{vehicleManagerModel.searchType}"
+								valueChangeListener="#{vehicleManagerModel.searchVehicles}">
+								<f:selectItem itemLabel="All" itemValue="All" />
+								<f:selectItems value="#{lookupListProvider.vehicleType}" />
+							</ice:selectOneMenu>
+						</ice:setEventPhase>
+						<ice:commandButton id="commandVehicleAdd" value="Add New Vehicle"
+							style="width:130px" styleClass="CommandButton"
+							action="#{vehicleManagerModel.newVehicle}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{vehicleManagerModel.allVehicles}" var="vehi"
+						id="tableTransactions"
+						columnWidths="100px,350px,120px,200px,110px,120px,110px">
+						<ice:column id="columnVehicleId" style="text-align:center">
+							<ice:setEventPhase events="FacesEvent" phase="INVOKE_APPLICATION">
+								<ice:rowSelector id="rowselectVehicles"
+									value="#{vehi.ui_selected}"
+									clickListener="#{vehicleManagerModel.selectVehicle}">
+									<f:attribute name="vehicle" value="#{vehi}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Vehicle Id" />
+							</f:facet>
+							<ice:outputText value="#{vehi.id}" />
+						</ice:column>
+						<ice:column id="columnVehicleName">
+							<f:facet name="header">
+								<ice:outputText value="Vehicle Name" />
+							</f:facet>
+							<ice:outputText value="#{vehi.name}" />
+						</ice:column>
+						<ice:column id="columnVehicleType" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Vehicle Type" />
+							</f:facet>
+							<ice:outputText value="#{vehi.type}" />
+						</ice:column>
+						<ice:column id="columnVehicleRegistrationId"
+							style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Registration No:" />
+							</f:facet>
+							<ice:outputText value="#{vehi.registrationId}" />
+						</ice:column>
+						<ice:column id="columnVehiclePassengers" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Passengers" />
+							</f:facet>
+							<ice:outputText value="#{vehi.passengers}" />
+						</ice:column>
+						<ice:column id="columnVehicleWheelChairs"
+							style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Wheel Chairs" />
+							</f:facet>
+							<ice:outputText value="#{vehi.wheelChairs}" />
+						</ice:column>
+						<ice:column id="columnVehicleStatus" style="text-align:center">
+							<f:facet name="header">
+								<ice:outputText value="Status" />
+							</f:facet>
+							<ice:outputText value="#{vehi.status}" />
+						</ice:column>
+					</ice:dataTable>
+
+					<ice:panelTabSet id="tabSetVehicleDetails" style="margin-top:10px">
+						<ice:panelTab id="tabCVehicleProfile" label="Vehicle Profile">
+							<fieldset style="width: 620px; height: 280px">
+								<legend>
+									<ice:outputLabel value="Vehicle Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{vehicleManagerModel.vehicle == null}">
+									<ice:outputText
+										value="Please select a vehicle to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+									rendered="#{vehicleManagerModel.vehicle != null}">
+									<ice:panelGroup style="text-align:center">
+										<ice:panelGrid
+											style="border:thick double grey;width:250px;height:200px;text-align:center">
+											<ice:graphicImage url="images/no_logo.jpg" id="imgVehicle"
+												rendered="#{vehicleManagerModel.vehicle.photo == null}"
+												style="height:180px;width:230px">
+											</ice:graphicImage>
+											<ice:graphicImage
+												value="#{vehicleManagerModel.vehicle.photo.blobFileData.thumbnail}"
+												id="imgVehicle1"
+												rendered="#{vehicleManagerModel.vehicle.photo != null}"
+												width="#{vehicleManagerModel.photoW}"
+												height="#{vehicleManagerModel.photoH}">
+											</ice:graphicImage>
+										</ice:panelGrid>
+										<div style="height: 10px" />
+										<comp:ImageUpload type="link"
+											fileEntryListener="#{imageUploadModel.uploadVehicleImage}" />
+									</ice:panelGroup>
+									<ice:panelGrid columns="2" cellspacing="5" width="100%"
+										rendered="#{vehicleManagerModel.vehicle != null}"
+										style="margin-left:50px">
+										<ice:outputText value="Vehicle Name" />
+										<ice:inputText id="inputVehicleName"
+											maxlength="#{msgs['vehicle.name.size']}"
+											value="#{vehicleManagerModel.vehicle.name}" />
+										<ice:outputText value="Registration No" />
+										<ice:inputText id="inputVehicleRegId"
+											maxlength="#{msgs['vehicle.regid.size']}"
+											value="#{vehicleManagerModel.vehicle.registrationId}" />
+										<ice:outputText value="Max Passengers" />
+										<ice:inputText id="inputVehicleMaxPassengers"
+											value="#{vehicleManagerModel.vehicle.passengers}" />
+										<ice:outputText value="Wheel Chairs" />
+										<ice:inputText id="inputVehicleWheelChairs"
+											value="#{vehicleManagerModel.vehicle.wheelChairs}" />
+										<ice:outputText value="Vehicle Type" />
+										<ice:selectOneMenu value="#{vehicleManagerModel.vehicle.type}"
+											id="selectOneVehicleType">
+											<f:selectItems value="#{lookupListProvider.vehicleType}" />
+										</ice:selectOneMenu>
+										<ice:outputText value="Status" />
+										<ice:selectOneMenu
+											value="#{vehicleManagerModel.vehicle.status}"
+											id="selectOneVehicleStatus">
+											<f:selectItems
+												value="#{lookupListProvider.proStatusSelectItems}" />
+										</ice:selectOneMenu>
+									</ice:panelGrid>
+									<br />
+									<ice:panelGroup style="margin-right:-10px">
+										<ice:commandButton id="commandVehicleSave" value="Save"
+											style="float:right; width:80px" styleClass="CommandButton"
+											action="#{vehicleManagerModel.saveVehicle}" />
+										<ice:commandButton id="commandVehicleDelete"
+											styleClass="CommandButton" value="Delete"
+											panelConfirmation="deleteConfirmation"
+											style="float:right; margin-right:5px; width:80px"
+											rendered="#{vehicleManagerModel.vehicle.id != null}"
+											action="#{vehicleManagerModel.deleteVehicle}" />
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</fieldset>
+						</ice:panelTab>
+
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+
+					</ice:panelTabSet>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

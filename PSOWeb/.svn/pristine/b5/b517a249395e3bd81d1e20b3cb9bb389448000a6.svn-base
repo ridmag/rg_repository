@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+<composite:interface>
+	<composite:attribute name="list1" default="List 1" />
+	<composite:attribute name="list2" default="List 2" />
+</composite:interface>
+<composite:implementation>
+	<ice:panelGrid columns="3">
+		<ice:outputText value="#{cc.attrs.list1}"/>
+		<br/>
+		<ice:outputText value="#{cc.attrs.list2}"/>
+		<ice:selectOneListbox id="list1" size="10" style="width:200px"
+			partialSubmit="true" value="#{listBean.selectedItemId1}">
+			<f:selectItems value="#{listBean.list1}" />
+		</ice:selectOneListbox>
+		<ice:panelGrid>
+			<ice:commandButton id="commandAddAll"
+				disabled="#{empty(listBean.list1)}" value="Add All"
+				action="#{listBean.addAll}" style="width:90px" />
+			<ice:commandButton id="commandAddItem"
+				disabled="#{listBean.selectedItemId1 == null || listBean.selectedItemId1 == 0}"
+				value="Add" action="#{listBean.add}" style="width:90px" />
+			<ice:commandButton id="commandRemoveItem"
+				disabled="#{listBean.selectedItemId2 == null || listBean.selectedItemId2 == 0}"
+				value="Remove" action="#{listBean.remove}" style="width:90px" />
+			<ice:commandButton id="commandRemoveAll"
+				disabled="#{empty(listBean.list2)}" value="Remove All"
+				action="#{listBean.removeAll}" style="width:90px" />
+		</ice:panelGrid>
+		<ice:selectOneListbox id="list2" size="10" style="width:200px"
+			partialSubmit="true" value="#{listBean.selectedItemId2}">
+			<f:selectItems value="#{listBean.list2}" />
+		</ice:selectOneListbox>
+	</ice:panelGrid>
+</composite:implementation>
+
+</html>

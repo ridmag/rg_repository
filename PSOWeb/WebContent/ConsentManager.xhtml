@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+	<ui:param name="selectedMenu" value="CONFIGCM"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Consent Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each consent.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formConsent">
+				<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+					style="margin-top:10px">
+					<ice:panelGroup>
+						<fieldset style="width: 480px; height: 160px">
+							<legend>
+								<ice:outputLabel value="Consents" />
+							</legend>
+							<ice:commandButton id="commandConsentAdd" value="Add Consent"
+								styleClass="CommandButton"
+								action="#{consentManagerModel.addNewConsent}" />
+							<ice:dataTable scrollable="true" scrollHeight="80px"
+								value="#{consentManagerModel.consents}" var="con" id="tableCons"
+								columnWidths="120px,325px">
+								<ice:column id="columnItemId" style="text-align:center">
+									<ice:rowSelector id="rowselectCons" multiple="false"
+										immediate="false" value="#{con.ui_selected}"
+										clickListener="#{consentManagerModel.selectConsent}">
+										<f:attribute name="con" value="#{con}" />
+									</ice:rowSelector>
+									<f:facet name="header">
+										<ice:outputText value="Consent ID" />
+									</f:facet>
+									<ice:outputText value="#{con.id}" />
+								</ice:column>
+								<ice:column id="columnConName">
+									<f:facet name="header">
+										<ice:outputText value="Consent Name" />
+									</f:facet>
+									<ice:outputText value="#{con.name}" />
+								</ice:column>
+							</ice:dataTable>
+						</fieldset>
+					</ice:panelGroup>
+					<ice:panelGroup>
+						<fieldset style="width: 350px; height: 160px">
+							<legend>
+								<ice:outputLabel value="Consent Details" />
+							</legend>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{consentManagerModel.consent == null}">
+								<ice:outputText
+									value="Please select a consent to view deatils.." />
+							</ice:panelGroup>
+							<ice:panelGroup style="margin-top:10px"
+								rendered="#{consentManagerModel.consent != null}">
+								<ice:panelGrid columns="2" cellspacing="5">
+									<ice:outputText value="Consent Name" />
+									<ice:inputText id="inputConsentName" tabindex="1"
+										style="margin-left:10px;width:220px"
+										value="#{consentManagerModel.consent.name}" />
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<ice:panelGroup style="float:right; margin-top:70px"
+								rendered="#{consentManagerModel.consent != null}">
+								<ice:commandButton id="commandConsentDelete" value="Delete"
+									tabindex="3" style="margin-right:5px;width:80px"
+									rendered="#{consentManagerModel.consent.id != null}"
+									styleClass="CommandButton"
+									panelConfirmation="deleteConfirmation"
+									action="#{consentManagerModel.deleteConsent}" />
+								<ice:commandButton id="commandConsentSave" tabindex="2"
+									value="Save" style="margin-right:10px;width:80px"
+									styleClass="CommandButton"
+									action="#{consentManagerModel.saveConsent}" />
+							</ice:panelGroup>
+							<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+								cancelLabel="No" draggable="true" title="Confirm"
+								message="Are you sure you want to perform this action?" />
+						</fieldset>
+					</ice:panelGroup>
+				</ice:panelGrid>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

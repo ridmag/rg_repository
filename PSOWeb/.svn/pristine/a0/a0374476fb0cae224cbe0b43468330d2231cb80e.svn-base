@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.prime.com.tr/ui">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:define name="pageTitle">CCPSO Home</ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">CENTRAL COAST POST SCHOOL OPTIONS HOME</ui:define>
+		<ui:define name="pageDescription">Welcome to the Central Coast Post School Options. Use the above Menu Items to get started.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formMain">
+				<ice:panelGroup style="width:100%;text-align:center">
+				<ui:include src="includes/Dashboard_admin.xhtml" />
+					<!-- <ice:graphicImage url="images/Logo.jpg" /> -->
+					<!-- <ice:panelGrid columns="6" styleClass="borderBox" width="100%">
+						<ice:panelGroup style="margin-bottom:5px">
+							<fieldset>
+								<ice:commandLink id="commanButtonGoToPreviousWeek"
+									action="#{dashBoardManagerModel.goToPrevious}"
+									style="margin-left:30px;width:140px;margin-right:5px"
+									value="&lt;&lt; Previous" />
+								<ice:outputText value="Date :" style="margin-left:20px" />
+									<ice:outputText value="#{dashBoardManagerModel.currentDate}" style="margin-left:20px" />
+								<ice:commandLink id="commanButtonGoToNextWeek"
+									style="margin-left:30px;width:130px"
+									action="#{dashBoardManagerModel.goToNext}"
+									value="Next &gt;&gt;" />
+								<ice:selectInputDate renderMonthAsDropdown="true" id="inputDate"
+									renderYearAsDropdown="true" renderAsPopup="true"
+									value="#{dashBoardManagerModel.currentDate}"
+									converter="dateConverter" partialSubmit="true">
+									<f:attribute name="flag" value="date" />
+								</ice:selectInputDate>
+								<ice:commandButton id="commandsample"
+									action="#{dashBoardManagerModel.init}" style="margin-left:10px"
+									value="test button" styleClass="CommandButton" />
+							</fieldset>
+						</ice:panelGroup>
+					</ice:panelGrid>
+					<ice:panelTabSet id="tabSetStudentDetails">
+						<ice:panelTab id="tabStudentProfile"
+							label="#{msgs['student_label']} Programs">
+							<ui:repeat var="studentprogram"
+								value="#{dashBoardManagerModel.studentPrograms}"
+								id="uiRepeatEventsstudent">
+								<ice:panelGrid rowClasses="topAlignedTableCell"
+									scrollable="true" scrollHeight="150px"
+									style="height: 300px;overflow:auto; width: 250px;border:1px solid;float:left ;margin-top:2px"
+									id="program">
+									<ice:panelGrid style="background : yellow" width="100%">
+										<ice:outputText value="#{studentprogram.name}" />
+									</ice:panelGrid>
+									<ui:repeat var="programevent"
+										value="#{studentprogram.programEvents}" id="uiRepeatEvents">
+										<ice:panelGrid
+											style="height:100px;overflow:auto; width: 250px;border:1px solid "
+											rowClasses="topAlignedTableCell">
+											<ice:panelGrid style="background : green" width="100%">
+												<ice:outputText
+													value="#{programevent.group.name} :#{programevent.group.location.name} " />
+											</ice:panelGrid>
+											<ice:panelGrid width="100%" style="background : blue">
+												<ice:outputText
+													value="#{msgs['students_label'].toLowerCase()}" />
+											</ice:panelGrid>
+											<ui:repeat var="stuevent"
+												value="#{programevent.studentEvents}"
+												id="uiRepeatEventsstudent">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.studentEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{stuevent.groupedStudent.student.contact.name} : #{stuevent.attended}  " />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid
+												rendered="#{empty(programevent.studentEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Participant(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid> 
+											<ice:panelGrid style="background : blue" width="100%">
+												<ice:outputText value="Staff Members" />
+											</ice:panelGrid>
+											<ui:repeat var="staffevent"
+												value="#{programevent.staffEvents}" id="uiRepeatEventsstaff">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.staffEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{staffevent.staffMember.contact.name}  : #{staffevent.attended}" />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid rendered="#{empty(programevent.staffEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Staff Member(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</ui:repeat>
+								</ice:panelGrid>
+							</ui:repeat>
+						</ice:panelTab>
+						<ice:panelTab id="tabIndividualProfile"
+							label="Individual Programs">
+							<ui:repeat var="individualprogram"
+								value="#{dashBoardManagerModel.individualPrograms}"
+								id="uiRepeatEventsindividual">
+								<ice:panelGrid rowClasses="topAlignedTableCell"
+									scrollable="true" scrollHeight="150px"
+									style="height: 300px;overflow:auto; width: 250px;border:1px solid;float:left ;margin-top:2px"
+									id="program">
+									<ice:panelGrid style="background : yellow" width="100%">
+										<ice:outputText value="#{individualprogram.name}" />
+									</ice:panelGrid>
+									<ui:repeat var="programevent"
+										value="#{individualprogram.programEvents}" id="uiRepeatEvents">
+										<ice:panelGrid
+											style="height:100px;overflow:auto; width: 250px;border:1px solid "
+											rowClasses="topAlignedTableCell">
+											<ice:panelGrid style="background : green" width="100%">
+												<ice:outputText
+													value="#{programevent.group.name} :#{programevent.group.location.name} " />
+											</ice:panelGrid>
+											<ice:panelGrid width="100%" style="background : blue">
+												<ice:outputText
+													value="#{msgs['students_label'].toLowerCase()}" />
+											</ice:panelGrid>
+											<ui:repeat var="stuevent"
+												value="#{programevent.studentEvents}"
+												id="uiRepeatEventsstudent">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.studentEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{stuevent.groupedStudent.student.contact.name} : #{stuevent.attended}  " />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid
+												rendered="#{empty(programevent.studentEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Participant(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+											<ice:panelGrid style="background : blue" width="100%">
+												<ice:outputText value="Staff Members" />
+											</ice:panelGrid>
+											<ui:repeat var="staffevent"
+												value="#{programevent.staffEvents}" id="uiRepeatEventsstaff">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.staffEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{staffevent.staffMember.contact.name}  : #{staffevent.attended}" />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid rendered="#{empty(programevent.staffEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Staff Member(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</ui:repeat>
+								</ice:panelGrid>
+							</ui:repeat>
+						</ice:panelTab>
+						<ice:panelTab id="tabTransportProfile" label="Transport Programs">
+							<ui:repeat var="transportprogram"
+								value="#{dashBoardManagerModel.transportPrograms}"
+								id="uiRepeatEventsTransport">
+								<ice:panelGrid rowClasses="topAlignedTableCell"
+									scrollable="true" scrollHeight="150px"
+									style="height: 300px;overflow:auto; width: 250px;border:1px solid;float:left ;margin-top:2px"
+									id="program">
+									<ice:panelGrid style="background : yellow" width="100%">
+										<ice:outputText value="#{transportprogram.name}" />
+									</ice:panelGrid>
+									<ui:repeat var="programevent"
+										value="#{transportprogram.programEvents}" id="uiRepeatEvents">
+										<ice:panelGrid
+											style="height:100px;overflow:auto; width: 250px;border:1px solid "
+											rowClasses="topAlignedTableCell">
+											<ice:panelGrid style="background : green" width="100%">
+												<ice:outputText
+													value="#{programevent.group.name} :#{programevent.group.location.name} " />
+											</ice:panelGrid>
+											<ice:panelGrid width="100%" style="background : blue">
+												<ice:outputText
+													value="#{msgs['students_label'].toLowerCase()}" />
+											</ice:panelGrid>
+											<ui:repeat var="stuevent"
+												value="#{programevent.studentEvents}"
+												id="uiRepeatEventsstudent">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.studentEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{stuevent.groupedStudent.student.contact.name} : #{stuevent.attended}  " />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid
+												rendered="#{empty(programevent.studentEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Participant(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+											<ice:panelGrid style="background : blue" width="100%">
+												<ice:outputText value="Staff Members" />
+											</ice:panelGrid>
+											<ui:repeat var="staffevent"
+												value="#{programevent.staffEvents}" id="uiRepeatEventsstaff">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.staffEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{staffevent.staffMember.contact.name}  : #{staffevent.attended}" />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid rendered="#{empty(programevent.staffEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Staff Member(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</ui:repeat>
+								</ice:panelGrid>
+							</ui:repeat>
+						</ice:panelTab>
+						<ice:panelTab id="tabAdminProfile" label="Admin Programs">
+							<ui:repeat var="staffprogram"
+								value="#{dashBoardManagerModel.staffPrograms}"
+								id="uiRepeatEventsstaff">
+								<ice:panelGrid rowClasses="topAlignedTableCell"
+									scrollable="true" scrollHeight="150px"
+									style="height: 300px;overflow:auto; width: 250px;border:1px solid;float:left ;margin-top:2px"
+									id="program">
+									<ice:panelGrid style="background : yellow" width="100%">
+										<ice:outputText value="#{staffprogram.name}" />
+									</ice:panelGrid>
+									<ui:repeat var="programevent"
+										value="#{staffprogram.programEvents}" id="uiRepeatEvents">
+										<ice:panelGrid
+											style="height:100px;overflow:auto; width: 250px;border:1px solid "
+											rowClasses="topAlignedTableCell">
+											<ice:panelGrid style="background : green" width="100%">
+												<ice:outputText
+													value="#{programevent.group.name} :#{programevent.group.location.name} " />
+											</ice:panelGrid>
+											<ice:panelGrid width="100%" style="background : blue">
+												<ice:outputText
+													value="#{msgs['students_label'].toLowerCase()}" />
+											</ice:panelGrid>
+											<ui:repeat var="stuevent"
+												value="#{programevent.studentEvents}"
+												id="uiRepeatEventsstudent">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.studentEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{stuevent.groupedStudent.student.contact.name} : #{stuevent.attended}  " />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid
+												rendered="#{empty(programevent.studentEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Participant(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+											<ice:panelGrid style="background : blue" width="100%">
+												<ice:outputText value="Staff Members" />
+											</ice:panelGrid>
+											<ui:repeat var="staffevent"
+												value="#{programevent.staffEvents}" id="uiRepeatEventsstaff">
+												<ice:panelGrid
+													rendered="#{!empty(programevent.staffEvents)}"
+													style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+													<ice:panelGrid>
+														<ice:outputText
+															value="#{staffevent.staffMember.contact.name}  : #{staffevent.attended}" />
+													</ice:panelGrid>
+												</ice:panelGrid>
+											</ui:repeat>
+											<ice:panelGrid rendered="#{empty(programevent.staffEvents)}"
+												style="max-height: 300px;overflow:auto; width: 250px; margin-right: -20px;;border:1px solid ">
+												<ice:panelGrid>
+													<ice:outputText value="No Staff Member(s) available" />
+												</ice:panelGrid>
+											</ice:panelGrid>
+										</ice:panelGrid>
+									</ui:repeat>
+								</ice:panelGrid>
+							</ui:repeat>
+						</ice:panelTab> 
+					</ice:panelTabSet> -->
+				</ice:panelGroup>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

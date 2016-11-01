@@ -1,0 +1,37 @@
+		<tr>
+			<td>
+				<table width="100%">
+					<tr>
+						<td>
+							<h4><div style="width:300px"><u>TRANSPORT ATTENDANCE SHEET</u></div></h4>
+						</td>
+						#if($return)
+							<td align="right">
+								<h4><u>RETURN TRIP</u></h4>
+							</td>
+						#end				
+						<td align="right">
+							<h4>$proEvent.group.name</h4>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table  style="font-size: 10" width="100%">
+					<tr>
+						<td style="font-weight:bold;width:78px">Start Time</td>
+						<td >$timeFormat.format($proEvent.startTime)</td>										
+						<td style="font-weight:bold;width:60px">Event Date</td>
+						<td align="right" style="width:60px">$dateFormat.format($proEvent.eventDate)</td>
+					</tr>
+					<tr>
+						<td style="font-weight:bold">End Time</td>
+						<td>$timeFormat.format($proEvent.endTime)</td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+		</tr>

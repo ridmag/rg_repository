@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://www.springframework.org/schema/context	http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context">
+	<context:annotation-config />
+	<context:component-scan base-package="com.itelasoft.pso.services,com.itelasoft.aop" />
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	<bean id="userService" class="com.itelasoft.pso.services.UserServiceImpl">
+		<property name="dao" ref="userDao" />
+		<property name="authorityDao" ref="authorityDao" />
+	</bean>
+	<bean id="staffMemberService" class="com.itelasoft.pso.services.StaffMemberService">
+		<property name="dao" ref="staffMemberDao" />
+		<property name="staffMemberDao" ref="staffMemberDao" />
+	</bean>
+	<bean id="contactService" class="com.itelasoft.pso.services.ContactService">
+		<property name="contactDao" ref="contactDao" />
+	</bean>
+	<bean id="vehicleService" class="com.itelasoft.pso.services.VehicleService">
+		<property name="dao" ref="vehicleDao" />
+		<property name="vehicleDao" ref="vehicleDao" />
+	</bean>
+	<bean id="locationService" class="com.itelasoft.pso.services.LocationService">
+		<property name="dao" ref="locationDao" />
+		<property name="locationDao" ref="locationDao" />
+	</bean>
+	<bean id="programService" class="com.itelasoft.pso.services.ProgramService">
+		<property name="dao" ref="programDao" />
+		<property name="staffMemberDao" ref="staffMemberDao" />
+	</bean>
+	<bean id="programTypeService" class="com.itelasoft.pso.services.ProgramTypeService">
+		<property name="dao" ref="programTypeDao" />
+	</bean>
+	<bean id="programEventService" class="com.itelasoft.pso.services.ProgramEventService">
+		<property name="dao" ref="programEventDao" />
+		<property name="invoiceDao" ref="invoiceDao" />
+	</bean>
+	<bean id="specialNeedService" class="com.itelasoft.pso.services.SpecialNeedService">
+		<property name="dao" ref="specialNeedDao" />
+		<property name="specialNeedDao" ref="specialNeedDao" />
+	</bean>
+	<bean id="staffTypeService" class="com.itelasoft.pso.services.StaffTypeService">
+		<property name="dao" ref="staffTypeDao" />
+	</bean>
+	<bean id="studentService" class="com.itelasoft.pso.services.StudentService">
+		<property name="dao" ref="studentDao" />
+	</bean>
+	<bean id="studentFundingSourceService" class="com.itelasoft.pso.services.StudentFundingSourceService">
+		<property name="dao" ref="studentFundingSourceDao" />
+	</bean>
+	<bean id="studentEventService" class="com.itelasoft.pso.services.StudentEventService">
+		<property name="dao" ref="studentEventDao" />
+		<property name="programEventDao" ref="programEventDao" />
+	</bean>
+	<bean id="configurationService" class="com.itelasoft.pso.services.ConfigurationService">
+		<property name="configurationDao" ref="configurationDao" />
+	</bean>
+	<bean id="licenseService" class="com.itelasoft.pso.services.LicenseService">
+	</bean>
+	<bean id="fileDataService" class="com.itelasoft.pso.services.FileDataService">
+		<property name="dao" ref="fileDataDao" />
+	</bean>
+	<bean id="transactionService" class="com.itelasoft.pso.services.TransactionService">
+		<property name="dao" ref="transactionDao" />
+	</bean>
+	<bean id="invoiceService" class="com.itelasoft.pso.services.InvoiceService">
+		<property name="dao" ref="invoiceDao" />
+		<property name="transactionDao" ref="transactionDao" />
+	</bean>
+	<bean id="fundingSourceService" class="com.itelasoft.pso.services.FundingSourceService">
+		<property name="dao" ref="fundingSourceDao" />
+		<property name="fundingDao" ref="fundingSourceDao" />
+	</bean>
+	<bean id="weekDayService" class="com.itelasoft.pso.services.WeekDayService">
+		<property name="dao" ref="weekDayDao" />
+	</bean>
+	<bean id="calendarService" class="com.itelasoft.pso.services.CalendarService">
+		<property name="dao" ref="calendarDao" />
+	</bean>
+	<bean id="holidayService" class="com.itelasoft.pso.services.HolidayService">
+		<property name="dao" ref="holidayDao" />
+		<property name="holidayDao" ref="holidayDao" />
+	</bean>
+	<bean id="externalOrganizationService" class="com.itelasoft.pso.services.ExternalOrganizationService">
+		<property name="dao" ref="externalOrganizationDao" />
+		<property name="externalOrganizationDao" ref="externalOrganizationDao" />
+	</bean>
+	<bean id="ndisSupportItemService" class="com.itelasoft.pso.services.NdisSupportItemService">
+		<property name="dao" ref="ndisSupportItemDao" />
+		<property name="ndisSupportItemDao" ref="ndisSupportItemDao" />
+	</bean>
+	<bean id="categoryService" class="com.itelasoft.pso.services.CommunicationCatService">
+		<property name="dao" ref="communicationCatDao" />
+		<property name="comCatDao" ref="communicationCatDao" />
+	</bean>
+	<bean id="communicationService" class="com.itelasoft.pso.services.CommunicationService">
+		<property name="dao" ref="communicationDao" />
+		<property name="comDao" ref="communicationDao" />
+	</bean>
+	<bean id="serviceAreaService" class="com.itelasoft.pso.services.ServiceAreaService">
+		<property name="dao" ref="serviceAreaDao" />
+	</bean>
+	<bean id="studentGroupService" class="com.itelasoft.pso.services.StudentGroupService">
+		<property name="dao" ref="studentGroupDao" />
+		<property name="groupedStudentDao" ref="groupedStudentDao" />
+	</bean>
+	<bean id="groupedStudentService" class="com.itelasoft.pso.services.GroupedStudentService">
+		<property name="dao" ref="groupedStudentDao" />
+		<property name="groupedStudentDao" ref="groupedStudentDao" />
+	</bean>
+	<bean id="reportService" class="com.itelasoft.pso.services.ReportService">
+		<property name="reportDao" ref="reportDao" />
+	</bean>
+	<bean id="referenceItemService" class="com.itelasoft.pso.services.ReferenceItemService">
+		<property name="dao" ref="itemDao" />
+		<property name="itemDao" ref="itemDao" />
+	</bean>
+	<bean id="staffSkillService" class="com.itelasoft.pso.services.StaffSkillService">
+		<property name="dao" ref="skillDao" />
+		<property name="skillDao" ref="skillDao" />
+	</bean>
+	<bean id="leavePolicyService" class="com.itelasoft.pso.services.LeavePolicyService">
+		<property name="dao" ref="leavePolicyDao" />
+		<property name="leavePolicyDao" ref="leavePolicyDao" />
+	</bean>
+	<bean id="leaveService" class="com.itelasoft.pso.services.LeaveService">
+		<property name="dao" ref="leaveDao" />
+		<property name="leaveDao" ref="leaveDao" />
+	</bean>
+	<bean id="roasterService" class="com.itelasoft.pso.services.StaffRoasterService">
+		<property name="roasterDao" ref="roasterDao" />
+	</bean>
+	<bean id="reminderService" class="com.itelasoft.pso.services.ReminderService">
+		<property name="dao" ref="reminderDao" />
+	</bean>
+	<bean id="outletService" class="com.itelasoft.pso.services.OutletService">
+		<property name="dao" ref="outletDao" />
+		<property name="outletDao" ref="outletDao" />
+	</bean>
+	<bean id="checkRecordService" class="com.itelasoft.pso.services.CheckRecordService">
+		<property name="dao" ref="checkDao" />
+		<property name="checkDao" ref="checkDao" />
+	</bean>
+	<bean id="staffCheckRecordService" class="com.itelasoft.pso.services.StaffCheckRecordService">
+		<property name="dao" ref="recordDao" />
+		<property name="recordDao" ref="recordDao" />
+	</bean>
+	<bean id="consentService" class="com.itelasoft.pso.services.ConsentService">
+		<property name="dao" ref="consentDao" />
+		<property name="consentDao" ref="consentDao" />
+	</bean>
+	<bean id="studentConsentService" class="com.itelasoft.pso.services.StudentConsentService">
+		<property name="dao" ref="studentConsentDao" />
+		<property name="studentConsentDao" ref="studentConsentDao" />
+	</bean>
+	<bean id="utilizedReportService" class="com.itelasoft.pso.services.HoursUtilizedReportService">
+		<property name="dao" ref="utilizedReportDao" />
+		<property name="utilizedReportDao" ref="utilizedReportDao" />
+	</bean>
+	<bean id="collectionService" class="com.itelasoft.pso.services.CollectionService">
+		<property name="dao" ref="collectionDao" />
+	</bean>
+	<bean id="staffEventService" class="com.itelasoft.pso.services.StaffEventService">
+		<property name="dao" ref="staffEventDao" />
+	</bean>
+	<bean id="leaveCategoryService" class="com.itelasoft.pso.services.LeaveCategoryService">
+		<property name="dao" ref="leaveCategoryDao" />
+	</bean>
+	<bean id="guardianService" class="com.itelasoft.pso.services.GuardianService">
+		<property name="guardianDao" ref="guardianDao" />
+	</bean>
+	<bean id="groupedStaffService" class="com.itelasoft.pso.services.GroupedStaffService">
+		<property name="dao" ref="groupedStaffDao" />
+	</bean>
+	<bean id="textSearchService" class="com.itelasoft.pso.services.TextSearchService">
+		<property name="textSearchDao" ref="textSearchDao" />
+	</bean>
+	<bean id="ndisService" class="com.itelasoft.pso.services.NdisInvoiceItemService">
+	    <property name="dao" ref="ndisInvoiceItemDao" />
+		<property name="ndisInvoiceItemDao" ref="ndisInvoiceItemDao" />
+	</bean>
+	<bean id="ndisCommittedEventService" class="com.itelasoft.pso.services.NdisCommittedEventService">
+	    <property name="dao" ref="ndisCommittedEventDao" />
+	    <property name="holidayDao" ref="holidayDao" />
+	    <property name="ndisSupportItemDao" ref="ndisSupportItemDao" />
+	</bean>
+		<bean id="internalOrganizationService" class="com.itelasoft.pso.services.InternalOrganizationService">
+		<property name="dao" ref="internalOrganizationDao" />
+		<property name="internalOrganizationDao" ref="internalOrganizationDao" />
+	</bean>
+		<bean id="authorisedStaffService" class="com.itelasoft.pso.services.AuthorisedStaffService">
+		<property name="dao" ref="authorisedStaffDao" />
+		<property name="authorisedStaffDao" ref="authorisedStaffDao" />
+	</bean>
+	<bean id="ndisPriceService" class="com.itelasoft.pso.services.NdisPriceService">
+	    <property name="dao" ref="ndisPriceDao" />
+	</bean>
+	<bean id="ndisAncillaryCostService" class="com.itelasoft.pso.services.NdisAncillaryCostService">
+	    <property name="dao" ref="ndisAncillaryCostDao" />
+		<property name="ndisAncillaryCostDao" ref="ndisAncillaryCostDao" />
+	</bean>
+	<bean id="ndisContributionService" class="com.itelasoft.pso.services.NdisContributionService">
+	    <property name="dao" ref="ndisContributionDao" />
+		<property name="ndisContributionDao" ref="ndisContributionDao" />
+	</bean>
+	<bean id="dashboardService" class="com.itelasoft.pso.services.DashboardService">
+		<property name="programDao" ref="programDao" />
+	</bean> 
+	<bean id="ndisInvoiceService" class="com.itelasoft.pso.services.NdisInvoiceService">
+		<property name="dao" ref="ndisinvoiceDao" />
+	</bean>
+	<bean id="businessRulesService" class="com.itelasoft.pso.services.BusinessRulesService" />
+	<!-- <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean" 
+		p:preferFileSystemAccess="true"> <property name="velocityProperties"> <props> 
+		<prop key="file.resource.loader.path">D:\iTelaSoft\Workspaces\Helios\PSOWeb\src\com\itelasoft\pso\web\resources\velocity 
+		</prop> <prop key="file.resource.loader.cache">false</prop> <prop key="file.resource.loader.modificationCheckInterval">0</prop> 
+		</props> </property> </bean> -->
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean"
+		p:resourceLoaderPath="classpath:/com/itelasoft/pso/web/resources/velocity"
+		p:preferFileSystemAccess="false">
+		<property name="velocityProperties">
+			<props>
+				<prop key="file.resource.loader.cache">false</prop>
+				<prop key="eventhandler.referenceinsertion.class">org.apache.velocity.app.event.implement.EscapeHtmlReference
+				</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- more bean definitions go here -->
+	<aop:config>
+		<aop:pointcut id="breedServiceMethods"
+			expression="execution(* com.itelasoft.pso.services.*Service.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="breedServiceMethods" />
+	</aop:config>
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="save" propagation="REQUIRED" rollback-for="DataAccessException" />
+			<tx:method name="update" propagation="REQUIRED"
+				rollback-for="DataAccessException" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	<bean id="runMeTask" class="com.itelasoft.scheduler.RunMeTask" />
+	<bean id="runMeJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="runMeTask" />
+		<property name="targetMethod" value="printMe" />
+	</bean>
+	<bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="runMeJob" />
+		<property name="repeatInterval" value="5000" />
+		<property name="startDelay" value="1000" />
+	</bean>
+	<!--<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean"> 
+		<property name="triggers"> <list> <ref bean="simpleTrigger" /> </list> </property> 
+		</bean> -->
+</beans>

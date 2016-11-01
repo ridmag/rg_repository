@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="CONFIGC"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">Collections Manager</ui:define>
+		<ui:define name="pageDescription">Select a row from the table below to view the details of each collections.</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="collectionform">
+				<ice:panelGrid columns="4" styleClass="borderBox" width="100%">
+					<ice:panelGrid columns="4">
+						<ice:outputText value="Search entries by Name " />
+						<ice:inputText id="inputTextSearchCollection"
+							action="#{collectionManagerModel.searchCollection}"
+							value="#{collectionManagerModel.collectionName}">
+							<f:validateLength maximum="20" />
+						</ice:inputText>
+						<ice:commandButton id="commandSearchCollection"
+							action="#{collectionManagerModel.searchCollection}"
+							value="#{msgs['search.label']}" styleClass="CommandButton" />
+						<ice:commandButton id="commandNewCollection"
+							value="Add New Collection" style="width:140px;margin-left:2px"
+							styleClass="CommandButton"
+							action="#{collectionManagerModel.newCollection}" />
+					</ice:panelGrid>
+				</ice:panelGrid>
+				<div class="bodyContainer">
+					<ice:dataTable scrollable="true" scrollHeight="150px"
+						value="#{collectionManagerModel.collections}" var="coll"
+						id="tableCollection"
+						columnWidths="90px,185px,300px,140px,140px,130px,120px">
+						<ice:column id="columnId" style="text-align:center">
+							<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+								<ice:rowSelector id="rowselectCollections"
+									value="#{coll.ui_selected}"
+									clickListener="#{collectionManagerModel.selectCollection}">
+									<f:attribute name="c" value="#{coll}" />
+								</ice:rowSelector>
+							</ice:setEventPhase>
+							<f:facet name="header">
+								<ice:outputText value="Collection Id"></ice:outputText>
+							</f:facet>
+							<ice:outputText value="#{coll.id}" />
+						</ice:column>
+						<ice:column id="columnName">
+							<f:facet name="header">
+								<ice:outputText value="Name" />
+							</f:facet>
+							<ice:outputText value="#{coll.name}" />
+						</ice:column>
+						<ice:column id="columnDescription">
+							<f:facet name="header">
+								<ice:outputText value="Description" />
+							</f:facet>
+							<ice:panelGroup style="width:250px;height:1.4em;overflow:hidden">
+								<ice:outputText value="#{coll.description}"
+									title="#{coll.description}" />
+							</ice:panelGroup>
+						</ice:column>
+						<ice:column id="columnAmount">
+							<f:facet name="header">
+								<ice:outputText value="Amount"></ice:outputText>
+							</f:facet>
+							<ice:outputText value="#{coll.amount}" />
+						</ice:column>
+						<ice:column id="columnStartDate">
+							<f:facet name="header">
+								<ice:outputText value="Start Date" />
+							</f:facet>
+							<ice:outputText value="#{coll.startDate}"
+								converter="dateConverter"></ice:outputText>
+						</ice:column>
+						<ice:column id="columnEndDate">
+							<f:facet name="header">
+								<ice:outputText value="End Date" />
+							</f:facet>
+							<ice:outputText value="#{coll.endDate}" converter="dateConverter" />
+						</ice:column>
+						<ice:column id="columnStatus">
+							<f:facet name="header">
+								<ice:outputText value="Status" />
+							</f:facet>
+							<ice:outputText value="#{coll.status}" />
+						</ice:column>
+						<!-- <ice:column id="columnType">
+						<f:facet name="header">
+							<ice:outputText value="Collection Type" />
+						</f:facet>
+						<ice:outputText value="#{coll.collectiontype.id}"
+							rendered="#{coll.collectiontype != null}" />
+						<ice:outputText rendered="#{coll.collectiontype == null}"
+							value="Not Available" />
+					</ice:column> -->
+					</ice:dataTable>
+					<ice:panelTabSet id="tabsetCollectionDetais"
+						style="margin-top:10px">
+						<ice:panelTab id="tabCollectionProfile" label="Collection Profile">
+							<fieldset style="width: 600px; height: 190px">
+								<legend>
+									<ice:outputLabel value="Collection Details" />
+								</legend>
+								<ice:panelGroup style="margin-top:10px"
+									rendered="#{collectionManagerModel.collection == null}">
+									<ice:outputText
+										value="Please select a collection to view details.." />
+								</ice:panelGroup>
+								<ice:panelGrid columns="4" width="650"
+									rowClasses="topAlignedTableCell" style="margin-top:10px"
+									rendered="#{collectionManagerModel.collection != null}">
+									<ice:outputText value="Name" />
+									<ice:inputText id="inputTextName" tabindex="1"
+										maxlength="#{msgs['collection.name.size']}"
+										value="#{collectionManagerModel.collection.name}" />
+									<ice:outputText value="Start Date" />
+									<ice:selectInputDate id="inputStartDate" tabindex="4"
+										value="#{collectionManagerModel.collection.startDate}"
+										renderAsPopup="true" renderYearAsDropdown="true"
+										renderMonthAsDropdown="true" converter="dateConverter">
+									</ice:selectInputDate>
+									<ice:outputText value="Amount" />
+									<ice:inputText id="inputTextAmount" tabindex="2"
+										value="#{collectionManagerModel.collection.amount}" />
+									<ice:outputText value="End Date" />
+									<ice:selectInputDate id="inputEndDate" tabindex="5"
+										value="#{collectionManagerModel.collection.endDate}"
+										renderAsPopup="true" renderYearAsDropdown="true"
+										renderMonthAsDropdown="true" converter="dateConverter">
+									</ice:selectInputDate>
+									<ice:outputText value="Description" />
+									<ice:inputTextarea id="inputTextDescription" tabindex="3"
+										maxlength="#{msgs['collection.description.size']}"
+										style="width:145px;height:50px"
+										value="#{collectionManagerModel.collection.description}" />
+									<ice:outputText value="Status" />
+									<ice:selectOneMenu id="selectOneStatus" tabindex="6"
+										value="#{collectionManagerModel.collection.status}">
+										<f:selectItems value="#{lookupListProvider.status}" />
+									</ice:selectOneMenu>
+									<ice:panelGroup />
+									<ice:panelGroup />
+									<ice:panelGroup />
+									<ice:panelGroup style="margin-left:15px">
+										<ice:commandButton id="commandCollectionDelete" tabindex="8"
+											value="Delete" style="margin-right:5px;width:80px"
+											panelConfirmation="deleteConfirmation"
+											styleClass="CommandButton"
+											action="#{collectionManagerModel.deleteCollection}" />
+										<ice:commandButton id="commandCollectionSave" tabindex="9"
+											value="Save" style="width:80px" styleClass="CommandButton"
+											action="#{collectionManagerModel.saveCollection}" />
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</fieldset>
+						</ice:panelTab>
+
+						<ice:panelConfirmation id="deleteConfirmation" acceptLabel="Yes"
+							cancelLabel="No" draggable="true" title="Confirm"
+							message="Are you sure you want to perform this action?" />
+
+					</ice:panelTabSet>
+				</div>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>

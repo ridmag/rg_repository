@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<h:body>
+	<ui:composition template="/PageTemplate.xhtml">
+		<ui:param name="selectedMenu" value="NDIS"></ui:param>
+		<ui:define name="pageTitle"></ui:define>
+		<ui:define name="PageTitleIcon">
+			<img src="images/icons/home.png" />
+		</ui:define>
+		<ui:define name="pageHeading">NDIS Claim Manager</ui:define>
+		<ui:define name="pageDescription">This allows you to view and generate NDIS claim for selected student.</ui:define>
+		<ui:define name="extraHeader">
+			<script type="text/javascript" src="js/pdfobject.js"></script>
+		</ui:define>
+		<ui:define name="pageContent">
+			<ice:form id="formNdisInvoiceManager">
+				<!-- 				<ice:panelGroup style="width:790px" -->
+				<!-- 					rendered="#{ndisInvoiceManagerModel.internalOrganization == null}"> -->
+				<!-- 					<ice:outputText value="Please add an Internal organization first." /> -->
+				<!-- 					<br /> -->
+				<!-- 					<ice:commandButton action="InternalOrganizationManager" -->
+				<!-- 						value="Goto Internal Organizations View" style="margin-top: 20px;" /> -->
+				<!-- 				</ice:panelGroup> -->
+				<ice:panelPopup modal="true" styleClass="icePnlPop" draggable="true"
+					rendered="#{ndisInvoiceManagerModel.showCreateNewInvoice}">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png)">
+							<ice:outputText value="Create New NDIS Invoice"
+								styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButton"
+								image="#{msgs['panelPopup.closeImage']}"
+								styleClass="popupHeaderImage" title="Close" alt="Close"
+								action="#{ndisInvoiceManagerModel.createNewInvoicePopup}" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:panelGroup style="width :750px">
+							<ice:messages></ice:messages>
+							<ice:panelGroup>
+								<ice:panelGrid columns="4" width="750px">
+									<ice:outputLabel value="NDIS Registration Code :" />
+									<ice:selectOneMenu id="selectRegistrationCode"
+										partialSubmit="true"
+										value="#{ndisInvoiceManagerModel.registrationCode}">
+										<f:selectItems value="#{ndisInvoiceManagerModel.regCodes}"
+											var="reg" itemLabel="#{reg.NDISRegistrationCode}"
+											itemValue="#{reg.NDISRegistrationCode}">
+										</f:selectItems>
+									</ice:selectOneMenu>
+									<ice:outputLabel value="Week Date:" />
+									<ice:selectInputDate renderMonthAsDropdown="true"
+										id="inputEventToDate" renderYearAsDropdown="true"
+										renderAsPopup="true" 
+										value="#{ndisInvoiceManagerModel.weekDate}"
+										valueChangeListener="#{ndisInvoiceManagerModel.dateChange}"
+										disabled="#{!empty ndisInvoiceManagerModel.selectedStudentList}"
+										converter="dateConverter" partialSubmit="true">
+										<f:attribute name="flag" value="date" />
+									</ice:selectInputDate>
+									<ice:outputLabel value="Authorizing Officer :" />
+									<ice:selectOneMenu id="selectAuthorizedStaff"
+										partialSubmit="true"
+										value="#{ndisInvoiceManagerModel.staffId}">
+										<f:selectItem itemLabel="Please select" itemValue="0" />
+										<f:selectItems value="#{ndisInvoiceManagerModel.staffs}"
+											var="stf" itemLabel="#{stf.staffMember.contact.name}"
+											itemValue="#{stf.id}">
+										</f:selectItems>
+									</ice:selectOneMenu>
+									<ice:panelGroup>
+										<ice:outputLabel value="Period" />
+										<ice:outputLabel
+											rendered="#{ndisInvoiceManagerModel.timePeriod == '1W'}"
+											value="(1 WEEK) :" />
+										<ice:outputLabel
+											rendered="#{ndisInvoiceManagerModel.timePeriod == '2W'}"
+											value="(2 WEEK) :" />
+									</ice:panelGroup>
+									<ice:outputLabel
+										rendered="#{ndisInvoiceManagerModel.rosterTimeperiod != null}"
+										value="#{ndisInvoiceManagerModel.rosterTimeperiod}" />
+
+									<!-- 								<ice:selectOneMenu id="selectPeriod" -->
+									<!-- 									value="#{ndisInvoiceManagerModel.timePeriod}" -->
+									<!-- 									valueChangeListener="#{ndisInvoiceManagerModel.weekChange}" -->
+									<!-- 									partialSubmit="true"> -->
+									<!-- 									<f:selectItem itemLabel="1 Week" itemValue="1W" /> -->
+									<!-- 									<f:selectItem itemLabel="2 Week" itemValue="2W" /> -->
+									<!-- 									<f:attribute name="flag" value="period" /> -->
+									<!-- 								</ice:selectOneMenu> -->
+
+								</ice:panelGrid>
+							</ice:panelGroup>
+							<fieldset style="text-align: left;">
+								<legend>
+									<ice:outputLabel value="Select Participant(s)" />
+								</legend>
+								<ice:panelGrid columns="2" style="float : left">
+									<ice:panelGroup>
+										<ice:panelGrid columns="2" style="margin-bottom : 30px;">
+											<ice:inputText
+												value="#{ndisInvoiceManagerModel.searchNdisStudentText}" />
+											<ice:commandButton id="commandSearchStudent"
+												style="float:right;" value="Search Students"
+												styleClass="CommandButton"
+												action="#{ndisInvoiceManagerModel.searchNdisStudent}">
+											</ice:commandButton>
+										</ice:panelGrid>
+										<ice:dataTable scrollable="true" scrollHeight="150px"
+											value="#{ndisInvoiceManagerModel.studentList}" var="stdList"
+											id="tableStudents" columnWidths="240px,60px">
+											<ice:column id="columnProgramName">
+												<f:facet name="header">
+													<ice:outputText value="Participant Name" />
+												</f:facet>
+												<ice:outputText value="#{stdList.contact.name}" />
+											</ice:column>
+											<ice:column style="text-align:center;">
+												<f:facet name="header">
+													<ice:commandLink value="Add All"
+														actionListener="#{ndisInvoiceManagerModel.selectAllStudents}"
+														id="commandlinkS"></ice:commandLink>
+												</f:facet>
+												<ice:commandLink title="Add student" id="selectStudent"
+													partialSubmit="true"
+													actionListener="#{ndisInvoiceManagerModel.selectStudent}">
+													<ice:graphicImage style="border:none" width="13"
+														height="13" url="images/icons/Add-icon.png" />
+													<f:attribute name="student" value="#{stdList}" />
+												</ice:commandLink>
+											</ice:column>
+										</ice:dataTable>
+									</ice:panelGroup>
+									<ice:panelGroup>
+										<fieldset style="height: 230px; float: left; margin-top: 65px;margin-left : 30px;">
+											<legend>
+												<ice:outputLabel value="Selected Participant(s)" />
+											</legend>
+											<ice:dataTable scrollable="true" scrollHeight="150px"
+												value="#{ndisInvoiceManagerModel.selectedStudentList}"
+												var="stdList" id="tableStudents2" columnWidths="240px,60px">
+												<ice:column id="columnProgramName2">
+													<f:facet name="header">
+														<ice:outputText value="Participant Name" />
+													</f:facet>
+													<ice:outputText value="#{stdList.contact.name}" />
+												</ice:column>
+												<ice:column style="text-align:center;">
+													<f:facet name="header">
+														<ice:commandLink value="Remove All"
+															actionListener="#{ndisInvoiceManagerModel.removeAllStudents}"
+															id="commandlinkS"></ice:commandLink>
+													</f:facet>
+													<ice:commandLink title="Remove Student" id="selectStudent2"
+														partialSubmit="true"
+														actionListener="#{ndisInvoiceManagerModel.removeStudent}">
+														<ice:graphicImage style="border:none" width="13"
+															height="13" url="images/icons/delete-icon.png" />
+														<f:attribute name="student" value="#{stdList}" />
+													</ice:commandLink>
+												</ice:column>
+											</ice:dataTable>
+										</fieldset>
+									</ice:panelGroup>
+								</ice:panelGrid>
+							</fieldset>
+							<ice:commandButton id="commandSpecialNeedToStudentSave"
+								style="margin-top:85px;float :right" value="Generate NDIS Claim"
+								styleClass="CommandButton"
+								disabled="#{ndisInvoiceManagerModel.internalOrganization== null}"
+								action="#{ndisInvoiceManagerModel.generateNdisClaim}" />
+						</ice:panelGroup>
+					</f:facet>
+				</ice:panelPopup>
+
+				<!-- showEventsPopup -->
+				<ice:panelPopup modal="true" styleClass="icePnlPop"
+					autoCentre="true" draggable="false"
+					rendered="#{ndisInvoiceManagerModel.showEvents}"
+					style="width :100%">
+					<f:facet name="header">
+						<ice:panelGroup styleClass="popupHeaderWrapper1"
+							style="background:url(images/dialogbg1.png)">
+							<ice:outputText value="Event List" styleClass="popupHeaderText" />
+							<ice:commandButton id="closeButtonEvents"
+								image="#{msgs['panelPopup.closeImage']}"
+								styleClass="popupHeaderImage" title="Close" alt="Close"
+								action="#{ndisInvoiceManagerModel.showEventPopup}" />
+						</ice:panelGroup>
+					</f:facet>
+					<f:facet name="body">
+						<ice:messages></ice:messages>
+						<ice:panelGrid>
+							<ice:panelGrid rowClasses="topAlignedTableCell">
+								<ice:panelGroup>
+									<fieldset style="height: 230px; float: left;">
+										<legend>
+											<ice:outputLabel value="NDIS Claimed Committed events" />
+										</legend>
+										<ice:setEventPhase events="FacesEvent"
+											phase="UPDATE_MODEL_VALUES">
+											<ice:dataTable scrollable="true" scrollHeight="150px"
+												value="#{ndisInvoiceManagerModel.commitedEventList}"
+												var="event" id="eventTable"
+												columnWidths="80px,80px,80px,150px,80px,150px,150px,150px,80px,80px,80px"
+												style="min-width :250px;">
+												<ice:column id="column1">
+													<f:facet name="header">
+														<ice:outputText value="Event Date" />
+													</f:facet>
+													<ice:outputText value="#{event.eventDate}"
+														converter="dateConverter" />
+												</ice:column>
+												<ice:column id="column2">
+													<f:facet name="header">
+														<ice:outputText value="Start Time" />
+													</f:facet>
+													<ice:outputText value="#{event.startTime}"
+														converter="timeConverter" />
+												</ice:column>
+												<ice:column id="column3">
+													<f:facet name="header">
+														<ice:outputText value="End Time" />
+													</f:facet>
+													<ice:outputText value="#{event.endTime}"
+														converter="timeConverter" />
+												</ice:column>
+												<ice:column id="column4" style="width : 150px;">
+													<f:facet name="header">
+														<ice:outputText value="Program" />
+													</f:facet>
+													<ice:outputText style="width : 150px;word-wrap: break-word"
+														value="#{event.studentGroup.name}" />
+												</ice:column>
+												<ice:column id="column5">
+													<f:facet name="header">
+														<ice:outputText value="Hours" />
+													</f:facet>
+													<ice:outputText style="text-align:right"
+														value="#{event.hours}" />
+												</ice:column>
+												<ice:column id="column6">
+													<f:facet name="header">
+														<ice:outputText value="NDIS Support Cluster" />
+													</f:facet>
+													<ice:outputText style="width : 150px;word-wrap: break-word"
+														value="#{event.ndisSupportCluster.itemName}" />
+												</ice:column>
+												<ice:column id="column7">
+													<f:facet name="header">
+														<ice:outputText value="Cluster Override" />
+													</f:facet>
+													<ice:outputText style="width : 150px;word-wrap: break-word"
+														value="#{event.clusterOverride.itemName}" />
+												</ice:column>
+												<ice:column id="column8">
+													<f:facet name="header">
+														<ice:outputText value="Price Name" />
+													</f:facet>
+													<ice:outputText style="width : 150px;word-wrap: break-word"
+														value="#{event.price.priceName}" />
+												</ice:column>
+												<ice:column id="column9">
+													<f:facet name="header">
+														<ice:outputText value="Number Of Units" />
+													</f:facet>
+													<ice:outputText value="#{event.noOfUnits}" />
+												</ice:column>
+												<ice:column id="column10">
+													<f:facet name="header">
+														<ice:outputText value="KM's per Day" />
+													</f:facet>
+													<ice:outputText value="#{event.kmsPerDay}" />
+												</ice:column>
+												<ice:column id="column11">
+													<f:facet name="header">
+														<ice:outputText value="Event Price" />
+													</f:facet>
+													<ice:outputText value="#{event.price.price}" />
+												</ice:column> -->
+											</ice:dataTable>
+										</ice:setEventPhase>
+									</fieldset>
+								</ice:panelGroup>
+							</ice:panelGrid>
+						</ice:panelGrid>
+					</f:facet>
+				</ice:panelPopup>
+
+				<!-- main view -->
+				<ice:panelGroup>
+					<ice:panelGrid styleClass="borderBox" width="100%">
+						<ice:panelGrid columns="8">
+							<ice:outputText value="Filter By Date Range"
+								style="width:135px;margin-right : 30px;" />
+							<ice:outputText value="Start Date:" />
+							<ice:selectInputDate renderMonthAsDropdown="true"
+								style="margin-right:30px;" id="inputDateStart"
+								renderYearAsDropdown="true" renderAsPopup="true"
+								converter="dateConverter"
+								value="#{ndisInvoiceManagerModel.filterStartDate}"
+								partialSubmit="true" label="Date">
+								<f:attribute name="flag" value="date" />
+							</ice:selectInputDate>
+							<ice:outputText value="End Date:" />
+							<ice:selectInputDate renderMonthAsDropdown="true"
+								id="inputDateEnd" renderYearAsDropdown="true"
+								renderAsPopup="true" converter="dateConverter"
+								value="#{ndisInvoiceManagerModel.filterEndDate}"
+								partialSubmit="true" label="Date">
+								<f:attribute name="flag" value="date" />
+							</ice:selectInputDate>
+
+							<ice:commandButton id="commandStaffAdd" value="Filter"
+								styleClass="CommandButton" style="margin-left : 20px"
+								action="#{ndisInvoiceManagerModel.filterInvoice}">
+							</ice:commandButton>
+							<ice:commandButton
+								action="#{ndisInvoiceManagerModel.createNewInvoice}"
+								styleClass="CommandButton" value="Create new invoice"
+								style="margin-left: 200px;" />
+						</ice:panelGrid>
+					</ice:panelGrid>
+				</ice:panelGroup>
+				<ice:dataTable scrollable="true" scrollHeight="150px"
+					value="#{ndisInvoiceManagerModel.invoiceList}" var="invo"
+					id="tableinvoice" columnWidths="350px,350px,350px">
+					<ice:column id="columnInvoiceId" style="text-align:center">
+
+						<ice:setEventPhase phase="INVOKE_APPLICATION" events="FacesEvent">
+							<ice:rowSelector id="rowselectInvoice"
+								clickListener="#{ndisInvoiceManagerModel.selectInvoice}"
+								value="#{invo.ui_selected}">
+								<f:attribute name="invo" value="#{invo}" />
+							</ice:rowSelector>
+						</ice:setEventPhase>
+						<f:facet name="header">
+							<ice:outputText value="Id" />
+						</f:facet>
+						<ice:outputText value="#{invo.id}" />
+					</ice:column>
+					<ice:column id="columnInvoiceGeneratedDate"
+						style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Generated Date" />
+						</f:facet>
+						<ice:outputText value="#{invo.generateDate}" />
+					</ice:column>
+					<ice:column id="columnInvoiceregistrationCode"
+						style="text-align:center">
+						<f:facet name="header">
+							<ice:outputText value="Registration Code" />
+						</f:facet>
+						<ice:outputText value="#{invo.registrationCode}" />
+					</ice:column>
+				</ice:dataTable>
+				<ice:panelTabSet title="Details">
+					<ice:panelTab title="Details" label="Ndis Invoice Details">
+						<ice:panelGrid columns="2" rowClasses="topAlignedTableCell"
+							styleClass="borderBox"
+							style="margin-top : 20px;width : 350px;background : none;border:0px;">
+							<ice:panelGroup>
+								<fieldset style="width: 450px; height: 250px;">
+									<legend>Selected Invoice Details</legend>
+									<ice:panelGrid columns="2">
+										<ice:outputText value="Invoice Id" />
+										<ice:inputText value="#{ndisInvoiceManagerModel.invoiceId}"
+											readonly="true"
+											style="    border-color: #cccccc;width: 180px;background-color:#ccc;text-align : left" />
+										<ice:outputText value="Genereted Date" />
+										<ice:inputText
+											value="#{ndisInvoiceManagerModel.generetedDate}"
+											readonly="true"
+											style="    border-color: #cccccc;width: 180px;background-color:#ccc;text-align : left"></ice:inputText>
+										<ice:outputText value="Date Range" />
+										<ice:inputText value="#{ndisInvoiceManagerModel.dateRange}"
+											readonly="true"
+											style="    border-color: #cccccc;width: 180px;background-color:#ccc;text-align : left"></ice:inputText>
+										<ice:outputText value="Authorized Staff" />
+										<ice:inputText
+											value="#{ndisInvoiceManagerModel.authorizedStaffName}"
+											readonly="true"
+											style="    border-color: #cccccc;width: 180px;background-color:#ccc;text-align : left"></ice:inputText>
+										<ice:outputText value="Number of Students" />
+										<ice:inputText
+											value="#{ndisInvoiceManagerModel.numberOfStudent}"
+											readonly="true"
+											style="    border-color: #cccccc;width: 180px;background-color:#ccc;text-align : left"></ice:inputText>
+									</ice:panelGrid>
+									<ice:panelGrid style="float:right" cellpadding="2" columns="3">
+
+										<ice:commandButton id="commandDownloadcvs"
+											value="Download CVS" styleClass="CommandButton"
+											style="width:100px"
+											disabled="#{ndisInvoiceManagerModel.generetedDate == null}"
+											action="#{ndisInvoiceManagerModel.downloadCvs}">
+											<f:ajax disabled="true" />
+										</ice:commandButton>
+										<ice:commandButton id="commandDeleteinvoce"
+											value="Delete Invoice" styleClass="CommandButton"
+											disabled="#{ndisInvoiceManagerModel.generetedDate == null}"
+											style="width:100px"
+											panelConfirmation="deleteNdisInvoiceConfirmation"
+											action="#{ndisInvoiceManagerModel.deleteInvoice}" />
+									</ice:panelGrid>
+									<ice:panelConfirmation id="deleteNdisInvoiceConfirmation"
+										acceptLabel="Yes" cancelLabel="No" draggable="true"
+										title="Confirm"
+										message="Are you sure you want to perform this action?" />
+								</fieldset>
+							</ice:panelGroup>
+							<ice:panelGroup>
+								<fieldset style="width: 550px; height: 250px;">
+									<legend>Participant list of the selected invoice </legend>
+									<ice:dataTable columnWidths="30px,200px;200px;200px;"
+										rendered="#{ndisInvoiceManagerModel.slectedInvoiceStudentList != null}"
+										value="#{ndisInvoiceManagerModel.slectedInvoiceStudentList}"
+										var="student">
+										<ice:column id="columnInvoiceStudentid"
+											style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="Student Id" />
+											</f:facet>
+											<ice:outputText value="#{student.id}" />
+										</ice:column>
+										<ice:column id="columnInvoiceStudentName"
+											style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="Student Name" />
+											</f:facet>
+											<ice:outputText value="#{student.contact.name}" />
+										</ice:column>
+										<ice:column id="columnInvoiceStudentgender"
+											style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="Gender" />
+											</f:facet>
+											<ice:outputText value="#{student.gender}" />
+										</ice:column>
+										<ice:column id="columnInvoiceStudentdob"
+											style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="Date of Birth" />
+											</f:facet>
+											<ice:outputText value="#{student.dob}"
+												converter="dateConverter" />
+										</ice:column>
+										<ice:column style="text-align:left">
+											<f:facet name="header">
+												<ice:outputText value="View Student Events" />
+											</f:facet>
+											<ice:commandLink value="View Events"
+												actionListener="#{ndisInvoiceManagerModel.openEvents}"
+												id="commandlinkS">
+												<f:attribute name="student" value="#{student}" />
+											</ice:commandLink>
+										</ice:column>
+									</ice:dataTable>
+								</fieldset>
+							</ice:panelGroup>
+						</ice:panelGrid>
+					</ice:panelTab>
+				</ice:panelTabSet>
+			</ice:form>
+		</ui:define>
+	</ui:composition>
+</h:body>
+</head>
+</html>

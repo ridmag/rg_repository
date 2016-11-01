@@ -1,0 +1,348 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:comp="http://java.sun.com/jsf/composite/comp"
+	xmlns:ace="http://www.icefaces.org/icefaces/components">
+<ice:panelGroup>
+	<fieldset style="width: 1000px">
+		<legend>
+			<ice:outputLabel value="Activity Statement Details" />
+		</legend>
+		<ice:panelGrid columns="2" width="100%" style="padding-right:10px"
+			rendered="#{invoiceManagerModel.invoice != null}">
+			<ice:commandButton value="&lt; Back to Statements"
+				styleClass="CommandButton" id="commandCloseInvoice"
+				action="#{invoiceManagerModel.closePreview}" />
+			<comp:printPopup label="Print Statement" id="printInvoice"
+				style="float:right" resource="#{printModel.pdfInvoice}"
+				fileName="Invoice.pdf" />
+		</ice:panelGrid>
+		<ice:panelGrid columns="2" width="100%"
+			rendered="#{invoiceManagerModel.invoice != null}"
+			rowClasses="topAlignedTableCell"
+			style="margin-left:5px;margin-top:20px;padding-right:10px">
+			<ice:panelGroup>
+				<ice:outputLabel value="Activity Statement To:" />
+				<br />
+				<ice:outputText
+					value="#{invoiceManagerModel.invoice.student.contact.name}" />
+				<br />
+				<ice:outputText
+					value="#{invoiceManagerModel.invoice.student.contact.streetAddress}" />
+				<br />
+				<ice:outputText
+					value="#{invoiceManagerModel.invoice.student.contact.city}" />
+				<br />
+				<ice:outputText
+					value="#{invoiceManagerModel.invoice.student.contact.state}" />
+			</ice:panelGroup>
+			<ice:panelGroup style="float:right">
+				<ice:panelGrid columns="3">
+					<ice:outputLabel value="Activity Statement No" />
+					<ice:outputLabel value=":" />
+					<ice:outputText value="#{invoiceManagerModel.invoice.id}" />
+					<ice:outputLabel value="Date" />
+					<ice:outputLabel value=":" />
+					<ice:outputText value="#{invoiceManagerModel.invoice.invoiceDate}"
+						converter="dateConverter">
+					</ice:outputText>
+					<ice:outputLabel value="Type" />
+					<ice:outputLabel value=":" />
+					<ice:outputText value="#{invoiceManagerModel.invoice.type}" />
+				</ice:panelGrid>
+			</ice:panelGroup>
+		</ice:panelGrid>
+		<ice:panelGrid style="margin-top:10px"
+			rendered="#{invoiceManagerModel.invoice != null}">
+			<ice:panelGroup style="text-align:center"
+				rendered="#{not empty(invoiceManagerModel.invoice.invoiceItems)}">
+				<ice:outputLabel value="Event Transactions"
+					style="text-decoration:underline" />
+			</ice:panelGroup>
+			<!--  	<ace:dataTable id="tableInvoiceItems"
+				rendered="#{not empty(invoiceManagerModel.invoice.tmpItems)}"
+				value="#{invoiceManagerModel.invoice.tmpItems}" var="item" rows="31"
+				scrollable="true" scrollHeight="240"
+				columnWidths="100px,300px,100px,100px,100px,100px">
+
+				<ace:columnGroup id="columnGroup" type="header">
+					<ace:row>
+						<ace:column headerText="Event Date"
+							style="font-size:12px;vertical-align:middle" />
+						<ace:column headerText="Program(s)"
+							style="font-size:12px;vertical-align:middle" />
+						<ace:column headerText="Attended"
+							style="font-size:12px;vertical-align:middle" />
+						<ace:column headerText="Program Charges"
+							style="font-size:12px;vertical-align:middle" />
+						<ace:column headerText="Transport Charges"
+							style="font-size:12px;vertical-align:middle" />
+						<ace:column headerText="Payments Received"
+							style="font-size:12px;vertical-align:middle" />
+					</ace:row>
+				</ace:columnGroup>
+				
+				<ace:column style="text-align:left;padding:5px;width:50px" rowspan="#{item.remarks.size()}" rendered="#{rowKey eq 0}">
+					<ice:outputText value="#{item.eventDate}" converter="dateConverter">
+					</ice:outputText>
+				</ace:column>
+				<ace:column style="text-align:left;padding:5px">
+					<ice:outputText value="#{item.remarks}" />
+					<ice:outputText value="#{item.groupname}" />
+				</ace:column>
+				<ace:column style="font-size:12px;text-align:middle;padding:5px">
+					<ice:selectBooleanCheckbox id="booleanAttended"
+						value="#{item.attendedab}" partialSubmit="false">
+					</ice:selectBooleanCheckbox>
+				</ace:column>
+				<ace:column style="text-align:middle;padding:5px" rowspan="#{item.remarks.size()}" rendered="#{rowKey eq 0}">
+					<ice:outputText value="#{item.chargeAmount}"
+						rendered="#{item.chargeAmount != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ace:column>
+				<ace:column style="text-align:middle;padding:5px" rowspan="#{item.remarks.size()}" rendered="#{rowKey eq 0}">
+					<ice:outputText value="#{item.transportCharge}"
+						rendered="#{item.transportCharge != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ace:column>
+				<ace:column style="text-align:middle;padding:5px" rowspan="#{item.remarks.size()}" rendered="#{rowKey eq 0}">
+					<ice:outputText value="#{item.paidAmount}"
+						rendered="#{item.paidAmount != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ace:column>
+			</ace:dataTable>-->
+			<ice:dataTable scrollable="true" scrollHeight="400px"
+				rendered="#{not empty(invoiceManagerModel.invoice.tmpItems)}"
+				value="#{invoiceManagerModel.invoice.tmpItems}" var="item"
+				id="tableInvoiceItems"
+				columnWidths="100px,550px,30px,90px,90px,90px" cellpadding="0" cellspacing="2">
+
+				<ice:column id="columnTransactionDate" style="text-align:left"
+					groupOn="#{item.eventDate}" >
+					<f:facet name="header" >
+						<ice:outputText value="Event Date"/>
+					</f:facet>
+					<ice:outputText value="#{item.eventDate}" converter="dateConverter"/>
+				</ice:column>
+
+				<ice:column  >
+					<f:facet name="header">
+						<ice:outputText value="Program(s)" />
+					</f:facet>
+					<ice:column id="columnProgram" >
+						<ice:outputText value="#{item.groups}" 
+							height="100px"  rendered="#{item.groups != null}"/>
+						<ice:outputText value="#{item.groupname}"
+							 rendered="#{item.groupname!= null}"
+							height="100px" />
+					</ice:column>
+				</ice:column>	
+				<ice:column >
+					<f:facet name="header">
+						<ice:outputText value="Attended" />
+					</f:facet>
+					<ice:column id="columnAttended" >
+
+						<ice:selectBooleanCheckbox id="booleanAttended1"
+							value="#{item.attended}" partialSubmit="true"
+							rendered="#{item.groups != null}" style="text-align:center" disabled="true">
+						</ice:selectBooleanCheckbox>
+					</ice:column>
+					<ice:column id="columnAttended1" >
+						<ice:selectBooleanCheckbox id="booleanAttended2"
+							value="#{item.attended}" partialSubmit="true"
+							rendered="#{item.groupname != null}" style="text-align:center" disabled="true">
+						</ice:selectBooleanCheckbox>
+					</ice:column>
+				</ice:column>
+
+				<ice:column id="columnCharge" style="text-align:center"
+					>
+					<f:facet name="header">
+						<ice:outputText value=" Program Charges" />
+					</f:facet>
+					<ice:outputText value="#{item.chargeAmount}"
+						rendered="#{item.chargeAmount != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ice:column>
+
+				<ice:column id="columnTPayments" style="text-align:center"
+					>
+					<f:facet name="header">
+						<ice:outputText value="Transport Charges" />
+					</f:facet>
+					<ice:outputText value="#{item.transportCharge}"
+						rendered="#{item.transportCharge != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ice:column>
+				<ice:column id="columnPayment" style="text-align:center"
+					>
+					<f:facet name="header">
+						<ice:outputText value="Payments Received" />
+					</f:facet>
+					<ice:outputText value="#{item.paidAmount}"
+						rendered="#{item.paidAmount != 0}" style="text-align:center">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ice:column>
+			</ice:dataTable>
+
+			<ice:panelGroup
+				style="text-align:center;margin-top:10px;padding-top:30px"
+				rendered="#{not empty(invoiceManagerModel.invoice.additionalInvoiceItems)}">
+				<ice:outputLabel value="Other Transactions"
+					style="text-decoration:underline" />
+			</ice:panelGroup>
+			<ice:dataTable scrollable="true" scrollHeight="180px"
+				rendered="#{not empty(invoiceManagerModel.invoice.additionalInvoiceItems)}"
+				value="#{invoiceManagerModel.invoice.additionalInvoiceItems}"
+				var="item" id="tableAdditionalInvoiceItems"
+				columnWidths="100px,548px,90px,90px,100px">
+				<ice:column style="text-align:center">
+					<f:facet name="header">
+						<ice:outputText value="Transaction Date" />
+					</f:facet>
+					<ice:outputText value="#{item.transactionDate}"
+						converter="dateConverter">
+					</ice:outputText>
+				</ice:column>
+				<ice:column>
+					<f:facet name="header">
+						<ice:outputText value="Type/Remarks" />
+					</f:facet>
+					<ice:outputText value="#{item.remarks}" />
+
+				</ice:column>
+				<ice:column style="text-align:right">
+					<f:facet name="header">
+						<ice:outputText value="Charges" />
+					</f:facet>
+					<ice:outputText value="#{item.chargeAmount}"
+						rendered="#{item.chargeAmount != 0}">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ice:column>
+				<ice:column style="text-align:right">
+					<f:facet name="header">
+						<ice:outputText value="Payments" />
+					</f:facet>
+					<ice:outputText value="#{item.paidAmount}"
+						rendered="#{item.paidAmount != 0}">
+						<f:convertNumber type="currency" currencySymbol="$" />
+					</ice:outputText>
+				</ice:column>
+				<ice:column style="text-align:center">
+					<f:facet name="header">
+						<ice:outputText value="Payment Method" />
+					</f:facet>
+					<ice:outputText value="#{item.paymentMethod}">
+					</ice:outputText>
+				</ice:column>
+			</ice:dataTable>
+
+
+			<ice:panelGroup style="float:right">
+				<ice:panelGrid columns="3" rowClasses="topAlignedTableCell">
+					<ice:outputLabel value="Carried Forward Balance" />
+					<ice:outputLabel value="" />
+					<ice:inputText
+						value="#{invoiceManagerModel.invoice.previousOutstanding}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+
+					<ice:outputLabel value="Total Charges" />
+					<ice:outputLabel value="" />
+					<ice:inputText value="#{invoiceManagerModel.invoice.totalCharge}"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+
+					<ice:outputText
+						value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transport" />
+					<ice:inputText
+						value="#{invoiceManagerModel.invoice.transportCharge}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputText
+						value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Programs" />
+					<ice:inputText
+						value="#{invoiceManagerModel.invoice.totalCharge-invoiceManagerModel.invoice.transportCharge-invoiceManagerModel.invoice.otherCharge}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Others" />
+					<ice:inputText value="#{invoiceManagerModel.invoice.otherCharge}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputText
+						value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GST Included" />
+					<ice:inputText value="#{invoiceManagerModel.invoice.tax}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputLabel value="Total Payments" />
+					<ice:outputLabel value="" />
+
+					<ice:inputText
+						value="#{invoiceManagerModel.invoice.currentPayments + invoiceManagerModel.invoice.previousPayments}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+
+					<ice:outputText
+						value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cash/Cheque" />
+					<ice:inputText
+						value="#{(invoiceManagerModel.invoice.currentPayments + invoiceManagerModel.invoice.previousPayments) - invoiceManagerModel.invoice.eftCharge}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EFT" />
+					<ice:inputText value="#{invoiceManagerModel.invoice.eftCharge}"
+						readonly="true"
+						style="width:100px;border:none;text-align:right;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+					<ice:outputLabel value="" />
+
+					<ice:outputLabel value="Total Outstanding" />
+					<ice:outputLabel value="" />
+					<ice:inputText value="#{invoiceManagerModel.invoice.total}"
+						readonly="true"
+						style="width:100px;text-align:right;border-top:1px solid grey;border-right:none;border-left:none;border-bottom:4px double grey;margin-top:-3px">
+						<f:convertNumber currencySymbol="$" type="currency" />
+					</ice:inputText>
+				</ice:panelGrid>
+			</ice:panelGroup>
+		</ice:panelGrid>
+	</fieldset>
+</ice:panelGroup>
+</html>
+<!--  -->

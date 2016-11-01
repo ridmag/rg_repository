@@ -1,0 +1,105 @@
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:ConsentMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td>Sample</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:ConsentMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td>Sample2</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentSave</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/PSOWeb/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formMenu:menuBarTop:configMenuItem:ConsentMenuItem:out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentAdd</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=formConsent:inputConsentName</td>
+	<td>Sample3</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=formConsent:commandConsentSave</td>
+	<td></td>
+</tr>

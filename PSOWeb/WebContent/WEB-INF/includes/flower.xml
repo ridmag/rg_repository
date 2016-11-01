@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<garden size="2acr">
+<flower name="rose" number="60">
+<pettles color="red" number="40">
+</pettles>
+</flower>
+<flower name="orchid" number="60">
+<pettles color="white" number="15">
+</pettles>
+</flower>
+<flower name="jesmin" number="60">
+<pettles color="purple" number="40">
+</pettles>
+</flower>
+</garden>

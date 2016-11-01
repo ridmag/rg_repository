@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:itsa="http://www.itelasoft.com/faces/components">
+<composite:interface>
+	<composite:attribute name="style" default="" />
+	<composite:attribute name="fileName" default="file" />
+	<composite:attribute name="label" default="label" />
+	<composite:attribute name="printType" default="printType" />
+	<composite:attribute name="resource" required="true"
+		type="com.icesoft.faces.context.Resource" />
+	<composite:attribute name="commandType" default="link" />
+	<composite:attribute name="disabled" default="false" />
+</composite:interface>
+<composite:implementation>
+
+	<ice:panelGroup style="#{cc.attrs.style}">
+		<h:commandLink style="color:black" id="printLink"
+			rendered="#{cc.attrs.commandType == 'link'}"
+			actionListener="#{printModel.togglePrintPopup}">
+			<f:attribute name="target" value="#{cc.attrs.printType}" />
+			<ice:graphicImage url="/images/icons/printer_s.png"
+				style="border:none;margin-right:10px" />
+			<ice:outputText value="#{cc.attrs.label}"
+				styleClass="topAlignedTableCell" />
+
+		</h:commandLink>
+		<ice:commandButton id="printButton" style="#{cc.attrs.style}"
+			styleClass="CommandButton"
+			rendered="#{cc.attrs.commandType == 'button'}"
+			actionListener="#{printModel.togglePrintPopup}"
+			value="#{cc.attrs.label}" disabled="#{cc.attrs.disabled}">
+			<f:attribute name="target" value="#{cc.attrs.printType}" />
+		</ice:commandButton>
+
+		<!--<iframe name="frame1" width="600px" height="400px"/>
+		
+		-->
+
+		<ice:panelPopup modal="true" autoCentre="true" id="popupPrint"
+			rendered="#{printModel.printPopupVisible}">
+			<f:facet name="header">
+				<ice:panelGroup styleClass="popupHeaderWrapper">
+					<ice:outputText value="#{cc.attrs.fileName}"
+						styleClass="popupHeaderText" />
+					<ice:commandButton id="commandPopupPrintClose"
+						image="#{msgs['panelPopup.closeImage']}" immediate="true"
+						actionListener="#{printModel.togglePrintPopup}"
+						styleClass="popupHeaderImage" title="Close Popup" alt="Close">
+						<f:attribute name="confirmation" value="#{cc.attrs.printType}" />
+					</ice:commandButton>
+				</ice:panelGroup>
+			</f:facet>
+			<f:facet name="body">
+
+				<ice:panelGroup>
+					<!-- <ice:outputText value="hello"></ice:outputText>
+				<itsa:custom/> -->
+					<itsa:itelaoutput type="iframe" rendered="#{printModel.printPopupVisible}"
+						fileName="#{cc.attrs.fileName}" label="#{cc.attrs.label}"
+						shared="false" style="width:800px;height:500px" width="100%"
+						height="100%" resource="#{cc.attrs.resource}" attachment="false" />
+					<!--<ice:outputResource  target="frame1" fileName="#{cc.attrs.fileName}" resource="#{cc.attrs.resource}" label="#{cc.attrs.label}">
+				</ice:outputResource>
+					
+				-->
+					<!--<iframe name="frame1" width="600px" height="400px"/>
+				-->
+					<!--<itsc:outputIFrame type="iframe" rendered="true"
+						fileName="#{cc.attrs.fileName}" label="#{cc.attrs.label}"
+						shared="false" style="width:800px;height:500px" width="100%"
+						height="100%" resource="#{cc.attrs.resource}" attachment="false" />
+				-->
+
+				</ice:panelGroup>
+			</f:facet>
+		</ice:panelPopup>
+
+		<ice:panelPopup modal="false" autoCentre="true"
+			rendered="#{printModel.confirmationPopupVisible}">
+			<f:facet name="header">
+				<ice:panelGroup styleClass="popupHeaderWrapper">
+					<ice:outputLabel value="Confirmation" styleClass="popupHeaderText"
+						style="margin-left:10px" />
+				</ice:panelGroup>
+			</f:facet>
+			<f:facet name="body">
+				<ice:panelGroup
+					style="margin-top:20px;text-align:center;width:250px">
+					<ice:outputText value="Do you want to save printed date?" />
+					<center>
+						<ice:panelGrid columns="3" style="margin-top:10px;">
+							<ice:commandButton value="Yes" id="commandYes"
+								actionListener="#{printModel.savePrint}">
+								<f:attribute name="confirmation" value="#{cc.attrs.printType}" />
+							</ice:commandButton>
+							<ice:commandButton value="No" id="commandNo"
+								action="#{printModel.confirmationPopup}" />
+							<ice:commandButton value="Cancel" id="commandCancel"
+								actionListener="#{printModel.togglePrintPopup}" title="Cancel">
+							</ice:commandButton>
+						</ice:panelGrid>
+					</center>
+				</ice:panelGroup>
+			</f:facet>
+		</ice:panelPopup>
+	</ice:panelGroup>
+
+</composite:implementation>
+</html>

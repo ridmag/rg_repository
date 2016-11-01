@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icesoft.com/icefaces/component"
+	xmlns:ace="http://www.icefaces.org/icefaces/components"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+<composite:interface>
+	<composite:attribute name="type" default="button" />
+	<composite:attribute name="params" />
+	<composite:attribute name="reportName" required="true" />
+	<composite:attribute name="submitDisabled" default="false" />
+	<composite:attribute name="label" default="Generate Report" />
+	<composite:attribute name="status" default="success" />
+	<composite:attribute name="shown" default="true" />
+</composite:interface>
+
+<composite:implementation>
+	<ice:panelGroup>
+		<h:outputScript library="js" name="jquery.min.js" target="this" />
+
+		<h:inputHidden id="result" value="#{cc.attrs.params}" />
+		<h:inputHidden id="status" value="#{cc.attrs.status}" />
+		<ice:panelGroup style="#{cc.attrs.style}"
+			rendered="#{cc.attrs.shown and cc.attrs.type == 'button'}">
+			<ice:commandButton id="cmdBtnDisabled" value="#{cc.attrs.label}"
+				rendered="#{cc.attrs.submitDisabled}" disabled="true"
+				style="width:130px">
+			</ice:commandButton>
+			<h:commandButton id="cmdBtn#{cc.attrs.reportName}"
+				rendered="#{!cc.attrs.submitDisabled}" value="#{cc.attrs.label}"
+				disabled="false" style="width:130px" styleClass="CommandButton">
+				<f:ajax event="click" render="result status"
+					listener="#{reportManagerModel.generateReport(cc.attrs.reportName, cc.attrs.params)}"
+					onevent="#{cc.attrs.reportName}">
+				</f:ajax>
+			</h:commandButton>
+		</ice:panelGroup>
+		<ice:panelGroup style="#{cc.attrs.style}"
+			rendered="#{cc.attrs.shown and cc.attrs.type == 'link'}">
+			<ice:commandLink id="cmdLinkDisabled" value="#{cc.attrs.label}"
+				rendered="#{cc.attrs.submitDisabled}" disabled="true"
+				style="width:130px">
+			</ice:commandLink>
+			<h:commandLink id="cmdLink#{cc.attrs.reportName}"
+				rendered="#{!cc.attrs.submitDisabled}" value="#{cc.attrs.label}"
+				disabled="false" style="color:teal">
+				<f:ajax event="click" render="result status"
+					listener="#{reportManagerModel.generateReport(cc.attrs.reportName, cc.attrs.params)}"
+					onevent="#{cc.attrs.reportName}">
+				</f:ajax>
+			</h:commandLink>
+		</ice:panelGroup>
+
+		<h:outputScript>
+            function #{cc.attrs.reportName}(e) {      		
+	       		//alert(e.status);
+        		if(e.status == 'success'){
+        			if(document.getElementById('#{cc.clientId}:status').value == 'success'){  
+	            		window.open('ReportServlet?name=#{cc.attrs.reportName}&amp;params='+document.getElementById('#{cc.clientId}:result').value);
+	       			}else{
+	       				alert(document.getElementById('#{cc.clientId}:status').value);
+	       			}
+	            }
+	            //alert('helloz'+document.getElementById('#{cc.clientId}:result').value);
+            }
+        </h:outputScript>
+	</ice:panelGroup>
+</composite:implementation>
+</html>

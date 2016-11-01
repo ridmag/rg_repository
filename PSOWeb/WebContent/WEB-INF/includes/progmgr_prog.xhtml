@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:ice="http://www.icefaces.org/icefaces/component">
+	<ice:outputLabel value="Please Select a program to view details."
+		rendered="#{programManagerModel.program == null}" />
+	<ice:panelGroup style="width:700px"
+		rendered="#{programManagerModel.program != null}">
+		<ice:outputLabel value="Program Details" />
+		<ice:panelGrid columns="4" style="margin-top:10px" cellpadding="2"
+			width="100%">
+			<ice:outputText value="Program Name" />
+			<ice:inputText id="inputProgramName"
+				maxlength="#{msgs['program.name.size']}"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.program.name}" />
+			<ice:outputText value="Program Type" />
+			<ice:selectOneMenu id="selectOneProgramType"
+				styleClass="SelectOneMenu" partialSubmit="true"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.selectedProTypeId}">
+				<f:selectItems value="#{programManagerModel.proTypeSelectItems}" />
+			</ice:selectOneMenu>
+			<ice:outputText value="Start Date" />
+			<ice:selectInputDate id="inputProgramStartDate"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.program.startDate}"
+				renderAsPopup="true" />
+			<ice:outputText value="Coordinator" />
+			<ice:selectOneMenu id="selectOneCoordinator"
+				styleClass="SelectOneMenu"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.selectedStaffId}">
+				<f:selectItems value="#{programManagerModel.staffMemberSelectItems}" />
+			</ice:selectOneMenu>
+			<ice:outputText value="End Date" />
+			<ice:selectInputDate id="inputProgramEndDate"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.program.endDate}" renderAsPopup="true" />
+			<ice:outputText value="Status" />
+			<ice:selectOneMenu id="selectOneProgramStatus"
+				styleClass="SelectOneMenu"
+				disabled="#{programManagerModel.program == null}"
+				value="#{programManagerModel.program.status}">
+				<f:selectItems value="#{lookupListProvider.proStatusSelectItems}" />
+			</ice:selectOneMenu>
+			<ice:outputText value="Charge Amount" />
+			<ice:inputText id="inputProgramAmount"
+				value="#{programManagerModel.program.chargeAmount}">
+				<!--<f:convertNumber integerOnly="true" currencySymbol="$"
+					type="currency" for="inputProgramAmount" />
+			--></ice:inputText>
+		</ice:panelGrid>
+		<ice:commandButton id="commandProgramSave" value="Save Program"
+			disabled="#{programManagerModel.program == null}"
+			style="float:right; margin-right:60px" styleClass="CommandButton"
+			action="#{programManagerModel.saveProgram}" />
+		<ice:commandButton id="commandProgramDelete" value="Delete Program"
+			style="float:right;" styleClass="CommandButton"
+			rendered="#{programManagerModel.program.id != null}"
+			action="#{programManagerModel.deleteProgram}" />
+	</ice:panelGroup>
+</ui:composition>
